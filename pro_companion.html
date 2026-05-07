@@ -951,15 +951,15 @@ function PROScreen({ tweaks, setTweak }) {
           justifyContent: 'center', padding: '0 16px',
         }}>
           <Tag
-            label={submitted ? '홈화면으로 가기' : '문진하기'}
+            label={submitted ? '🏠 홈화면으로 가기' : '🩺 문진하기'}
             dark={dark}
             dot={!submitted}
             onClick={() => submitted ? setSubmitted(false) : setActiveTag('문진')}
           />
-          <Tag label="리포트보기" dark={dark} onClick={() => setActiveTag('리포트')} />
-          <Tag label="오늘 체중 기록" dark={dark} onClick={() => setActiveTag('체중')} />
-          <Tag label="오늘의 식단 기록" dark={dark} onClick={() => setActiveTag('식단')} />
-          <Tag label="오늘의 운동 기록" dark={dark} onClick={() => setActiveTag('운동')} />
+          <Tag label="📊 리포트보기" dark={dark} onClick={() => setActiveTag('리포트')} />
+          <Tag label="⚖️ 오늘 체중 기록" dark={dark} onClick={() => setActiveTag('체중')} />
+          <Tag label="🥗 오늘의 식단 기록" dark={dark} onClick={() => setActiveTag('식단')} />
+          <Tag label="🏃 오늘의 운동 기록" dark={dark} onClick={() => setActiveTag('운동')} />
         </div>
       </div>
 
