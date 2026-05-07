@@ -32,19 +32,10 @@
 </head>
 <body>
 <iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe>
-<div id="error">
-  <h2>콘텐츠를 불러올 수 없습니다</h2>
-  <p>URL에 유효한 #hash 값이 없습니다.</p>
-</div>
 
 <script>
 (function () {
-  var hash = window.location.hash.slice(1);
-  if (!hash) {
-    document.getElementById('error').style.display = 'block';
-    document.getElementById('frame').style.display = 'none';
-    return;
-  }
+  var hash = window.location.hash.slice(1) || 'pro_companion';
   document.getElementById('frame').src = hash + '.html';
 })();
 </script>
