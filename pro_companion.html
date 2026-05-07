@@ -831,6 +831,8 @@ function Tag({ label, dark, onClick, dot = false }) {
   );
 }
 
+const SURVEY_CATEGORIES = ['통증 및 불편감', '소화 및 식이', '피로 및 수면', '기분 및 정서', '신경증상'];
+
 function PROScreen({ tweaks, setTweak }) {
   const [text, setText] = React.useState('');
   const [recording, setRecording] = React.useState(false);
@@ -838,6 +840,9 @@ function PROScreen({ tweaks, setTweak }) {
   const [submitted, setSubmitted] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [elderMode, setElderMode] = React.useState(false);
+  const [surveyStep, setSurveyStep] = React.useState(0);
+
+  const closeSheet = () => { setActiveTag(null); setSurveyStep(0); };
 
   React.useEffect(() => {
     if (!recording) return;
@@ -1155,7 +1160,7 @@ function PROScreen({ tweaks, setTweak }) {
       {/* Bottom sheet */}
       {activeTag && (
         <div
-          onClick={() => setActiveTag(null)}
+          onClick={closeSheet}
           style={{
             position: 'absolute', inset: 0, zIndex: 100,
             background: 'rgba(0,0,0,0.35)',
@@ -1168,46 +1173,120 @@ function PROScreen({ tweaks, setTweak }) {
             padding: '20px 24px 32px',
             animation: 'sheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
           }}>
+            {/* drag handle */}
             <div style={{
               width: 40, height: 4, borderRadius: 2,
               background: dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.12)',
               margin: '0 auto 18px',
             }} />
-            <div style={{
-              fontFamily: 'Poppins', fontWeight: 200, fontSize: 11,
-              letterSpacing: '0.22em', textTransform: 'uppercase',
-              color: activeTag === '문진' ? C.purple : C.red, marginBottom: 8,
-            }}>{activeTag === '문진' ? 'DAILY CHECK-IN' : 'WEEKLY REPORT'}</div>
-            <div style={{
-              fontFamily: 'Pretendard', fontWeight: 900, fontSize: 22,
-              color: dark ? '#fff' : '#000', letterSpacing: '-0.02em',
-              marginBottom: 6,
-            }}>
-              {activeTag === '문진' ? '오늘의 문진을 시작할게요' : '이번 주 리포트를 보여드릴게요'}
-            </div>
-            <div style={{
-              fontFamily: 'Pretendard', fontWeight: 200, fontSize: 14,
-              color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
-              lineHeight: 1.55, marginBottom: 22,
-            }}>
-              {activeTag === '문진'
-                ? '심부전 관련 12개 항목 · 약 3분 소요. 음성 또는 텍스트로 답변하실 수 있어요.'
-                : '5월 첫째 주 증상 추이와 약물 복용 기록을 확인하세요.'}
-            </div>
-            <button
-              onClick={() => setActiveTag(null)}
-              style={{
-                width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
-                background: activeTag === '문진' ? C.purple : C.red,
-                color: '#fff', fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
-                letterSpacing: '-0.01em',
-                boxShadow: activeTag === '문진'
-                  ? '0 8px 22px rgba(125,80,240,0.35)'
-                  : '0 8px 22px rgba(238,63,96,0.35)',
-              }}
-            >
-              {activeTag === '문진' ? '문진 시작하기' : '리포트 열기'}
-            </button>
+
+            {activeTag === '문진' ? (
+              surveyStep < SURVEY_CATEGORIES.length ? (
+                <>
+                  {/* progress */}
+                  <div style={{
+                    display: 'flex', gap: 6, marginBottom: 24,
+                  }}>
+                    {SURVEY_CATEGORIES.map((_, i) => (
+                      <div key={i} style={{
+                        flex: 1, height: 3, borderRadius: 99,
+                        background: i <= surveyStep ? C.purple : (dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'),
+                        transition: 'background 0.3s',
+                      }} />
+                    ))}
+                  </div>
+
+                  {/* inline question */}
+                  <div style={{
+                    fontFamily: 'Pretendard', fontSize: 18, lineHeight: 1.5,
+                    color: dark ? '#fff' : '#000', marginBottom: 28,
+                  }}>
+                    <span style={{ fontWeight: 900, color: C.purple }}>
+                      [{SURVEY_CATEGORIES[surveyStep]}]
+                    </span>
+                    <span style={{ fontWeight: 400 }}>{' '}지난번보다 달라진 점이 있나요?</span>
+                  </div>
+
+                  {/* answer buttons */}
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button
+                      onClick={() => setSurveyStep(s => s + 1)}
+                      style={{
+                        flex: 1, height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
+                        background: `linear-gradient(135deg, ${C.red}, ${C.purple})`,
+                        color: '#fff', fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
+                        letterSpacing: '-0.01em',
+                        boxShadow: '0 8px 22px rgba(238,63,96,0.3)',
+                      }}
+                    >문제 있음</button>
+                    <button
+                      onClick={() => setSurveyStep(s => s + 1)}
+                      style={{
+                        flex: 1, height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
+                        background: C.purple,
+                        color: '#fff', fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
+                        letterSpacing: '-0.01em',
+                        boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
+                      }}
+                    >문제 없음</button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* completion */}
+                  <div style={{
+                    textAlign: 'center', padding: '12px 0 20px',
+                  }}>
+                    <div style={{ fontSize: 40, marginBottom: 14 }}>✅</div>
+                    <div style={{
+                      fontFamily: 'Pretendard', fontWeight: 900, fontSize: 20,
+                      color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
+                    }}>문진이 완료되었습니다</div>
+                    <div style={{
+                      fontFamily: 'Pretendard', fontWeight: 200, fontSize: 14,
+                      color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
+                    }}>오늘의 건강 기록이 저장되었습니다</div>
+                  </div>
+                  <button
+                    onClick={closeSheet}
+                    style={{
+                      width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
+                      background: C.purple, color: '#fff',
+                      fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
+                      letterSpacing: '-0.01em',
+                      boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
+                    }}
+                  >확인</button>
+                </>
+              )
+            ) : (
+              <>
+                <div style={{
+                  fontFamily: 'Poppins', fontWeight: 200, fontSize: 11,
+                  letterSpacing: '0.22em', textTransform: 'uppercase',
+                  color: C.red, marginBottom: 8,
+                }}>WEEKLY REPORT</div>
+                <div style={{
+                  fontFamily: 'Pretendard', fontWeight: 900, fontSize: 22,
+                  color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
+                }}>이번 주 리포트를 보여드릴게요</div>
+                <div style={{
+                  fontFamily: 'Pretendard', fontWeight: 200, fontSize: 14,
+                  color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
+                  lineHeight: 1.55, marginBottom: 22,
+                }}>5월 첫째 주 증상 추이와 약물 복용 기록을 확인하세요.</div>
+                <button
+                  onClick={closeSheet}
+                  style={{
+                    width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
+                    background: C.red, color: '#fff',
+                    fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
+                    letterSpacing: '-0.01em',
+                    boxShadow: '0 8px 22px rgba(238,63,96,0.35)',
+                  }}
+                >리포트 열기</button>
+              </>
+            )}
           </div>
         </div>
       )}
