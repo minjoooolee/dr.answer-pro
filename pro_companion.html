@@ -833,6 +833,18 @@ function Tag({ label, dark, onClick, dot = false }) {
 
 const SURVEY_CATEGORIES = ['통증 및 불편감', '소화 및 식이', '피로 및 수면', '기분 및 정서', '신경증상'];
 
+const PAIN_QUESTIONS = [
+  '배가 가장 심하게 아팠을 때 어느정도였습니까?',
+  '배 아픔이 일상생활에 어느정도 지장을 주었습니까?',
+  '관절이 가장 심하게 아팠을 때 어느정도였습니까?',
+  '관절이 아픈게 일상생활에 어느정도 지장을 주었습니까?',
+  '근육이 가장 심하게 아팠을 때 어느정도였습니까?',
+  '머리 아픈 게 가장 심했을 때 어느정도였습니까?',
+  '머리 아픈 게 일상 생활에 어느 정도 지장을 주었습니까?',
+];
+
+const PAIN_EMOJIS = ['😣', '😟', '😐', '🙂', '😊'];
+
 function PROScreen({ tweaks, setTweak }) {
   const [text, setText] = React.useState('');
   const [recording, setRecording] = React.useState(false);
@@ -841,8 +853,11 @@ function PROScreen({ tweaks, setTweak }) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [elderMode, setElderMode] = React.useState(false);
   const [surveyStep, setSurveyStep] = React.useState(0);
+  const [subStep, setSubStep] = React.useState(-1);
 
-  const closeSheet = () => { setActiveTag(null); setSurveyStep(0); };
+  const closeSheet = () => { setActiveTag(null); setSurveyStep(0); setSubStep(-1); };
+
+  const advanceSurvey = () => { setSurveyStep(s => s + 1); setSubStep(-1); };
 
   React.useEffect(() => {
     if (!recording) return;
@@ -1184,9 +1199,7 @@ function PROScreen({ tweaks, setTweak }) {
               surveyStep < SURVEY_CATEGORIES.length ? (
                 <>
                   {/* progress */}
-                  <div style={{
-                    display: 'flex', gap: 6, marginBottom: 24,
-                  }}>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 24 }}>
                     {SURVEY_CATEGORIES.map((_, i) => (
                       <div key={i} style={{
                         flex: 1, height: 3, borderRadius: 99,
@@ -1196,40 +1209,88 @@ function PROScreen({ tweaks, setTweak }) {
                     ))}
                   </div>
 
-                  {/* inline question */}
-                  <div style={{
-                    fontFamily: 'Pretendard', fontSize: 18, lineHeight: 1.5,
-                    color: dark ? '#fff' : '#000', marginBottom: 28,
-                  }}>
-                    <span style={{ fontWeight: 900, color: C.purple }}>
-                      [{SURVEY_CATEGORIES[surveyStep]}]
-                    </span>
-                    <span style={{ fontWeight: 400 }}>{' '}지난번보다 달라진 점이 있나요?</span>
-                  </div>
+                  {subStep === -1 ? (
+                    <>
+                      {/* inline category question */}
+                      <div style={{
+                        fontFamily: 'Pretendard', fontSize: 18, lineHeight: 1.5,
+                        color: dark ? '#fff' : '#000', marginBottom: 28,
+                      }}>
+                        <span style={{ fontWeight: 900, color: C.purple }}>
+                          [{SURVEY_CATEGORIES[surveyStep]}]
+                        </span>
+                        <span style={{ fontWeight: 400 }}>{' '}지난번보다 달라진 점이 있나요?</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button
+                          onClick={() => surveyStep === 0 ? setSubStep(0) : advanceSurvey()}
+                          style={{
+                            flex: 1, height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
+                            background: `linear-gradient(135deg, ${C.red}, ${C.purple})`,
+                            color: '#fff', fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
+                            letterSpacing: '-0.01em',
+                            boxShadow: '0 8px 22px rgba(238,63,96,0.3)',
+                          }}
+                        >문제 있음</button>
+                        <button
+                          onClick={advanceSurvey}
+                          style={{
+                            flex: 1, height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
+                            background: C.purple,
+                            color: '#fff', fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
+                            letterSpacing: '-0.01em',
+                            boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
+                          }}
+                        >문제 없음</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* sub-question counter */}
+                      <div style={{
+                        fontFamily: 'Poppins', fontWeight: 200, fontSize: 11,
+                        letterSpacing: '0.18em', textTransform: 'uppercase',
+                        color: C.purple, marginBottom: 12,
+                      }}>{subStep + 1} / {PAIN_QUESTIONS.length}</div>
 
-                  {/* answer buttons */}
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button
-                      onClick={() => setSurveyStep(s => s + 1)}
-                      style={{
-                        flex: 1, height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
-                        background: `linear-gradient(135deg, ${C.red}, ${C.purple})`,
-                        color: '#fff', fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
-                        letterSpacing: '-0.01em',
-                        boxShadow: '0 8px 22px rgba(238,63,96,0.3)',
-                      }}
-                    >문제 있음</button>
-                    <button
-                      onClick={() => setSurveyStep(s => s + 1)}
-                      style={{
-                        flex: 1, height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
-                        background: C.purple,
-                        color: '#fff', fontFamily: 'Pretendard', fontWeight: 900, fontSize: 15,
-                        letterSpacing: '-0.01em',
-                        boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
-                      }}
-                    >문제 없음</button>
-                  </div>
+                      {/* sub-question text */}
+                      <div style={{
+                        fontFamily: 'Pretendard', fontSize: 17, fontWeight: 400,
+                        lineHeight: 1.55, color: dark ? '#fff' : '#000',
+                        marginBottom: 32,
+                      }}>{PAIN_QUESTIONS[subStep]}</div>
+
+                      {/* emoji scale */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                        {PAIN_EMOJIS.map((emoji, i) => (
+                          <button
+                            key={i}
+                            onClick={() => subStep < PAIN_QUESTIONS.length - 1 ? setSubStep(s => s + 1) : advanceSurvey()}
+                            style={{
+                              flex: 1, border: 'none', cursor: 'pointer', borderRadius: 16,
+                              padding: '14px 0',
+                              background: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+                              fontSize: 28, lineHeight: 1,
+                              transition: 'transform 0.12s, background 0.12s',
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.18)'; e.currentTarget.style.background = dark ? 'rgba(125,80,240,0.2)' : 'rgba(125,80,240,0.1)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'; }}
+                          >{emoji}</button>
+                        ))}
+                      </div>
+
+                      {/* scale labels */}
+                      <div style={{
+                        display: 'flex', justifyContent: 'space-between',
+                        marginTop: 8,
+                        fontFamily: 'Pretendard', fontWeight: 200, fontSize: 11,
+                        color: dark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.35)',
+                      }}>
+                        <span>매우 심함</span>
+                        <span>전혀 없음</span>
+                      </div>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
