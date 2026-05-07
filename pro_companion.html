@@ -800,11 +800,11 @@ function MenuIcon({ color = '#000', size = 22 }) {
   );
 }
 
-function Tag({ label, dark, onClick }) {
+function Tag({ label, dark, onClick, dot = false }) {
   return (
     <button onClick={onClick} style={{
       border: 'none', cursor: 'pointer',
-      display: 'flex', alignItems: 'center',
+      display: 'flex', alignItems: 'center', gap: 6,
       padding: '12px 20px',
       borderRadius: 999,
       background: dark ? 'rgba(255,255,255,0.06)' : '#fff',
@@ -816,6 +816,13 @@ function Tag({ label, dark, onClick }) {
         : '0 4px 14px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04)',
       fontFamily: 'Pretendard, system-ui',
     }}>
+      {dot && (
+        <span style={{
+          width: 7, height: 7, borderRadius: '50%',
+          background: '#ee3f60', flexShrink: 0,
+          boxShadow: '0 0 6px rgba(238,63,96,0.6)',
+        }} />
+      )}
       <span style={{
         fontFamily: 'Pretendard', fontWeight: 900, fontSize: 14,
         color: dark ? '#fff' : '#000', letterSpacing: '-0.01em',
@@ -939,13 +946,20 @@ function PROScreen({ tweaks, setTweak }) {
         </div>
 
         {/* Tags */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 28,
+          justifyContent: 'center', padding: '0 16px',
+        }}>
           <Tag
             label={submitted ? '홈화면으로 가기' : '문진하기'}
             dark={dark}
+            dot={!submitted}
             onClick={() => submitted ? setSubmitted(false) : setActiveTag('문진')}
           />
           <Tag label="리포트보기" dark={dark} onClick={() => setActiveTag('리포트')} />
+          <Tag label="오늘 체중 기록" dark={dark} onClick={() => setActiveTag('체중')} />
+          <Tag label="오늘의 식단 기록" dark={dark} onClick={() => setActiveTag('식단')} />
+          <Tag label="오늘의 운동 기록" dark={dark} onClick={() => setActiveTag('운동')} />
         </div>
       </div>
 
