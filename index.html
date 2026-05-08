@@ -967,6 +967,45 @@ function NutritionCard({ dark, accent = '#41d2b4' }) {
   );
 }
 
+const EXERCISE_ITEMS = [
+  { emoji:'🚴', name:'실내 자전거', duration:30, kcal:240 },
+  { emoji:'🏃', name:'런닝머신',    duration:40, kcal:380 },
+  { emoji:'🚶', name:'산책',        duration:10, kcal:35 },
+];
+const EXERCISE_TOTAL = { duration:80, kcal:655 };
+
+function ExerciseCard({ dark, accent = '#ee3f60' }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+      <div style={{ padding:'14px 16px', borderRadius:14, background: dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.03)', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+        <div style={{ display:'flex', gap:10 }}>
+          <div style={{ flex:1, textAlign:'center', padding:'10px 0', borderRadius:10, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize:18, marginBottom:4 }}>⏱️</div>
+            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color:accent, letterSpacing:'-0.02em' }}>{EXERCISE_TOTAL.duration}분</div>
+            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', marginTop:2 }}>총 운동 시간</div>
+          </div>
+          <div style={{ flex:1, textAlign:'center', padding:'10px 0', borderRadius:10, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize:18, marginBottom:4 }}>🔥</div>
+            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color:accent, letterSpacing:'-0.02em' }}>{EXERCISE_TOTAL.kcal}</div>
+            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', marginTop:2 }}>예상 소모 칼로리 (kcal)</div>
+          </div>
+        </div>
+      </div>
+      <div style={{ padding:'10px 14px', borderRadius:14, background: dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.02)', border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'}`, display:'flex', flexDirection:'column', gap:8 }}>
+        {EXERCISE_ITEMS.map(item => (
+          <div key={item.name} style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span style={{ fontSize:18 }}>{item.emoji}</span>
+              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.75)' }}>{item.name} {item.duration}분</span>
+            </div>
+            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color:accent }}>{item.kcal} kcal</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PROScreen({ tweaks, setTweak }) {
   const [text, setText] = React.useState('');
   const [recording, setRecording] = React.useState(false);
@@ -984,11 +1023,17 @@ function PROScreen({ tweaks, setTweak }) {
   const [dietAnalyzed, setDietAnalyzed] = React.useState(false);
   const [dietPhoto, setDietPhoto] = React.useState(null);
   const [dietRecording, setDietRecording] = React.useState(false);
+  const [exerciseDone, setExerciseDone] = React.useState(null);
+  const [exerciseMode, setExerciseMode] = React.useState(null);
+  const [exerciseInput, setExerciseInput] = React.useState('');
+  const [exerciseAnalyzed, setExerciseAnalyzed] = React.useState(false);
+  const [exerciseRecording, setExerciseRecording] = React.useState(false);
 
   const closeSheet = () => {
     setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null);
     setTranscript(''); setTodayWeight('');
     setDietMode(null); setDietInput(''); setDietAnalyzed(false); setDietPhoto(null); setDietRecording(false);
+    setExerciseDone(null); setExerciseMode(null); setExerciseInput(''); setExerciseAnalyzed(false); setExerciseRecording(false);
   };
   const advanceSurvey = () => { setSurveyStep(s => s + 1); setSubStep(-1); };
 
@@ -1030,6 +1075,25 @@ function PROScreen({ tweaks, setTweak }) {
     }, 500);
     return () => { clearTimeout(timeoutId); if (intervalId) clearInterval(intervalId); };
   }, [dietRecording]);
+
+  const EXERCISE_VOICE_TEXT = '실내 자전거 30분 런닝머신 40분 산책 10분';
+  React.useEffect(() => {
+    if (!exerciseRecording) return;
+    setExerciseInput(''); setExerciseAnalyzed(false);
+    let i = 0, intervalId;
+    const timeoutId = setTimeout(() => {
+      intervalId = setInterval(() => {
+        i++;
+        setExerciseInput(EXERCISE_VOICE_TEXT.slice(0, i));
+        if (i >= EXERCISE_VOICE_TEXT.length) {
+          clearInterval(intervalId);
+          setExerciseRecording(false);
+          setTimeout(() => setExerciseAnalyzed(true), 600);
+        }
+      }, 80);
+    }, 500);
+    return () => { clearTimeout(timeoutId); if (intervalId) clearInterval(intervalId); };
+  }, [exerciseRecording]);
 
   React.useEffect(() => {
     if (!recording) return;
@@ -1357,8 +1421,8 @@ function PROScreen({ tweaks, setTweak }) {
           <div onClick={e => e.stopPropagation()} style={{
             width: '100%', background: dark ? '#0d1614' : '#fff',
             borderTopLeftRadius: 28, borderTopRightRadius: 28,
-            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) ? '20px 28px 40px' : '20px 24px 32px',
-            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) ? '82%' : 'auto',
+            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) ? '20px 28px 40px' : '20px 24px 32px',
+            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) ? '82%' : 'auto',
             display: 'flex', flexDirection: 'column',
             animation: 'sheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
           }}>
@@ -1810,6 +1874,114 @@ function PROScreen({ tweaks, setTweak }) {
                         <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)' }}>AI 분석 결과</div>
                         <NutritionCard dark={dark} accent={C.purple} />
                         <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.purple, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(125,80,240,0.35)' }}>등록하기</button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : activeTag === '운동' ? (
+              <>
+                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>EXERCISE LOG</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>오늘의 운동 기록</div>
+
+                {exerciseDone === null && (
+                  <>
+                    <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:15, lineHeight:1.55, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', marginBottom:24 }}>
+                      오늘 <span style={{ fontWeight:800, color:C.red }}>운동</span>을 하셨나요?
+                    </div>
+                    <div style={{ display:'flex', gap:10 }}>
+                      <button onClick={() => setExerciseDone(true)} style={{
+                        flex:1, height:54, borderRadius:16, cursor:'pointer',
+                        background: dark?'rgba(255,255,255,0.06)':'#fff',
+                        border:`1.5px solid ${dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.12)'}`,
+                        fontFamily:'Pretendard', fontWeight:600, fontSize:15,
+                        color: dark?'#fff':'#000', letterSpacing:'-0.01em',
+                        boxShadow:'0 2px 8px rgba(0,0,0,0.06)',
+                      }}>운동 했음</button>
+                      <button onClick={() => { setExerciseDone(false); setTimeout(closeSheet, 600); }} style={{
+                        flex:1, height:54, borderRadius:16, cursor:'pointer',
+                        background: dark?'rgba(255,255,255,0.06)':'#fff',
+                        border:`1.5px solid ${dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.12)'}`,
+                        fontFamily:'Pretendard', fontWeight:600, fontSize:15,
+                        color: dark?'#fff':'#000', letterSpacing:'-0.01em',
+                        boxShadow:'0 2px 8px rgba(0,0,0,0.06)',
+                      }}>운동 안 했음</button>
+                    </div>
+                  </>
+                )}
+
+                {exerciseDone === false && (
+                  <div style={{ textAlign:'center', padding:'16px 0' }}>
+                    <div style={{ fontSize:34, marginBottom:10 }}>💤</div>
+                    <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:15, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)' }}>휴식도 회복의 일부예요</div>
+                  </div>
+                )}
+
+                {exerciseDone === true && exerciseMode === null && (
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {[
+                      { icon:'⌨️', label:'텍스트로 간단 입력하기', sub:'AI가 입력한 운동의 칼로리를 계산해요', mode:'text', color:C.purple },
+                      { icon:'🎙️', label:'음성으로 간단 입력하기', sub:'말로 편하게 입력할 수 있어요', mode:'voice', color:C.red },
+                    ].map(({ icon, label, sub, mode, color }) => (
+                      <button key={mode} onClick={() => setExerciseMode(mode)} style={{
+                        width:'100%', border:'none', cursor:'pointer', borderRadius:18,
+                        padding:'18px 22px', textAlign:'left',
+                        background: dark?'rgba(255,255,255,0.05)':'#fafafa',
+                        borderWidth:1, borderStyle:'solid',
+                        borderColor: dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)',
+                        display:'flex', alignItems:'center', gap:16,
+                        boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
+                      }}>
+                        <span style={{ fontSize:30 }}>{icon}</span>
+                        <div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color, letterSpacing:'-0.01em', marginBottom:2 }}>{label}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>{sub}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {exerciseDone === true && (exerciseMode === 'text' || exerciseMode === 'voice') && (
+                  <div style={{ flex:1, display:'flex', flexDirection:'column', gap:14 }}>
+                    <div style={{ padding:'12px 14px', borderRadius:12, background: dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)', fontFamily:'Pretendard', fontWeight:400, fontSize:12, lineHeight:1.7, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>
+                      간편한 AI 한 줄 입력 모드입니다. 칼로리 계산을 위한 운동을 한 번에 입력해주시면 AI가 칼로리를 자동으로 계산합니다
+                    </div>
+
+                    <div style={{ position:'relative', minHeight:56, borderRadius:16, padding:'14px 16px', background: dark?'rgba(255,255,255,0.06)':'#fff', border:`1.5px solid ${exerciseInput ? C.red : (dark?'rgba(255,255,255,0.14)':'rgba(0,0,0,0.1)')}`, transition:'border-color 0.15s' }}>
+                      {!exerciseInput && (
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:14, color: dark?'rgba(255,255,255,0.22)':'rgba(0,0,0,0.22)', lineHeight:1.6, pointerEvents:'none', position:'absolute', top:14, left:16, right:16 }}>
+                          예: 실내 자전거 30분, 런닝머신 40분, 산책 10분
+                        </div>
+                      )}
+                      {exerciseMode === 'text' ? (
+                        <textarea value={exerciseInput} onChange={e => { setExerciseInput(e.target.value); setExerciseAnalyzed(false); }}
+                          rows={2}
+                          style={{ width:'100%', border:'none', outline:'none', background:'transparent', resize:'none', fontFamily:'Pretendard', fontWeight: exerciseInput?600:400, fontSize:14, lineHeight:1.6, color: dark?'#fff':'#000' }} />
+                      ) : (
+                        <div style={{ fontFamily:'Pretendard', fontWeight: exerciseInput?600:400, fontSize:14, lineHeight:1.6, color: dark?'#fff':'#000', minHeight:40 }}>
+                          {exerciseInput}
+                          {exerciseRecording && <span style={{ display:'inline-block', width:2, height:14, background:C.red, marginLeft:3, verticalAlign:'middle', opacity:0.7, animation:'aiBlink 1s infinite' }} />}
+                        </div>
+                      )}
+                    </div>
+
+                    {exerciseMode === 'voice' && !exerciseRecording && !exerciseInput && (
+                      <button onClick={() => setExerciseRecording(true)} style={{ alignSelf:'center', width:64, height:64, borderRadius:'50%', border:'none', cursor:'pointer', background:`linear-gradient(135deg,${C.red},${C.purple})`, fontSize:28, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 6px 20px rgba(238,63,96,0.4)` }}>🎙️</button>
+                    )}
+                    {exerciseMode === 'voice' && exerciseRecording && (
+                      <div style={{ textAlign:'center', fontFamily:'Pretendard', fontWeight:400, fontSize:13, color:C.red }}>듣는 중…</div>
+                    )}
+
+                    {exerciseInput && !exerciseAnalyzed && (
+                      <button onClick={() => setExerciseAnalyzed(true)} style={{ width:'100%', height:48, borderRadius:14, border:'none', cursor:'pointer', background:C.red, color:'#fff', fontFamily:'Pretendard', fontWeight:700, fontSize:14, letterSpacing:'-0.01em', boxShadow:'0 6px 18px rgba(238,63,96,0.3)' }}>🔍 분석하기</button>
+                    )}
+
+                    {exerciseAnalyzed && (
+                      <>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)' }}>AI 분석 결과</div>
+                        <ExerciseCard dark={dark} accent={C.red} />
+                        <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.red, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(238,63,96,0.35)' }}>등록하기</button>
                       </>
                     )}
                   </div>
