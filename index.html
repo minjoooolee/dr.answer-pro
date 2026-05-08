@@ -1041,7 +1041,24 @@ const MEDICAL_SCORES = [
   { label:'기분 및 정서',   score:3.9, trend:'↓ 개선', color:'#41d2b4' },
   { label:'신경증상',        score:4.1, trend:'→ 유지', color:'#41d2b4' },
 ];
-const MEDICAL_LLM = '5월 전반적으로 통증·기분 지표가 개선 추세를 보였습니다. 5월 9일 복합 이상 반응(통증 1점·피로 1점·신경증상 이상)이 단기적으로 나타났으며 치료 반응을 모니터링할 필요가 있습니다. 소화 관련 수치는 3.6으로 안정적이나 간헐적 소화 불량이 반복되고 있어 식이 상담을 권장합니다. 피로·수면 지표가 3.1로 상대적으로 낮으므로 생활 패턴 점검이 필요합니다.';
+const MEDICAL_LLM_SECTIONS = [
+  {
+    title: '전반적 추세',
+    body: '통증·기분 지표가 5월 들어 뚜렷한 개선 추세를 보입니다. 환자 주관적 컨디션도 안정적으로 회복 중입니다.',
+  },
+  {
+    title: '특이점',
+    body: '5월 9일 복합 이상 반응(통증 1점·피로 1점·신경증상 이상)이 단기적으로 나타났습니다. 치료 반응 모니터링이 필요합니다.',
+  },
+  {
+    title: '소화 지표',
+    body: '월 평균 3.6으로 안정 범위이나 간헐적 소화 불량이 3회 반복되었습니다. 식이 상담을 권장합니다.',
+  },
+  {
+    title: '피로·수면',
+    body: '월 평균 3.1로 다른 항목 대비 상대적으로 낮습니다. 수면 위생 점검과 생활 패턴 조정이 필요합니다.',
+  },
+];
 
 // ── Medical records mock data ────────────────────────────────────
 const CONSULTATIONS = [
@@ -2658,8 +2675,13 @@ function PROScreen({ tweaks, setTweak }) {
 
                     {/* LLM 문진 요약 */}
                     <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>AI 문진 분석 요약</div>
-                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:22, background: dark?'rgba(238,63,96,0.1)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.14)'}` }}>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', lineHeight:1.7 }}>{MEDICAL_LLM}</div>
+                    <div style={{ borderRadius:16, padding:'4px 16px', marginBottom:22, background: dark?'rgba(238,63,96,0.1)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.14)'}` }}>
+                      {MEDICAL_LLM_SECTIONS.map((sec, i) => (
+                        <div key={i} style={{ padding:'12px 0', borderBottom: i < MEDICAL_LLM_SECTIONS.length-1 ? `1px solid ${dark?'rgba(238,63,96,0.18)':'rgba(238,63,96,0.12)'}` : 'none' }}>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:C.red, marginBottom:5, letterSpacing:'-0.01em' }}>{sec.title}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.78)':'rgba(0,0,0,0.7)', lineHeight:1.6 }}>{sec.body}</div>
+                        </div>
+                      ))}
                     </div>
 
                     {/* Weight monthly summary */}
