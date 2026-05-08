@@ -974,6 +974,75 @@ const EXERCISE_ITEMS = [
 ];
 const EXERCISE_TOTAL = { duration:80, kcal:655 };
 
+// ── Report mock data ─────────────────────────────────────────────
+const REPORT_MONTH = '2026년 5월';
+const REPORT_SURVEY_DIARY = [
+  { date:'5/1',  entries:['통증 없음','소화 양호','피로 보통','기분 좋음','신경 이상 없음'] },
+  { date:'5/2',  entries:['통증 약간','소화 양호','피로 없음','기분 좋음','신경 이상 없음'] },
+  { date:'5/5',  entries:['통증 없음','소화 불량','피로 약간','기분 보통','신경 이상 없음'] },
+  { date:'5/7',  entries:['통증 없음','소화 양호','피로 없음','기분 좋음','신경 이상 없음'] },
+  { date:'5/9',  entries:['통증 심함','소화 양호','피로 심함','기분 나쁨','손발 저림'] },
+  { date:'5/12', entries:['통증 약간','소화 양호','피로 보통','기분 보통','신경 이상 없음'] },
+  { date:'5/14', entries:['통증 없음','소화 양호','피로 없음','기분 좋음','신경 이상 없음'] },
+  { date:'5/16', entries:['통증 없음','소화 불량','피로 약간','기분 좋음','신경 이상 없음'] },
+  { date:'5/19', entries:['통증 없음','소화 양호','피로 없음','기분 매우 좋음','신경 이상 없음'] },
+  { date:'5/21', entries:['통증 약간','소화 양호','피로 보통','기분 보통','신경 이상 없음'] },
+  { date:'5/23', entries:['통증 없음','소화 양호','피로 없음','기분 좋음','신경 이상 없음'] },
+  { date:'5/26', entries:['통증 없음','소화 양호','피로 없음','기분 좋음','신경 이상 없음'] },
+  { date:'5/28', entries:['통증 없음','소화 불량','피로 약간','기분 보통','신경 이상 없음'] },
+];
+const REPORT_WEIGHT_DIARY = [
+  { date:'5/1',  value:68.9 }, { date:'5/3',  value:68.7 }, { date:'5/5',  value:68.5 },
+  { date:'5/7',  value:68.6 }, { date:'5/9',  value:68.3 }, { date:'5/12', value:68.2 },
+  { date:'5/14', value:68.0 }, { date:'5/16', value:67.8 }, { date:'5/19', value:67.9 },
+  { date:'5/21', value:67.6 }, { date:'5/23', value:67.5 }, { date:'5/26', value:67.3 },
+  { date:'5/28', value:67.1 },
+];
+const REPORT_DIET_DIARY = [
+  { date:'5/1',  summary:'닭가슴살·현미밥·채소', kcal:480 },
+  { date:'5/2',  summary:'연어 샐러드·그릭요거트', kcal:410 },
+  { date:'5/5',  summary:'단백질 쉐이크·계란·아보카도', kcal:530 },
+  { date:'5/7',  summary:'닭가슴살·두부 볶음·채소', kcal:460 },
+  { date:'5/9',  summary:'삼겹살·쌈채소·된장찌개', kcal:720 },
+  { date:'5/12', summary:'닭가슴살·현미밥·브로콜리', kcal:471 },
+  { date:'5/14', summary:'연어 스테이크·샐러드', kcal:490 },
+  { date:'5/16', summary:'닭가슴살·고구마·계란', kcal:445 },
+  { date:'5/19', summary:'단백질 쉐이크·오트밀·블루베리', kcal:390 },
+  { date:'5/21', summary:'닭가슴살·현미밥·채소 수프', kcal:455 },
+  { date:'5/23', summary:'그릭요거트·과일·견과류', kcal:380 },
+  { date:'5/26', summary:'닭가슴살·두부·시금치', kcal:430 },
+  { date:'5/28', summary:'연어·현미밥·브로콜리', kcal:470 },
+];
+const REPORT_EXERCISE_DIARY = [
+  { date:'5/1',  done:true,  summary:'실내 자전거 30분·런닝머신 20분', kcal:420 },
+  { date:'5/2',  done:false, summary:'휴식', kcal:0 },
+  { date:'5/5',  done:true,  summary:'수영 45분', kcal:380 },
+  { date:'5/7',  done:true,  summary:'실내 자전거 30분·런닝머신 40분·산책 10분', kcal:655 },
+  { date:'5/9',  done:false, summary:'컨디션 불량', kcal:0 },
+  { date:'5/12', done:true,  summary:'런닝머신 30분·스쿼트 20분', kcal:350 },
+  { date:'5/14', done:true,  summary:'수영 50분·스트레칭 15분', kcal:420 },
+  { date:'5/16', done:true,  summary:'실내 자전거 40분', kcal:310 },
+  { date:'5/19', done:true,  summary:'런닝머신 30분·근력 운동 30분', kcal:480 },
+  { date:'5/21', done:true,  summary:'요가 60분', kcal:220 },
+  { date:'5/23', done:true,  summary:'실내 자전거 30분·런닝머신 30분', kcal:530 },
+  { date:'5/26', done:true,  summary:'수영 40분·스트레칭 20분', kcal:360 },
+  { date:'5/28', done:true,  summary:'런닝머신 30분·스쿼트·데드리프트', kcal:410 },
+];
+const REPORT_LLM_SUMMARY = {
+  '문진': '이번 달 통증은 전반적으로 감소 추세입니다. 5월 9일 일시적 통증·피로·신경 이상이 함께 나타났으나 이후 빠르게 회복되었습니다. 소화 불량이 3회 관찰되었으니 식이 패턴 점검을 권장합니다.',
+  '체중': '치료 시작 대비 총 3.4kg 감량하였습니다. 이번 달 평균 체중은 68.0kg으로 꾸준한 감소 추세이며, 주간 감량 속도는 0.4kg으로 건강 범위 내에 있습니다.',
+  '식단': '단백질 위주의 식단이 잘 유지되고 있습니다. 5월 9일 고칼로리 식사(720kcal)가 있었으나 전체적으로 일일 평균 469kcal로 목표 범위 내에 있습니다. 탄수화물 섭취 다양성 확보를 권장합니다.',
+  '운동': '이번 달 11일 운동 기록이 완료되었습니다(총 13회 기록 중). 유산소 운동 비중이 높으며 근력 운동 추가를 권장합니다. 컨디션 저하일에도 무리하지 않는 습관이 잘 형성되어 있습니다.',
+};
+const MEDICAL_SCORES = [
+  { label:'통증 및 불편감', score:2.8, trend:'↓ 개선', color:'#ee3f60' },
+  { label:'소화 및 식이',   score:3.6, trend:'→ 유지', color:'#f59e0b' },
+  { label:'피로 및 수면',   score:3.1, trend:'↑ 주의', color:'#7d50f0' },
+  { label:'기분 및 정서',   score:3.9, trend:'↓ 개선', color:'#41d2b4' },
+  { label:'신경증상',        score:4.1, trend:'→ 유지', color:'#41d2b4' },
+];
+const MEDICAL_LLM = '5월 전반적으로 통증·기분 지표가 개선 추세를 보였습니다. 5월 9일 복합 이상 반응(통증 1점·피로 1점·신경증상 이상)이 단기적으로 나타났으며 치료 반응을 모니터링할 필요가 있습니다. 소화 관련 수치는 3.6으로 안정적이나 간헐적 소화 불량이 반복되고 있어 식이 상담을 권장합니다. 피로·수면 지표가 3.1로 상대적으로 낮으므로 생활 패턴 점검이 필요합니다.';
+
 function ExerciseCard({ dark, accent = '#ee3f60' }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -1028,12 +1097,15 @@ function PROScreen({ tweaks, setTweak }) {
   const [exerciseInput, setExerciseInput] = React.useState('');
   const [exerciseAnalyzed, setExerciseAnalyzed] = React.useState(false);
   const [exerciseRecording, setExerciseRecording] = React.useState(false);
+  const [reportType, setReportType] = React.useState(null);
+  const [reportTab, setReportTab] = React.useState('문진');
 
   const closeSheet = () => {
     setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null);
     setTranscript(''); setTodayWeight('');
     setDietMode(null); setDietInput(''); setDietAnalyzed(false); setDietPhoto(null); setDietRecording(false);
     setExerciseDone(null); setExerciseMode(null); setExerciseInput(''); setExerciseAnalyzed(false); setExerciseRecording(false);
+    setReportType(null); setReportTab('문진');
   };
   const advanceSurvey = () => { setSurveyStep(s => s + 1); setSubStep(-1); };
 
@@ -1421,8 +1493,8 @@ function PROScreen({ tweaks, setTweak }) {
           <div onClick={e => e.stopPropagation()} style={{
             width: '100%', background: dark ? '#0d1614' : '#fff',
             borderTopLeftRadius: 28, borderTopRightRadius: 28,
-            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) ? '20px 28px 40px' : '20px 24px 32px',
-            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) ? '82%' : 'auto',
+            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) ? '20px 28px 40px' : '20px 24px 32px',
+            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) ? '88%' : 'auto',
             display: 'flex', flexDirection: 'column',
             animation: 'sheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
           }}>
@@ -2095,34 +2167,229 @@ function PROScreen({ tweaks, setTweak }) {
                   }}
                 >저장하기</button>
               </>
-            ) : (
+            ) : activeTag === '리포트' ? (
               <>
-                <div style={{
-                  fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
-                  letterSpacing: '0.22em', textTransform: 'uppercase',
-                  color: C.red, marginBottom: 8,
-                }}>WEEKLY REPORT</div>
-                <div style={{
-                  fontFamily: 'Pretendard', fontWeight: 800, fontSize: 22,
-                  color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
-                }}>이번 주 리포트를 보여드릴게요</div>
-                <div style={{
-                  fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
-                  color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
-                  lineHeight: 1.55, marginBottom: 22,
-                }}>5월 첫째 주 증상 추이와 약물 복용 기록을 확인하세요.</div>
-                <button
-                  onClick={closeSheet}
-                  style={{
-                    width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
-                    background: C.red, color: '#fff',
-                    fontFamily: 'Pretendard', fontWeight: 800, fontSize: 15,
-                    letterSpacing: '-0.01em',
-                    boxShadow: '0 8px 22px rgba(238,63,96,0.35)',
-                  }}
-                >리포트 열기</button>
+                {/* ── 리포트 선택 화면 ── */}
+                {!reportType && (
+                  <>
+                    <div style={{
+                      fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                      letterSpacing: '0.22em', textTransform: 'uppercase',
+                      color: C.purple, marginBottom: 8,
+                    }}>REPORT</div>
+                    <div style={{
+                      fontFamily: 'Pretendard', fontWeight: 800, fontSize: 22,
+                      color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
+                    }}>리포트 선택</div>
+                    <div style={{
+                      fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
+                      color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
+                      lineHeight: 1.55, marginBottom: 28,
+                    }}>어떤 리포트를 확인하시겠어요?</div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                      <button onClick={() => setReportType('personal')} style={{
+                        width:'100%', padding:'20px 22px', borderRadius:18, border:'none', cursor:'pointer',
+                        background: dark ? 'rgba(125,80,240,0.18)' : 'rgba(125,80,240,0.08)',
+                        textAlign:'left', position:'relative', overflow:'hidden',
+                      }}>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:17, color: C.purple, marginBottom:4 }}>📓 나의 건강 리포트</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>다이어리 형식으로 월간 문진·체중·식단·운동 기록과 AI 요약을 확인하세요.</div>
+                      </button>
+                      <button onClick={() => setReportType('medical')} style={{
+                        width:'100%', padding:'20px 22px', borderRadius:18, border:'none', cursor:'pointer',
+                        background: dark ? 'rgba(238,63,96,0.18)' : 'rgba(238,63,96,0.07)',
+                        textAlign:'left', position:'relative', overflow:'hidden',
+                      }}>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:17, color: C.red, marginBottom:4 }}>🏥 의료진용 리포트</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>수치화된 월간 평균 점수와 AI 분석 요약을 의료진과 공유하세요.</div>
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* ── 나의 건강 리포트 ── */}
+                {reportType === 'personal' && (
+                  <>
+                    {/* header row */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+                      <button onClick={() => setReportType(null)} style={{ background:'none', border:'none', cursor:'pointer', padding:'4px 0', display:'flex', alignItems:'center', gap:4 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke={dark?'#fff':'#000'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.5)' }}>뒤로</span>
+                      </button>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:14, color: dark?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.8)' }}>{REPORT_MONTH}</div>
+                      <div style={{ width:50 }} />
+                    </div>
+                    <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:20, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>📓 나의 건강 리포트</div>
+
+                    {/* tab bar */}
+                    <div style={{ display:'flex', gap:8, marginBottom:20, overflowX:'auto', paddingBottom:2 }}>
+                      {['문진','체중','식단','운동'].map(tab => (
+                        <button key={tab} onClick={() => setReportTab(tab)} style={{
+                          flexShrink:0, padding:'7px 16px', borderRadius:20,
+                          border: reportTab === tab ? 'none' : `1px solid ${dark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.12)'}`,
+                          background: reportTab === tab ? C.purple : 'transparent',
+                          color: reportTab === tab ? '#fff' : (dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.5)'),
+                          fontFamily:'Pretendard', fontWeight:600, fontSize:13,
+                          cursor:'pointer', transition:'all 0.15s',
+                        }}>{tab}</button>
+                      ))}
+                    </div>
+
+                    {/* LLM summary card */}
+                    <div style={{
+                      borderRadius:16, padding:'14px 16px', marginBottom:20,
+                      background: dark ? 'rgba(125,80,240,0.12)' : 'rgba(125,80,240,0.07)',
+                      border: `1px solid ${dark?'rgba(125,80,240,0.25)':'rgba(125,80,240,0.18)'}`,
+                    }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:C.purple, marginBottom:6, letterSpacing:'-0.01em' }}>✨ AI 월간 {reportTab} 요약</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', lineHeight:1.65 }}>{REPORT_LLM_SUMMARY[reportTab]}</div>
+                    </div>
+
+                    {/* diary entries */}
+                    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                      {reportTab === '문진' && REPORT_SURVEY_DIARY.map(day => (
+                        <div key={day.date} style={{ borderRadius:14, padding:'12px 14px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:C.purple, marginBottom:8 }}>{day.date}</div>
+                          <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                            {day.entries.map((e,i) => (
+                              <span key={i} style={{
+                                padding:'4px 10px', borderRadius:10, fontSize:11, fontFamily:'Pretendard', fontWeight:500,
+                                background: e.includes('없음')||e.includes('양호')||e.includes('좋음')||e.includes('매우') ? (dark?'rgba(65,210,180,0.15)':'rgba(65,210,180,0.12)') : e.includes('심함')||e.includes('나쁨')||e.includes('저림') ? (dark?'rgba(238,63,96,0.2)':'rgba(238,63,96,0.1)') : (dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'),
+                                color: e.includes('없음')||e.includes('양호')||e.includes('좋음')||e.includes('매우') ? C.main : e.includes('심함')||e.includes('나쁨')||e.includes('저림') ? C.red : (dark?'rgba(255,255,255,0.65)':'rgba(0,0,0,0.55)'),
+                              }}>{e}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                      {reportTab === '체중' && REPORT_WEIGHT_DIARY.map(day => (
+                        <div key={day.date} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', borderRadius:14, padding:'12px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.5)' }}>{day.date}</span>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:16, color: C.main, letterSpacing:'-0.02em' }}>{day.value} kg</span>
+                        </div>
+                      ))}
+                      {reportTab === '식단' && REPORT_DIET_DIARY.map(day => (
+                        <div key={day.date} style={{ borderRadius:14, padding:'12px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                          <div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:C.purple, marginBottom:4 }}>{day.date}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', maxWidth:200 }}>{day.summary}</div>
+                          </div>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:C.main, flexShrink:0 }}>{day.kcal} kcal</span>
+                        </div>
+                      ))}
+                      {reportTab === '운동' && REPORT_EXERCISE_DIARY.map(day => (
+                        <div key={day.date} style={{ borderRadius:14, padding:'12px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                          <div>
+                            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: day.done ? C.red : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)') }}>{day.date}</div>
+                              <span style={{ fontSize:10, padding:'2px 7px', borderRadius:8, fontFamily:'Pretendard', fontWeight:600, background: day.done ? (dark?'rgba(238,63,96,0.18)':'rgba(238,63,96,0.1)') : (dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)'), color: day.done ? C.red : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)') }}>{day.done ? '운동함' : '휴식'}</span>
+                            </div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', maxWidth:200 }}>{day.summary}</div>
+                          </div>
+                          {day.done && <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:C.red, flexShrink:0 }}>{day.kcal} kcal</span>}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ height:20 }} />
+                  </>
+                )}
+
+                {/* ── 의료진용 리포트 ── */}
+                {reportType === 'medical' && (
+                  <>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+                      <button onClick={() => setReportType(null)} style={{ background:'none', border:'none', cursor:'pointer', padding:'4px 0', display:'flex', alignItems:'center', gap:4 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke={dark?'#fff':'#000'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.5)' }}>뒤로</span>
+                      </button>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:14, color: dark?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.8)' }}>{REPORT_MONTH}</div>
+                      <div style={{ width:50 }} />
+                    </div>
+                    <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:20, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:6 }}>🏥 의료진용 리포트</div>
+                    <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.18em', textTransform:'uppercase', color:C.red, marginBottom:20 }}>CLINICAL REPORT — {REPORT_MONTH}</div>
+
+                    {/* Score section */}
+                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:12, letterSpacing:'-0.01em' }}>월간 증상 평균 점수 (1–5점)</div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+                      {MEDICAL_SCORES.map(item => (
+                        <div key={item.label} style={{ borderRadius:14, padding:'12px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
+                            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.75)' }}>{item.label}</span>
+                            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.trend}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:17, color:item.color, letterSpacing:'-0.02em' }}>{item.score}</span>
+                            </div>
+                          </div>
+                          {/* score bar */}
+                          <div style={{ height:6, borderRadius:3, background: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)', overflow:'hidden' }}>
+                            <div style={{ height:'100%', width:`${(item.score/5)*100}%`, borderRadius:3, background:`linear-gradient(90deg, ${item.color}99, ${item.color})`, transition:'width 0.5s' }} />
+                          </div>
+                          {/* 1-5 scale labels */}
+                          <div style={{ display:'flex', justifyContent:'space-between', marginTop:4 }}>
+                            {[1,2,3,4,5].map(n => (
+                              <span key={n} style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10, color: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)' }}>{n}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* LLM 문진 요약 */}
+                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>AI 문진 분석 요약</div>
+                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:22, background: dark?'rgba(238,63,96,0.1)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.14)'}` }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', lineHeight:1.7 }}>{MEDICAL_LLM}</div>
+                    </div>
+
+                    {/* Weight monthly summary */}
+                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>체중 월간 요약</div>
+                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:16, background: dark?'rgba(65,210,180,0.08)':'rgba(65,210,180,0.07)', border:`1px solid ${dark?'rgba(65,210,180,0.2)':'rgba(65,210,180,0.18)'}` }}>
+                      <div style={{ display:'flex', gap:0 }}>
+                        {[{label:'치료 전', val:'70.5 kg'},{label:'이번 달 평균', val:'68.0 kg'},{label:'총 감량', val:'−3.4 kg'}].map((item,i) => (
+                          <div key={i} style={{ flex:1, textAlign:'center', borderRight: i<2 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:C.main, letterSpacing:'-0.02em', marginBottom:3 }}>{item.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Diet monthly summary */}
+                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>식단 월간 요약</div>
+                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:16, background: dark?'rgba(125,80,240,0.08)':'rgba(125,80,240,0.06)', border:`1px solid ${dark?'rgba(125,80,240,0.2)':'rgba(125,80,240,0.14)'}` }}>
+                      <div style={{ display:'flex', gap:0 }}>
+                        {[{label:'일평균 칼로리', val:'469 kcal'},{label:'고칼로리 일수', val:'1일'},{label:'기록 완료', val:'13일'}].map((item,i) => (
+                          <div key={i} style={{ flex:1, textAlign:'center', borderRight: i<2 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:C.purple, letterSpacing:'-0.02em', marginBottom:3 }}>{item.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Exercise monthly summary */}
+                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>운동 월간 요약</div>
+                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:24, background: dark?'rgba(238,63,96,0.08)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.2)':'rgba(238,63,96,0.14)'}` }}>
+                      <div style={{ display:'flex', gap:0 }}>
+                        {[{label:'운동 완료', val:'11일'},{label:'총 소모 칼로리', val:'4,555 kcal'},{label:'평균 소모', val:'414 kcal'}].map((item,i) => (
+                          <div key={i} style={{ flex:1, textAlign:'center', borderRight: i<2 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:C.red, letterSpacing:'-0.02em', marginBottom:3 }}>{item.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button onClick={closeSheet} style={{
+                      width:'100%', height:54, borderRadius:16, border:'none', cursor:'pointer',
+                      background:C.red, color:'#fff',
+                      fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em',
+                      boxShadow:'0 8px 22px rgba(238,63,96,0.35)',
+                    }}>닫기</button>
+                    <div style={{ height:20 }} />
+                  </>
+                )}
               </>
-            )}
+            ) : null
+            }
           </div>
         </div>
       )}
