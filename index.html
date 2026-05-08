@@ -1333,9 +1333,18 @@ function PROScreen({ tweaks, setTweak }) {
                       <div style={{
                         position: 'absolute', bottom: 0, left: 0, right: 0,
                         textAlign: 'center', zIndex: 1,
-                        fontFamily: 'Pretendard', fontWeight: 400, fontSize: 12,
-                        color: dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)',
-                      }}>🎙️ 답변을 말씀해 주세요 · 탭하여 다음</div>
+                        display: 'flex', justifyContent: 'center',
+                      }}>
+                        <div style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          padding: '8px 18px', borderRadius: 999,
+                          background: dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                          fontFamily: 'Pretendard', fontWeight: 600, fontSize: 13,
+                          color: dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)',
+                        }}>
+                          🎙️ 답변 후 탭하여 다음으로
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
