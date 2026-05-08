@@ -1082,6 +1082,42 @@ const MEDICAL_TABLE_GROUPS = [
     { name:'수족증후군', star:true, type:'score5', values:[0,0,0,1,0,1,0,0,0] },
   ]},
 ];
+function renderTableCell(v, rowType, dark) {
+  var C_red = '#ee3f60';
+  if (v === null || v === undefined) {
+    return React.createElement('span', { style: { color: dark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.28)', fontSize: 12 } }, '-');
+  }
+  if (rowType === 'face') {
+    return React.createElement('span', { style: { fontSize: 16 } }, v);
+  }
+  if (v === '메모 있음' || rowType === 'memo') {
+    return React.createElement('span', { style: { fontFamily: 'Pretendard', fontWeight: 600, fontSize: 9.5, color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)', textAlign: 'center', lineHeight: 1.15, whiteSpace: 'pre-line' } }, '메모\n있음');
+  }
+  if (v === '기록됨') {
+    return React.createElement('span', { style: { fontFamily: 'Pretendard', fontWeight: 600, fontSize: 9.5, color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)' } }, '기록됨');
+  }
+  var n = typeof v === 'number' ? v : parseInt(v, 10);
+  if (isNaN(n)) {
+    return React.createElement('span', { style: { fontFamily: 'Pretendard', fontWeight: 600, fontSize: 12, color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' } }, String(v));
+  }
+  if (n === 0) {
+    return React.createElement('span', { style: { color: dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.22)', fontSize: 12 } }, '-');
+  }
+  var bg, fg;
+  if (n === 1) { bg = dark ? 'rgba(125,80,240,0.18)' : 'rgba(125,80,240,0.12)'; fg = '#7d50f0'; }
+  else if (n === 2) { bg = dark ? 'rgba(125,80,240,0.30)' : 'rgba(125,80,240,0.22)'; fg = '#5e35d8'; }
+  else if (n === 3) { bg = dark ? 'rgba(255,160,60,0.28)' : 'rgba(255,160,60,0.20)'; fg = '#e07a00'; }
+  else { bg = dark ? 'rgba(238,63,96,0.28)' : 'rgba(238,63,96,0.18)'; fg = C_red; }
+  return React.createElement('span', {
+    style: {
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      minWidth: 22, height: 22, padding: '0 6px', borderRadius: 6,
+      background: bg, color: fg,
+      fontFamily: 'Pretendard', fontWeight: 800, fontSize: 13, letterSpacing: '-0.01em',
+    }
+  }, String(n));
+}
+
 const MEDICAL_LLM_SECTIONS = [
   {
     title: '전반적 추세',
@@ -3358,35 +3394,11 @@ function PROScreen({ tweaks, setTweak }) {
                                 <div style={{ width:96, flexShrink:0, padding:'10px 10px', fontFamily:'Pretendard', fontWeight:600, fontSize:12, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', borderRight:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`, display:'flex', alignItems:'center', gap:4 }}>
                                   {r.name}{r.star ? <span style={{ color:C.red, fontSize:11 }}>★</span> : null}
                                 </div>
-                                {r.values.map((v, vi) => {
-                                  let inner = null;
-                                  if (v === null || v === undefined) {
-                                    inner = <span style={{ color:dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.28)', fontSize:12 }}>-</span>;
-                                  } else if (r.type === 'face') {
-                                    inner = <span style={{ fontSize:16 }}>{v}</span>;
-                                  } else if (v === '메모 있음' || r.type === 'memo') {
-                                    inner = <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', textAlign:'center', lineHeight:1.15 }}>메모<br/>있음</span>;
-                                  } else if (v === '기록됨') {
-                                    inner = <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>기록됨</span>;
-                                  } else {
-                                    const n = typeof v === 'number' ? v : parseInt(v);
-                                    let bg = null, fg = null;
-                                    if (!isNaN(n) && n > 0) {
-                                      if (n <= 1) { bg = dark?'rgba(125,80,240,0.18)':'rgba(125,80,240,0.12)'; fg = '#7d50f0'; }
-                                      else if (n === 2) { bg = dark?'rgba(125,80,240,0.30)':'rgba(125,80,240,0.20)'; fg = '#5e35d8'; }
-                                      else if (n === 3) { bg = dark?'rgba(255,160,60,0.22)':'rgba(255,160,60,0.18)'; fg = '#e07a00'; }
-                                      else { bg = dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.16)'; fg = C.red; }
-                                    }
-                                    inner = bg
-                                      ? <span style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', minWidth:22, height:22, padding:'0 6px', borderRadius:6, background:bg, color:fg, fontFamily:'Pretendard', fontWeight:800, fontSize:13, letterSpacing:'-0.01em' }}>{v}</span>
-                                      : <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>{v}</span>;
-                                  }
-                                  return (
-                                    <div key={vi} style={{ width:38, flexShrink:0, height:42, display:'flex', alignItems:'center', justifyContent:'center', borderRight: vi<r.values.length-1?`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`:'none' }}>
-                                      {inner}
-                                    </div>
-                                  );
-                                })}
+                                {r.values.map((v, vi) => (
+                                  <div key={vi} style={{ width:38, flexShrink:0, height:42, display:'flex', alignItems:'center', justifyContent:'center', borderRight: vi<r.values.length-1?`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`:'none' }}>
+                                    {renderTableCell(v, r.type, dark)}
+                                  </div>
+                                ))}
                               </div>
                             ))}
                           </div>
