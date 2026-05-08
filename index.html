@@ -3391,7 +3391,7 @@ function PROScreen({ tweaks, setTweak }) {
                             </div>
 
                             {MEDICAL_TABLE_GROUPS.map((g, gi) => (
-                              <React.Fragment key={gi}>
+                              <div key={gi}>
                                 {/* group header */}
                                 <div style={{ display:'flex', background:groupBg, borderBottom:`1px solid ${cellBorder}` }}>
                                   <div style={{ width:NAME_W + COL_W * MEDICAL_TABLE_DATES.length, padding:'6px 10px', fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:dark?'#fff':'#000', letterSpacing:'-0.01em' }}>
@@ -3411,7 +3411,7 @@ function PROScreen({ tweaks, setTweak }) {
                                     ))}
                                   </div>
                                 ))}
-                              </React.Fragment>
+                              </div>
                             ))}
                           </div>
                         </div>
