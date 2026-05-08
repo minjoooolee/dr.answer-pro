@@ -1449,7 +1449,7 @@ function PROScreen({ tweaks, setTweak }) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [leftNavOpen, setLeftNavOpen] = React.useState(false);
   const [welcomeAlert, setWelcomeAlert] = React.useState(true);
-  const [elderMode, setElderMode] = React.useState(false);
+  const [elderMode, setElderMode] = React.useState(true);
   const [surveyStep, setSurveyStep] = React.useState(0);
   const [subStep, setSubStep] = React.useState(-1);
   const [surveyMode, setSurveyMode] = React.useState(null);
@@ -1983,86 +1983,81 @@ function PROScreen({ tweaks, setTweak }) {
               }}>DR. ANSWER PRO</div>
             </div>
 
-            {/* Navigation menu */}
-            <div style={{ padding: '12px 14px', flex: 1, overflowY: 'auto' }}>
+            {/* Patient info */}
+            <div style={{ padding: '20px 22px', flex: 1, overflowY: 'auto' }}>
               {(() => {
                 const tColor = dark ? '#fff' : '#000';
-                const sColor = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
-                const hover = dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
-                const items = [
-                  { key:'문진', icon:'📝', label:'문진하기', accent:C.purple, children:[
-                    { label:'음성으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'voice' }) },
-                    { label:'버튼으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'button' }) },
-                  ]},
-                  { key:'리포트', icon:'📊', label:'리포트보기', accent:C.red, children:[
-                    { label:'나의 진료 기록', onClick:() => navTo({ tag:'리포트', reportType:'records' }) },
-                    { label:'나의 건강 리포트', onClick:() => navTo({ tag:'리포트', reportType:'personal' }) },
-                    { label:'의료진용 리포트', onClick:() => navTo({ tag:'리포트', reportType:'medical' }) },
-                  ]},
-                  { key:'항암제', icon:'💊', label:'나의 항암제', accent:C.purple, onClick:() => navTo({ tag:'항암제' }) },
-                  { key:'이상증세', icon:'⚠️', label:'이상증세 기록', accent:C.red, onClick:() => navTo({ tag:'이상증세' }) },
-                  { key:'체중', icon:'📏', label:'오늘 체중 기록', accent:C.main, onClick:() => navTo({ tag:'체중' }) },
-                  { key:'식단', icon:'🥗', label:'오늘 식단 기록', accent:C.purple, onClick:() => navTo({ tag:'식단' }) },
-                  { key:'운동', icon:'🏃', label:'오늘 운동 기록', accent:C.red, onClick:() => navTo({ tag:'운동' }) },
-                ];
-                return items.map(it => {
-                  const expanded = navExpanded === it.key;
-                  return (
-                    <div key={it.key}>
-                      <button
-                        onClick={() => it.children ? setNavExpanded(expanded ? null : it.key) : it.onClick()}
-                        onMouseEnter={e => e.currentTarget.style.background = hover}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                        style={{
-                          width:'100%', display:'flex', alignItems:'center', gap:12,
-                          padding:'12px 14px', borderRadius:12, border:'none', cursor:'pointer',
-                          background:'transparent', textAlign:'left', transition:'background 0.15s',
-                        }}
-                      >
-                        <span style={{ fontSize:18, width:24, textAlign:'center' }}>{it.icon}</span>
-                        <span style={{ flex:1, fontFamily:'Pretendard', fontWeight:600, fontSize:14, color:tColor, letterSpacing:'-0.01em' }}>{it.label}</span>
-                        {it.children && (
-                          <svg width="10" height="6" viewBox="0 0 10 6" style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition:'transform 0.2s' }}>
-                            <path d="M1 1l4 4 4-4" stroke={sColor} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
-                      </button>
-                      {it.children && expanded && (
-                        <div style={{ paddingLeft:14, paddingBottom:6 }}>
-                          {it.children.map((c, i) => (
-                            <button key={i} onClick={c.onClick}
-                              onMouseEnter={e => e.currentTarget.style.background = hover}
-                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                              style={{
-                                width:'100%', display:'flex', alignItems:'center', gap:10,
-                                padding:'9px 14px', borderRadius:10, border:'none', cursor:'pointer',
-                                background:'transparent', textAlign:'left', transition:'background 0.15s',
-                              }}
-                            >
-                              <span style={{ width:4, height:4, borderRadius:'50%', background:it.accent, flexShrink:0 }} />
-                              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:sColor, letterSpacing:'-0.01em' }}>{c.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                const sColor = dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)';
+                const labelColor = dark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+                const cardBg = dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)';
+                const cardBorder = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+                return (
+                  <>
+                    {/* 현재 항암 치료 */}
+                    <div style={{
+                      padding:'16px 18px', borderRadius:16,
+                      background:cardBg, border:`1px solid ${cardBorder}`,
+                      marginBottom:12,
+                    }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:10 }}>
+                        <span style={{ width:6, height:6, borderRadius:'50%', background:C.purple }} />
+                        <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10, color:C.purple, letterSpacing:'0.16em', textTransform:'uppercase' }}>Chemotherapy</span>
+                      </div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color:labelColor, letterSpacing:'-0.01em', marginBottom:4 }}>현재 항암 치료</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:16, color:tColor, letterSpacing:'-0.02em', lineHeight:1.4 }}>FOLFOX</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12.5, color:sColor, letterSpacing:'-0.01em', marginTop:2 }}>1차 · 1주기</div>
                     </div>
-                  );
-                });
+
+                    {/* 수술 이력 */}
+                    <div style={{
+                      padding:'16px 18px', borderRadius:16,
+                      background:cardBg, border:`1px solid ${cardBorder}`,
+                      marginBottom:12,
+                    }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:10 }}>
+                        <span style={{ width:6, height:6, borderRadius:'50%', background:C.red }} />
+                        <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10, color:C.red, letterSpacing:'0.16em', textTransform:'uppercase' }}>Surgery</span>
+                      </div>
+                      <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom:8 }}>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color:labelColor, letterSpacing:'-0.01em' }}>수술 이력</span>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11, color:sColor, letterSpacing:'-0.01em' }}>1건</span>
+                      </div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color:labelColor, letterSpacing:'-0.01em', marginBottom:3 }}>최근 수술</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:tColor, letterSpacing:'-0.02em' }}>2026년 4월 8일</div>
+                    </div>
+                  </>
+                );
               })()}
             </div>
 
-            {/* Close button */}
-            <div style={{ padding: '16px 24px 32px' }}>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                style={{
-                  width: '100%', height: 48, borderRadius: 14, border: 'none', cursor: 'pointer',
-                  background: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-                  fontFamily: 'Pretendard', fontWeight: 800, fontSize: 14,
-                  color: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)',
-                  letterSpacing: '-0.01em',
-                }}
-              >닫기</button>
+            {/* Mode toggle */}
+            <div style={{ padding: '16px 22px 32px' }}>
+              <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color:dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', letterSpacing:'-0.01em', marginBottom:10 }}>모드 선택</div>
+              <div style={{
+                display:'flex', padding:4, borderRadius:14,
+                background:dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)',
+                gap:2,
+              }}>
+                {[
+                  { key:false, label:'일반 모드' },
+                  { key:true, label:'어르신 모드' },
+                ].map(m => {
+                  const active = elderMode === m.key;
+                  return (
+                    <button key={String(m.key)}
+                      onClick={() => setElderMode(m.key)}
+                      style={{
+                        flex:1, height:42, borderRadius:11, border:'none', cursor:'pointer',
+                        background: active ? (dark?'#1a2c28':'#fff') : 'transparent',
+                        boxShadow: active ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                        fontFamily:'Pretendard', fontWeight: active?800:600, fontSize:13,
+                        color: active ? (dark?'#fff':'#000') : (dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'),
+                        letterSpacing:'-0.01em', transition:'all 0.15s',
+                      }}
+                    >{m.label}</button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
