@@ -1304,6 +1304,139 @@ const NONCOVERED_DRUGS = [
   },
 ];
 
+// ── Research papers (curated) ────────────────────────────────────
+const RESEARCH_PAPERS = [
+  {
+    journal: 'NEJM',
+    impact: 'IF 158.5',
+    date: '2026.04.18',
+    type: 'Phase III RCT',
+    title: 'Pembrolizumab vs. FOLFOX in MSI-H Metastatic Colorectal Cancer: 5-Year Follow-up',
+    authors: 'André T, Shiu KK, et al.',
+    summary: 'KEYNOTE-177 5년 추적 결과, MSI-H/dMMR 전이성 대장암에서 펨브롤리주맙 단독 치료가 표준 화학요법 대비 무진행 생존기간을 유의미하게 연장(중앙값 16.5 vs 8.2개월)했으며, 장기 반응 지속률은 47%를 보였습니다.',
+    tags: ['면역항암제', 'MSI-H', '1차 치료'],
+    color: '#7d50f0',
+  },
+  {
+    journal: 'Lancet Oncology',
+    impact: 'IF 51.1',
+    date: '2026.03.30',
+    type: 'Phase II',
+    title: 'Encorafenib + Cetuximab + Pembrolizumab in BRAF V600E mCRC',
+    authors: 'Kopetz S, Grothey A, et al.',
+    summary: 'BRAF V600E 변이 전이성 대장암 환자 79명을 대상으로 3제 병용요법의 객관적 반응률(ORR) 50.0%, 무진행 생존기간 7.4개월을 보고했습니다. BEACON 후속 연구로 면역치료 추가 효과가 확인되었습니다.',
+    tags: ['BRAF V600E', '표적치료', '면역항암제'],
+    color: '#41d2b4',
+  },
+  {
+    journal: 'JAMA Oncology',
+    impact: 'IF 28.4',
+    date: '2026.03.12',
+    type: 'Meta-analysis',
+    title: 'Oxaliplatin-Induced Peripheral Neuropathy: Risk Factors and Prevention Strategies',
+    authors: 'Loprinzi CL, Lacouture ME, et al.',
+    summary: '14개 임상시험·4,832명 메타분석에서 옥살리플라틴 누적용량 850 mg/m² 이상에서 grade ≥2 신경병증 위험이 3.2배 증가했습니다. 듀록세틴이 통증 완화에 유의한 효과를 보였으며, 칼슘·마그네슘 주입은 효과를 입증하지 못했습니다.',
+    tags: ['옥살리플라틴', '부작용 관리', '신경병증'],
+    color: '#ee3f60',
+  },
+  {
+    journal: 'Annals of Oncology',
+    impact: 'IF 50.5',
+    date: '2026.02.24',
+    type: 'Phase III',
+    title: 'Trifluridine/Tipiracil + Bevacizumab vs. TAS-102 alone in Refractory mCRC',
+    authors: 'Prager GW, Taieb J, et al.',
+    summary: 'SUNLIGHT 시험 후속 분석으로, 표준 치료 실패 후 론서프(TAS-102)에 베바시주맙 병용 시 전체 생존기간이 단독 투여 대비 3.3개월 연장(10.8 vs 7.5개월)되었습니다. 안전성 프로파일은 관리 가능한 수준이었습니다.',
+    tags: ['론서프', '3차 이상', '병용요법'],
+    color: '#f59e0b',
+  },
+  {
+    journal: 'Nature Medicine',
+    impact: 'IF 87.2',
+    date: '2026.02.05',
+    type: 'Translational',
+    title: 'Circulating Tumor DNA Dynamics Predicts Treatment Response in Stage III CRC',
+    authors: 'Tie J, Cohen JD, et al.',
+    summary: '3기 대장암 수술 후 ctDNA 양성군의 재발률이 음성군 대비 7.1배 높았으며, 보조 항암 치료 중 ctDNA 음전 환자는 5년 무재발 생존율 92%를 보였습니다. ctDNA 기반 치료 강도 조정의 임상적 근거를 제시합니다.',
+    tags: ['ctDNA', '예후 예측', '보조요법'],
+    color: '#7d50f0',
+  },
+];
+
+// ── Clinical trials (Korea) ──────────────────────────────────────
+const CLINICAL_TRIALS = [
+  {
+    id: 'KCSG CO22-12',
+    phase: 'Phase III',
+    status: '모집 중',
+    statusColor: '#41d2b4',
+    title: 'KRAS G12C 변이 전이성 대장암 환자에서 소토라십+세툭시맙 병용요법',
+    sponsor: '대한항암요법연구회 (KCSG)',
+    sites: ['서울대병원', '삼성서울병원', '서울아산병원', '세브란스병원'],
+    enroll: '120명 모집 (현재 47명)',
+    eligibility: 'KRAS G12C 변이 확인, 1차 표준 항암 치료 실패, ECOG 0–1',
+    summary: 'KRAS G12C 표적 치료제 소토라십과 EGFR 항체 세툭시맙 병용의 안전성·유효성을 평가하는 다기관 무작위 3상 시험입니다.',
+    period: '2025.06 — 2027.12',
+    color: '#7d50f0',
+  },
+  {
+    id: 'KFCS-MSI-2026',
+    phase: 'Phase II',
+    status: '모집 중',
+    statusColor: '#41d2b4',
+    title: 'MSS 대장암에서 STING 작용제 + 펨브롤리주맙 병용요법 탐색',
+    sponsor: '국립암센터',
+    sites: ['국립암센터', '분당서울대병원', '아주대병원'],
+    enroll: '60명 모집 (현재 18명)',
+    eligibility: 'MSS/MSI-L 전이성 대장암, 2차 이상 치료 실패, 측정 가능한 병변',
+    summary: '면역항암제 반응이 낮은 MSS 대장암에서 면역 활성화 STING 작용제를 병용해 반응률을 향상시키는 탐색 시험입니다.',
+    period: '2026.01 — 2028.06',
+    color: '#41d2b4',
+  },
+  {
+    id: 'CTONG-CRC-007',
+    phase: 'Phase II',
+    status: '모집 예정',
+    statusColor: '#f59e0b',
+    title: 'HER2 양성 대장암에서 트라스투주맙 데룩스테칸(T-DXd) 단독 요법',
+    sponsor: '서울아산병원',
+    sites: ['서울아산병원', '서울대병원'],
+    enroll: '40명 모집 예정',
+    eligibility: 'HER2 IHC 3+ 또는 ISH 양성, 표준 치료 실패, 측정 가능한 병변',
+    summary: 'HER2 양성 전이성 대장암에서 항체-약물 접합체 T-DXd의 단독 요법 효과를 평가하는 단일군 2상 시험입니다.',
+    period: '2026.07 시작 예정',
+    color: '#ee3f60',
+  },
+  {
+    id: 'KCSG-IO-2025',
+    phase: 'Phase Ib',
+    status: '모집 중',
+    statusColor: '#41d2b4',
+    title: '난치성 대장암에서 종양 내 면역세포 주입 치료(TIL) 1상 시험',
+    sponsor: '삼성서울병원',
+    sites: ['삼성서울병원'],
+    enroll: '24명 모집 (현재 8명)',
+    eligibility: '3차 이상 치료 실패, 절제 가능한 종양 조직 확보 가능, ECOG 0–1',
+    summary: '환자 자신의 종양 침윤 림프구(TIL)를 분리·증식 후 재투여하는 입양세포치료의 안전성과 초기 유효성을 평가합니다.',
+    period: '2025.03 — 2027.03',
+    color: '#7d50f0',
+  },
+  {
+    id: 'NCCK-CRC-008',
+    phase: 'Phase III',
+    status: '추적 중',
+    statusColor: 'rgba(0,0,0,0.4)',
+    title: '직장암 완전관해 후 비수술적 관찰(Watch-and-Wait) 전략 비교',
+    sponsor: '국립암센터·연세암병원',
+    sites: ['국립암센터', '세브란스병원', '서울아산병원'],
+    enroll: '모집 종료 (등록 218명)',
+    eligibility: '전방위 항암방사선 후 임상적 완전관해(cCR) 확인 환자',
+    summary: '국소 진행성 직장암에서 술전 항암방사선 치료 후 cCR 환자에 대한 수술 vs 관찰 전략의 장기 종양학적 결과를 비교합니다.',
+    period: '2022.04 — 2027.12 추적',
+    color: '#f59e0b',
+  },
+];
+
 function PROScreen({ tweaks, setTweak }) {
   const [text, setText] = React.useState('');
   const [recording, setRecording] = React.useState(false);
@@ -2969,11 +3102,93 @@ function PROScreen({ tweaks, setTweak }) {
                   </>
                 )}
 
-                {/* ── 최신 논문 / 임상 소식 탭 ── */}
-                {(chemoTab === '최신 논문' || chemoTab === '임상 소식') && (
-                  <div style={{ padding:'14px 16px', borderRadius:14, background:dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.03)', border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'}`, fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', textAlign:'center' }}>
-                    준비 중인 기능입니다.
-                  </div>
+                {/* ── 최신 논문 탭 ── */}
+                {chemoTab === '최신 논문' && (
+                  <>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', letterSpacing:'-0.01em' }}>대장암 치료 큐레이션</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>총 {RESEARCH_PAPERS.length}건</div>
+                    </div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                      {RESEARCH_PAPERS.map((p, i) => (
+                        <div key={i} style={{
+                          borderRadius:14, padding:'16px 18px',
+                          background: dark?'rgba(255,255,255,0.04)':'#fff',
+                          border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
+                          borderLeft:`3px solid ${p.color}`,
+                        }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8, flexWrap:'wrap' }}>
+                            <span style={{ fontFamily:'Poppins', fontWeight:700, fontSize:11, color:p.color, letterSpacing:'0.04em' }}>{p.journal}</span>
+                            <span style={{ fontFamily:'Poppins', fontWeight:400, fontSize:10, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', padding:'2px 6px', borderRadius:5, background:dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)' }}>{p.impact}</span>
+                            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', padding:'2px 7px', borderRadius:5, border:`1px solid ${dark?'rgba(255,255,255,0.12)':'rgba(0,0,0,0.1)'}` }}>{p.type}</span>
+                            <span style={{ marginLeft:'auto', fontFamily:'Pretendard', fontWeight:500, fontSize:10, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>{p.date}</span>
+                          </div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:14, color:dark?'#fff':'#000', letterSpacing:'-0.01em', lineHeight:1.45, marginBottom:5 }}>{p.title}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', marginBottom:10, fontStyle:'italic' }}>{p.authors}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12.5, color:dark?'rgba(255,255,255,0.72)':'rgba(0,0,0,0.66)', lineHeight:1.65, marginBottom:12, paddingLeft:10, borderLeft:`2px solid ${dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)'}` }}>{p.summary}</div>
+                          <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                            {p.tags.map((t, j) => (
+                              <span key={j} style={{ padding:'3px 8px', borderRadius:6, fontFamily:'Pretendard', fontWeight:500, fontSize:10, background:dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)', color:dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>{t}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ height:24 }} />
+                  </>
+                )}
+
+                {/* ── 임상 소식 탭 ── */}
+                {chemoTab === '임상 소식' && (
+                  <>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', letterSpacing:'-0.01em' }}>국내 임상시험 정보</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>총 {CLINICAL_TRIALS.length}건</div>
+                    </div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                      {CLINICAL_TRIALS.map((tr, i) => (
+                        <div key={i} style={{
+                          borderRadius:14, overflow:'hidden',
+                          background: dark?'rgba(255,255,255,0.04)':'#fff',
+                          border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
+                        }}>
+                          {/* header strip */}
+                          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 16px', background:dark?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.025)', borderBottom:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}` }}>
+                            <span style={{ padding:'3px 8px', borderRadius:6, background:tr.color, color:'#fff', fontFamily:'Pretendard', fontWeight:700, fontSize:10, letterSpacing:'-0.01em' }}>{tr.phase}</span>
+                            <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', letterSpacing:'0.04em' }}>{tr.id}</span>
+                            <span style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:5 }}>
+                              <span style={{ width:6, height:6, borderRadius:'50%', background:tr.statusColor }} />
+                              <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color:tr.statusColor }}>{tr.status}</span>
+                            </span>
+                          </div>
+                          <div style={{ padding:'14px 16px' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:14, color:dark?'#fff':'#000', letterSpacing:'-0.01em', lineHeight:1.45, marginBottom:10 }}>{tr.title}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12.5, color:dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.65)', lineHeight:1.6, marginBottom:14 }}>{tr.summary}</div>
+
+                            {/* details grid */}
+                            <div style={{ display:'flex', flexDirection:'column', gap:8, padding:'10px 12px', borderRadius:10, background:dark?'rgba(0,0,0,0.2)':'rgba(0,0,0,0.025)', marginBottom:10 }}>
+                              {[
+                                { label:'주관', val:tr.sponsor },
+                                { label:'참여 기관', val:tr.sites.join(' · ') },
+                                { label:'모집', val:tr.enroll },
+                                { label:'대상', val:tr.eligibility },
+                                { label:'기간', val:tr.period },
+                              ].map((d, j) => (
+                                <div key={j} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                                  <div style={{ flexShrink:0, width:60, fontFamily:'Pretendard', fontWeight:600, fontSize:10, color:dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', paddingTop:1, letterSpacing:'-0.01em' }}>{d.label}</div>
+                                  <div style={{ flex:1, fontFamily:'Pretendard', fontWeight:500, fontSize:11.5, color:dark?'rgba(255,255,255,0.78)':'rgba(0,0,0,0.72)', lineHeight:1.55, letterSpacing:'-0.01em' }}>{d.val}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:10, color:dark?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.35)', textAlign:'center', marginTop:14, lineHeight:1.5 }}>
+                      ※ 임상시험 참여는 담당 의료진과 상의 후 결정해주세요.
+                    </div>
+                    <div style={{ height:24 }} />
+                  </>
                 )}
               </>
             ) : activeTag === '이상증세' ? (
