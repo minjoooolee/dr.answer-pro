@@ -3359,6 +3359,10 @@ function PROScreen({ tweaks, setTweak }) {
                       ))}
                     </div>
 
+                    {/* TEST MARKER v3 — should be visible */}
+                    <div style={{ background:'#ee3f60', color:'#fff', padding:'12px 16px', borderRadius:8, marginBottom:12, fontSize:14, fontWeight:800 }}>
+                      ⬇️ TABLE BELOW v3 ({MEDICAL_TABLE_DATES ? MEDICAL_TABLE_DATES.length : 'NO DATA'} dates, {MEDICAL_TABLE_GROUPS ? MEDICAL_TABLE_GROUPS.length : 'NO DATA'} groups)
+                    </div>
                     {/* Daily symptom table */}
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
                       <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>일자별 증상 점수표</div>
@@ -3414,6 +3418,9 @@ function PROScreen({ tweaks, setTweak }) {
                           })}
                         </tbody>
                       </table>
+                    </div>
+                    <div style={{ background:'#41d2b4', color:'#fff', padding:'12px 16px', borderRadius:8, marginBottom:24, fontSize:14, fontWeight:800 }}>
+                      ⬆️ TABLE ABOVE v3 — if you see this but no table, table render failed
                     </div>
 
                     {/* Weight monthly summary */}
