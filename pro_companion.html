@@ -2416,35 +2416,29 @@ function PROScreen({ tweaks, setTweak }) {
                     {/* 검사 결과 분석 */}
                     {recordTab === '검사' && (
                       <>
-                        {/* selector — vertical list */}
-                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:10, letterSpacing:'-0.01em' }}>검사 기록 선택</div>
-                        <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
-                          {TEST_RESULTS.map((t, i) => {
-                            const sel = selectedTest === i;
-                            return (
-                              <button key={i} onClick={() => setSelectedTest(i)} style={{
-                                width:'100%', padding:'14px 16px', borderRadius:14, cursor:'pointer', textAlign:'left',
-                                border: sel ? `1.5px solid ${C.main}` : `1px solid ${dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)'}`,
-                                background: sel ? (dark?'rgba(65,210,180,0.12)':'rgba(65,210,180,0.07)') : (dark?'rgba(255,255,255,0.03)':'#fff'),
-                                display:'flex', alignItems:'center', gap:12, transition:'all 0.15s',
-                              }}>
-                                <div style={{
-                                  width:38, height:38, borderRadius:11, flexShrink:0,
-                                  background: sel ? (dark?'rgba(65,210,180,0.22)':'rgba(65,210,180,0.15)') : (dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)'),
-                                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:18,
-                                }}>{t.icon}</div>
-                                <div style={{ flex:1, minWidth:0 }}>
-                                  <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:14, color: sel ? C.main : (dark?'#fff':'#000'), marginBottom:2, letterSpacing:'-0.01em' }}>{t.name}</div>
-                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.hospital} · {t.date}</div>
-                                </div>
-                                {sel ? (
-                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill={C.main}/><path d="M8 12.5l3 3 5-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                ) : (
-                                  <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke={dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)'} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                )}
-                              </button>
-                            );
-                          })}
+                        {/* selector — dropdown */}
+                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:8, letterSpacing:'-0.01em' }}>검사 기록 선택</div>
+                        <div style={{ position:'relative', marginBottom:20 }}>
+                          <select
+                            value={selectedTest}
+                            onChange={e => setSelectedTest(Number(e.target.value))}
+                            style={{
+                              width:'100%', height:50, padding:'0 44px 0 16px',
+                              borderRadius:14, border:`1px solid ${dark?'rgba(255,255,255,0.12)':'rgba(0,0,0,0.1)'}`,
+                              background: dark?'rgba(255,255,255,0.04)':'#fff',
+                              fontFamily:'Pretendard', fontWeight:600, fontSize:14,
+                              color: dark?'#fff':'#000', letterSpacing:'-0.01em',
+                              appearance:'none', WebkitAppearance:'none', MozAppearance:'none',
+                              outline:'none', cursor:'pointer',
+                            }}
+                          >
+                            {TEST_RESULTS.map((t, i) => (
+                              <option key={i} value={i}>{t.name} ({t.date})</option>
+                            ))}
+                          </select>
+                          <svg width="12" height="8" viewBox="0 0 12 8" style={{ position:'absolute', right:18, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }}>
+                            <path d="M1 1l5 5 5-5" stroke={dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.4)'} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
                         </div>
 
                         {/* selected report */}
@@ -2459,7 +2453,7 @@ function PROScreen({ tweaks, setTweak }) {
                               }}>
                                 <div style={{ marginBottom:14 }}>
                                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
-                                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{t.icon} {t.name}</div>
+                                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{t.name}</div>
                                     <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{t.date}</div>
                                   </div>
                                   <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)' }}>{t.hospital}</div>
