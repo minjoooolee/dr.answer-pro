@@ -2224,15 +2224,16 @@ function PROScreen({ tweaks, setTweak }) {
                     </div>
                     <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:20, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>📓 나의 건강 리포트</div>
 
-                    {/* tab bar */}
-                    <div style={{ display:'flex', gap:8, marginBottom:20, overflowX:'auto', paddingBottom:2 }}>
+                    {/* tab bar — segmented control */}
+                    <div style={{ display:'flex', gap:4, marginBottom:20, padding:'3px', borderRadius:12, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)' }}>
                       {['문진','체중','식단','운동'].map(tab => (
                         <button key={tab} onClick={() => setReportTab(tab)} style={{
-                          flexShrink:0, padding:'7px 16px', borderRadius:20,
-                          border: reportTab === tab ? 'none' : `1px solid ${dark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.12)'}`,
-                          background: reportTab === tab ? C.purple : 'transparent',
-                          color: reportTab === tab ? '#fff' : (dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.5)'),
-                          fontFamily:'Pretendard', fontWeight:600, fontSize:13,
+                          flex:1, padding:'7px 0', borderRadius:9,
+                          border:'none',
+                          background: reportTab === tab ? (dark?'rgba(255,255,255,0.18)':'#fff') : 'transparent',
+                          boxShadow: reportTab === tab ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                          color: reportTab === tab ? (dark?'#fff':C.purple) : (dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)'),
+                          fontFamily:'Pretendard', fontWeight: reportTab === tab ? 700 : 500, fontSize:13,
                           cursor:'pointer', transition:'all 0.15s',
                         }}>{tab}</button>
                       ))}
