@@ -919,6 +919,54 @@ function WeightChart({ data, dark, accent = '#41d2b4' }) {
   );
 }
 
+const NUTRITION_ITEMS = [
+  { emoji:'🍗', name:'닭가슴살 200g', kcal:330, protein:'62g', carb:'0g', fat:'7g' },
+  { emoji:'🥚', name:'삶은계란 2개',  kcal:140, protein:'12g', carb:'1g', fat:'10g' },
+  { emoji:'🥤', name:'제로콜라 1캔', kcal:1,   protein:'0g',  carb:'0g', fat:'0g' },
+];
+const NUTRITION_TOTAL = { kcal:471, protein:'74g', carb:'1g', fat:'17g' };
+
+function NutritionCard({ dark, accent = '#41d2b4' }) {
+  const row = (label, val) => (
+    <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <span style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>{label}</span>
+      <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color: dark?'#fff':'#000' }}>{val}</span>
+    </div>
+  );
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+      {/* total */}
+      <div style={{ padding:'14px 16px', borderRadius:14, background: dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.03)', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+        <div style={{ display:'flex', alignItems:'baseline', gap:6, marginBottom:10 }}>
+          <span style={{ fontSize:22 }}>🔥</span>
+          <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:24, color:accent, letterSpacing:'-0.02em' }}>{NUTRITION_TOTAL.kcal}</span>
+          <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:14, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>kcal</span>
+        </div>
+        <div style={{ display:'flex', gap:10 }}>
+          {[['🍗 단백질', NUTRITION_TOTAL.protein],['🌾 탄수화물', NUTRITION_TOTAL.carb],['🧈 지방', NUTRITION_TOTAL.fat]].map(([l,v]) => (
+            <div key={l} style={{ flex:1, textAlign:'center', padding:'6px 0', borderRadius:10, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.04)' }}>
+              <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color: dark?'#fff':'#111' }}>{v}</div>
+              <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', marginTop:2 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* per item */}
+      <div style={{ padding:'10px 14px', borderRadius:14, background: dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.02)', border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'}`, display:'flex', flexDirection:'column', gap:8 }}>
+        {NUTRITION_ITEMS.map(item => (
+          <div key={item.name} style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span style={{ fontSize:18 }}>{item.emoji}</span>
+              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.75)' }}>{item.name}</span>
+            </div>
+            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color:accent }}>{item.kcal} kcal</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PROScreen({ tweaks, setTweak }) {
   const [text, setText] = React.useState('');
   const [recording, setRecording] = React.useState(false);
@@ -931,8 +979,17 @@ function PROScreen({ tweaks, setTweak }) {
   const [surveyMode, setSurveyMode] = React.useState(null);
   const [transcript, setTranscript] = React.useState('');
   const [todayWeight, setTodayWeight] = React.useState('');
+  const [dietMode, setDietMode] = React.useState(null);
+  const [dietInput, setDietInput] = React.useState('');
+  const [dietAnalyzed, setDietAnalyzed] = React.useState(false);
+  const [dietPhoto, setDietPhoto] = React.useState(null);
+  const [dietRecording, setDietRecording] = React.useState(false);
 
-  const closeSheet = () => { setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null); setTranscript(''); setTodayWeight(''); };
+  const closeSheet = () => {
+    setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null);
+    setTranscript(''); setTodayWeight('');
+    setDietMode(null); setDietInput(''); setDietAnalyzed(false); setDietPhoto(null); setDietRecording(false);
+  };
   const advanceSurvey = () => { setSurveyStep(s => s + 1); setSubStep(-1); };
 
   React.useEffect(() => {
@@ -954,6 +1011,25 @@ function PROScreen({ tweaks, setTweak }) {
     }, 700);
     return () => { clearTimeout(timeoutId); if (intervalId) clearInterval(intervalId); };
   }, [surveyMode, surveyStep, subStep]);
+
+  const DIET_VOICE_TEXT = '닭가슴살 200g 삶은계란 2개 제로콜라 1캔';
+  React.useEffect(() => {
+    if (!dietRecording) return;
+    setDietInput(''); setDietAnalyzed(false);
+    let i = 0, intervalId;
+    const timeoutId = setTimeout(() => {
+      intervalId = setInterval(() => {
+        i++;
+        setDietInput(DIET_VOICE_TEXT.slice(0, i));
+        if (i >= DIET_VOICE_TEXT.length) {
+          clearInterval(intervalId);
+          setDietRecording(false);
+          setTimeout(() => setDietAnalyzed(true), 600);
+        }
+      }, 80);
+    }, 500);
+    return () => { clearTimeout(timeoutId); if (intervalId) clearInterval(intervalId); };
+  }, [dietRecording]);
 
   React.useEffect(() => {
     if (!recording) return;
@@ -1281,8 +1357,8 @@ function PROScreen({ tweaks, setTweak }) {
           <div onClick={e => e.stopPropagation()} style={{
             width: '100%', background: dark ? '#0d1614' : '#fff',
             borderTopLeftRadius: 28, borderTopRightRadius: 28,
-            padding: activeTag === '문진' && surveyMode ? '20px 28px 40px' : '20px 24px 32px',
-            minHeight: activeTag === '문진' && surveyMode ? '78%' : 'auto',
+            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) ? '20px 28px 40px' : '20px 24px 32px',
+            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) ? '82%' : 'auto',
             display: 'flex', flexDirection: 'column',
             animation: 'sheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
           }}>
@@ -1629,6 +1705,116 @@ function PROScreen({ tweaks, setTweak }) {
                   >확인</button>
                 </>
               )
+            ) : activeTag === '식단' ? (
+              <>
+                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.purple, marginBottom:8 }}>MEAL LOG</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:16 }}>오늘의 식단 기록</div>
+
+                {dietMode === null && (
+                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                    {[
+                      { icon:'📸', label:'사진으로 입력하기', sub:'AI가 음식을 인식해 칼로리를 계산해요', mode:'photo', color:C.main },
+                      { icon:'⌨️', label:'텍스트로 간단 입력하기', sub:'AI가 입력한 식단의 칼로리를 계산해요', mode:'text', color:C.purple },
+                      { icon:'🎙️', label:'음성으로 간단 입력하기', sub:'말로 편하게 입력할 수 있어요', mode:'voice', color:C.red },
+                    ].map(({ icon, label, sub, mode, color }) => (
+                      <button key={mode} onClick={() => setDietMode(mode)} style={{
+                        width:'100%', border:'none', cursor:'pointer', borderRadius:18,
+                        padding:'18px 22px', textAlign:'left',
+                        background: dark ? 'rgba(255,255,255,0.05)' : '#fafafa',
+                        borderWidth:1, borderStyle:'solid',
+                        borderColor: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+                        display:'flex', alignItems:'center', gap:16,
+                        boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
+                      }}>
+                        <span style={{ fontSize:30 }}>{icon}</span>
+                        <div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color, letterSpacing:'-0.01em', marginBottom:2 }}>{label}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>{sub}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {dietMode === 'photo' && (
+                  <div style={{ flex:1, display:'flex', flexDirection:'column' }}>
+                    {!dietPhoto ? (
+                      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'24px 0', gap:14 }}>
+                        <label htmlFor="diet-cam" style={{ cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:14 }}>
+                          <div style={{ width:100, height:100, borderRadius:28, background: dark?'rgba(65,210,180,0.12)':'rgba(65,210,180,0.08)', border:`2px dashed ${C.main}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:44 }}>📷</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:15, color:C.main }}>사진 촬영 또는 선택</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>음식 사진을 찍으면 AI가 분석합니다</div>
+                        </label>
+                        <input id="diet-cam" type="file" accept="image/*" capture="environment" style={{ display:'none' }}
+                          onChange={e => { if (e.target.files[0]) { setDietPhoto(URL.createObjectURL(e.target.files[0])); setDietAnalyzed(true); } }} />
+                      </div>
+                    ) : (
+                      <div style={{ flex:1, display:'flex', flexDirection:'column', gap:14, paddingTop:8 }}>
+                        <div style={{ borderRadius:16, overflow:'hidden', height:160 }}>
+                          <img src={dietPhoto} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                        </div>
+                        {dietAnalyzed && (
+                          <>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)', marginBottom:-4 }}>AI 분석 결과</div>
+                            <NutritionCard dark={dark} accent={C.main} />
+                            <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.main, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:`0 8px 22px ${C.main}55` }}>등록하기</button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {(dietMode === 'text' || dietMode === 'voice') && (
+                  <div style={{ flex:1, display:'flex', flexDirection:'column', gap:14 }}>
+                    {/* notice */}
+                    <div style={{ padding:'12px 14px', borderRadius:12, background: dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)', fontFamily:'Pretendard', fontWeight:400, fontSize:12, lineHeight:1.7, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>
+                      간편한 AI 한 줄 입력 모드입니다. 칼로리 계산을 위한 식단을 한 번에 입력해주시면 AI가 칼로리를 자동으로 계산합니다
+                    </div>
+
+                    {/* input */}
+                    <div style={{ position:'relative', minHeight:56, borderRadius:16, padding:'14px 16px', background: dark?'rgba(255,255,255,0.06)':'#fff', border:`1.5px solid ${dietInput ? C.purple : (dark?'rgba(255,255,255,0.14)':'rgba(0,0,0,0.1)')}`, transition:'border-color 0.15s' }}>
+                      {!dietInput && (
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:14, color: dark?'rgba(255,255,255,0.22)':'rgba(0,0,0,0.22)', lineHeight:1.6, pointerEvents:'none', position:'absolute', top:14, left:16, right:16 }}>
+                          예: 닭가슴살 200g 삶은계란 2개 제로콜라 1캔
+                        </div>
+                      )}
+                      {dietMode === 'text' ? (
+                        <textarea value={dietInput} onChange={e => { setDietInput(e.target.value); setDietAnalyzed(false); }}
+                          rows={2}
+                          style={{ width:'100%', border:'none', outline:'none', background:'transparent', resize:'none', fontFamily:'Pretendard', fontWeight: dietInput?600:400, fontSize:14, lineHeight:1.6, color: dark?'#fff':'#000' }} />
+                      ) : (
+                        <div style={{ fontFamily:'Pretendard', fontWeight: dietInput?600:400, fontSize:14, lineHeight:1.6, color: dark?'#fff':'#000', minHeight:40 }}>
+                          {dietInput}
+                          {dietRecording && <span style={{ display:'inline-block', width:2, height:14, background:C.purple, marginLeft:3, verticalAlign:'middle', opacity:0.7, animation:'aiBlink 1s infinite' }} />}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* voice mic button */}
+                    {dietMode === 'voice' && !dietRecording && !dietInput && (
+                      <button onClick={() => setDietRecording(true)} style={{ alignSelf:'center', width:64, height:64, borderRadius:'50%', border:'none', cursor:'pointer', background:`linear-gradient(135deg,${C.red},${C.purple})`, fontSize:28, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 6px 20px rgba(238,63,96,0.4)` }}>🎙️</button>
+                    )}
+                    {dietMode === 'voice' && dietRecording && (
+                      <div style={{ textAlign:'center', fontFamily:'Pretendard', fontWeight:400, fontSize:13, color:C.purple }}>듣는 중…</div>
+                    )}
+
+                    {/* analyze button */}
+                    {dietInput && !dietAnalyzed && (
+                      <button onClick={() => setDietAnalyzed(true)} style={{ width:'100%', height:48, borderRadius:14, border:'none', cursor:'pointer', background:C.purple, color:'#fff', fontFamily:'Pretendard', fontWeight:700, fontSize:14, letterSpacing:'-0.01em', boxShadow:'0 6px 18px rgba(125,80,240,0.3)' }}>🔍 분석하기</button>
+                    )}
+
+                    {/* result */}
+                    {dietAnalyzed && (
+                      <>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)' }}>AI 분석 결과</div>
+                        <NutritionCard dark={dark} accent={C.purple} />
+                        <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.purple, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(125,80,240,0.35)' }}>등록하기</button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
             ) : activeTag === '체중' ? (
               <>
                 <div style={{
