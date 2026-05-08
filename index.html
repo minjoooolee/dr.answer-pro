@@ -1475,6 +1475,7 @@ function PROScreen({ tweaks, setTweak }) {
   const [expandedDrug, setExpandedDrug] = React.useState(null);
   const [symptomMedia, setSymptomMedia] = React.useState([]);
   const [symptomText, setSymptomText] = React.useState('');
+  const [selectedSymptom, setSelectedSymptom] = React.useState(null);
   const today = new Date();
   const pad = n => String(n).padStart(2,'0');
   const [symptomDate, setSymptomDate] = React.useState(`${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`);
@@ -1817,6 +1818,91 @@ function PROScreen({ tweaks, setTweak }) {
                   letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(74,159,143,0.35)',
                 }}
               >문진 시작하기</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Symptom detail popup */}
+      {selectedSymptom && (
+        <div
+          onClick={() => setSelectedSymptom(null)}
+          style={{
+            position:'absolute', inset:0, zIndex:300,
+            background:'rgba(0,0,0,0.65)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            padding:'24px 18px',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width:'100%', maxWidth:380, maxHeight:'92%', overflowY:'auto',
+              borderRadius:24, background:dark?'#10201d':'#fff',
+              boxShadow:'0 24px 64px rgba(0,0,0,0.5)',
+              animation:'sheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1)',
+            }}
+          >
+            {/* Header */}
+            <div style={{ padding:'24px 24px 16px', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
+              <div>
+                <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+                  <span style={{ width:6, height:6, borderRadius:'50%', background:C.red }} />
+                  <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:C.red, letterSpacing:'-0.01em' }}>이상증세 기록</span>
+                </div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color:dark?'#fff':'#000', letterSpacing:'-0.02em', lineHeight:1.3 }}>
+                  {selectedSymptom.date.replaceAll('-','.')}
+                </div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em', marginTop:2 }}>
+                  {selectedSymptom.time}
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedSymptom(null)}
+                style={{
+                  width:34, height:34, borderRadius:'50%', border:'none', cursor:'pointer',
+                  background:dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)',
+                  color:dark?'#fff':'#000', fontSize:16, lineHeight:1, padding:0,
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  flexShrink:0,
+                }}
+              >×</button>
+            </div>
+
+            {/* Media gallery */}
+            {selectedSymptom.media && selectedSymptom.media.length > 0 && (
+              <div style={{ padding:'0 24px 4px' }}>
+                <div style={{ display:'grid', gridTemplateColumns: selectedSymptom.media.length === 1 ? '1fr' : '1fr 1fr', gap:8 }}>
+                  {selectedSymptom.media.map((m,i) => (
+                    <div key={i} style={{
+                      width:'100%', aspectRatio: selectedSymptom.media.length === 1 ? '4/3' : '1/1',
+                      borderRadius:14, overflow:'hidden',
+                      border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}`,
+                      background:dark?'rgba(255,255,255,0.04)':'#f5f5f5',
+                    }}>
+                      {m.type === 'image' && m.url
+                        ? <img src={m.url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+                        : <div style={{ width:'100%', height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, fontSize:36 }}>
+                            🎬
+                            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>동영상</span>
+                          </div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Body */}
+            <div style={{ padding:'18px 24px 24px' }}>
+              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', letterSpacing:'-0.01em', marginBottom:8 }}>증상 내용</div>
+              <div style={{
+                padding:'14px 16px', borderRadius:12,
+                background:dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.025)',
+                border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`,
+                fontFamily:'Pretendard', fontWeight:500, fontSize:14,
+                color:dark?'rgba(255,255,255,0.92)':'rgba(0,0,0,0.85)',
+                lineHeight:1.65, letterSpacing:'-0.01em',
+              }}>{selectedSymptom.text}</div>
             </div>
           </div>
         </div>
@@ -3517,11 +3603,17 @@ function PROScreen({ tweaks, setTweak }) {
                   ) : (
                     <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
                       {symptomLog.map(it => (
-                        <div key={it.id} style={{
-                          padding:'14px 16px', borderRadius:14,
-                          background:dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.025)',
-                          border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`,
-                        }}>
+                        <div key={it.id}
+                          onClick={() => setSelectedSymptom(it)}
+                          style={{
+                            padding:'14px 16px', borderRadius:14, cursor:'pointer',
+                            background:dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.025)',
+                            border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`,
+                            transition:'transform 0.15s, background 0.15s',
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.background = dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.045)'}
+                          onMouseLeave={e => e.currentTarget.style.background = dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.025)'}
+                        >
                           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
                             <span style={{ width:6, height:6, borderRadius:'50%', background:C.red }} />
                             <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:11, color:C.red, letterSpacing:'0.04em' }}>
