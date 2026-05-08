@@ -1260,28 +1260,106 @@ function PROScreen({ tweaks, setTweak }) {
                   </div>
                 </>
               ) : surveyMode === 'voice' ? (
-                <>
-                  <div style={{
-                    textAlign: 'center', padding: '16px 0 24px',
-                  }}>
-                    <div style={{ fontSize: 48, marginBottom: 14 }}>🎙️</div>
-                    <div style={{
-                      fontFamily: 'Pretendard', fontWeight: 800, fontSize: 18,
-                      color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 8,
-                    }}>음성모드로 진행 중입니다</div>
-                    <div style={{
-                      fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
-                      color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
-                      lineHeight: 1.6,
-                    }}>마이크 버튼을 눌러<br/>답변을 말씀해 주세요</div>
-                  </div>
-                  <button onClick={closeSheet} style={{
-                    width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
-                    background: C.purple, color: '#fff',
-                    fontFamily: 'Pretendard', fontWeight: 800, fontSize: 15,
-                    letterSpacing: '-0.01em', boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
-                  }}>닫기</button>
-                </>
+                surveyStep < SURVEY_CATEGORIES.length ? (
+                  <>
+                    {/* progress */}
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+                      {SURVEY_CATEGORIES.map((_, i) => (
+                        <div key={i} style={{
+                          flex: 1, height: 3, borderRadius: 99,
+                          background: i <= surveyStep ? C.purple : (dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'),
+                          transition: 'background 0.3s',
+                        }} />
+                      ))}
+                    </div>
+
+                    <div
+                      onClick={() => {
+                        if (subStep === -1) {
+                          if (surveyStep === 0) setSubStep(0); else advanceSurvey();
+                        } else if (subStep < PAIN_QUESTIONS.length - 1) {
+                          setSubStep(s => s + 1);
+                        } else {
+                          advanceSurvey();
+                        }
+                      }}
+                      style={{
+                        position: 'relative', flex: 1, cursor: 'pointer',
+                        display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center',
+                        minHeight: 380, padding: '20px 8px',
+                      }}
+                    >
+                      {/* AI symbol background */}
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        opacity: 0.25, pointerEvents: 'none',
+                      }}>
+                        <AISymbol size={320} variant={tweaks.variant} state="listening" accent={C.main} />
+                      </div>
+
+                      {/* Question text overlay */}
+                      <div style={{
+                        position: 'relative', zIndex: 1,
+                        textAlign: 'center', maxWidth: 360,
+                      }}>
+                        {subStep === -1 ? (
+                          <div style={{
+                            fontFamily: 'Pretendard', fontSize: 22, lineHeight: 1.55,
+                            color: dark ? '#fff' : '#000',
+                          }}>
+                            <div style={{ fontWeight: 800, color: C.purple, marginBottom: 8 }}>
+                              [{SURVEY_CATEGORIES[surveyStep]}]
+                            </div>
+                            <div style={{ fontWeight: 400 }}>지난번보다 달라진 점이 있나요?</div>
+                          </div>
+                        ) : (
+                          <>
+                            <div style={{
+                              fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              color: C.purple, marginBottom: 14,
+                            }}>{subStep + 1} / {PAIN_QUESTIONS.length}</div>
+                            <div style={{
+                              fontFamily: 'Pretendard', fontSize: 20, fontWeight: 400,
+                              lineHeight: 1.55, color: dark ? '#fff' : '#000',
+                            }}>{PAIN_QUESTIONS[subStep]}</div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* hint */}
+                      <div style={{
+                        position: 'absolute', bottom: 0, left: 0, right: 0,
+                        textAlign: 'center', zIndex: 1,
+                        fontFamily: 'Pretendard', fontWeight: 400, fontSize: 12,
+                        color: dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)',
+                      }}>🎙️ 답변을 말씀해 주세요 · 탭하여 다음</div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* completion */}
+                    <div style={{ textAlign: 'center', padding: '12px 0 20px' }}>
+                      <div style={{ fontSize: 40, marginBottom: 14 }}>✅</div>
+                      <div style={{
+                        fontFamily: 'Pretendard', fontWeight: 800, fontSize: 20,
+                        color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
+                      }}>문진이 완료되었습니다</div>
+                      <div style={{
+                        fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
+                        color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
+                      }}>오늘의 건강 기록이 저장되었습니다</div>
+                    </div>
+                    <button onClick={closeSheet} style={{
+                      width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
+                      background: C.purple, color: '#fff',
+                      fontFamily: 'Pretendard', fontWeight: 800, fontSize: 15,
+                      letterSpacing: '-0.01em', boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
+                    }}>확인</button>
+                  </>
+                )
               ) : surveyStep < SURVEY_CATEGORIES.length ? (
                 <>
                   {/* progress */}
