@@ -1250,6 +1250,14 @@ function PROScreen({ tweaks, setTweak }) {
   const [reportTab, setReportTab] = React.useState('문진');
   const [recordTab, setRecordTab] = React.useState('상담');
   const [selectedTest, setSelectedTest] = React.useState(0);
+  const [navExpanded, setNavExpanded] = React.useState(null);
+
+  const navTo = (cfg) => {
+    setSidebarOpen(false);
+    setActiveTag(cfg.tag || null);
+    if (cfg.surveyMode) setSurveyMode(cfg.surveyMode);
+    if (cfg.reportType) setReportType(cfg.reportType);
+  };
 
   const closeSheet = () => {
     setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null);
@@ -1558,60 +1566,70 @@ function PROScreen({ tweaks, setTweak }) {
               }}>DR. ANSWER PRO</div>
             </div>
 
-            {/* Patient info */}
-            <div style={{ padding: '20px 24px', flex: 1 }}>
-              {[
-                { label: '암종', value: '대장암' },
-                { label: '기수', value: '3기b' },
-                { label: '항암제', value: '옥살리플라틴' },
-                { label: '항암사이클', value: '12회' },
-              ].map(({ label, value }) => (
-                <div key={label} style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  paddingBottom: 16, marginBottom: 16,
-                  borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'}`,
-                }}>
-                  <span style={{
-                    fontFamily: 'Pretendard', fontWeight: 400, fontSize: 13,
-                    color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
-                  }}>{label}</span>
-                  <span style={{
-                    fontFamily: 'Pretendard', fontWeight: 800, fontSize: 14,
-                    color: dark ? '#fff' : '#000', letterSpacing: '-0.01em',
-                  }}>{value}</span>
-                </div>
-              ))}
-
-              {/* Mode toggle */}
-              <div style={{
-                marginTop: 8,
-                background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
-                borderRadius: 16, padding: '4px',
-                display: 'flex',
-                border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
-              }}>
-                {['일반모드', '어르신모드'].map((mode, idx) => {
-                  const isActive = (idx === 0) ? !elderMode : elderMode;
+            {/* Navigation menu */}
+            <div style={{ padding: '12px 14px', flex: 1, overflowY: 'auto' }}>
+              {(() => {
+                const tColor = dark ? '#fff' : '#000';
+                const sColor = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
+                const hover = dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
+                const items = [
+                  { key:'문진', icon:'📝', label:'문진하기', accent:C.purple, children:[
+                    { label:'음성으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'voice' }) },
+                    { label:'버튼으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'button' }) },
+                  ]},
+                  { key:'리포트', icon:'📊', label:'리포트보기', accent:C.red, children:[
+                    { label:'나의 진료 기록', onClick:() => navTo({ tag:'리포트', reportType:'records' }) },
+                    { label:'나의 건강 리포트', onClick:() => navTo({ tag:'리포트', reportType:'personal' }) },
+                    { label:'의료진용 리포트', onClick:() => navTo({ tag:'리포트', reportType:'medical' }) },
+                  ]},
+                  { key:'체중', icon:'📏', label:'오늘 체중 기록', accent:C.main, onClick:() => navTo({ tag:'체중' }) },
+                  { key:'식단', icon:'🥗', label:'오늘 식단 기록', accent:C.purple, onClick:() => navTo({ tag:'식단' }) },
+                  { key:'운동', icon:'🏃', label:'오늘 운동 기록', accent:C.red, onClick:() => navTo({ tag:'운동' }) },
+                ];
+                return items.map(it => {
+                  const expanded = navExpanded === it.key;
                   return (
-                    <button
-                      key={mode}
-                      onClick={() => setElderMode(idx === 1)}
-                      style={{
-                        flex: 1, height: 40, borderRadius: 12, border: 'none', cursor: 'pointer',
-                        background: isActive
-                          ? (dark ? '#fff' : '#000')
-                          : 'transparent',
-                        color: isActive
-                          ? (dark ? '#000' : '#fff')
-                          : (dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)'),
-                        fontFamily: 'Pretendard', fontWeight: isActive ? 800 : 400,
-                        fontSize: 13, letterSpacing: '-0.01em',
-                        transition: 'all 0.2s ease',
-                      }}
-                    >{mode}</button>
+                    <div key={it.key}>
+                      <button
+                        onClick={() => it.children ? setNavExpanded(expanded ? null : it.key) : it.onClick()}
+                        onMouseEnter={e => e.currentTarget.style.background = hover}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        style={{
+                          width:'100%', display:'flex', alignItems:'center', gap:12,
+                          padding:'12px 14px', borderRadius:12, border:'none', cursor:'pointer',
+                          background:'transparent', textAlign:'left', transition:'background 0.15s',
+                        }}
+                      >
+                        <span style={{ fontSize:18, width:24, textAlign:'center' }}>{it.icon}</span>
+                        <span style={{ flex:1, fontFamily:'Pretendard', fontWeight:600, fontSize:14, color:tColor, letterSpacing:'-0.01em' }}>{it.label}</span>
+                        {it.children && (
+                          <svg width="10" height="6" viewBox="0 0 10 6" style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition:'transform 0.2s' }}>
+                            <path d="M1 1l4 4 4-4" stroke={sColor} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        )}
+                      </button>
+                      {it.children && expanded && (
+                        <div style={{ paddingLeft:14, paddingBottom:6 }}>
+                          {it.children.map((c, i) => (
+                            <button key={i} onClick={c.onClick}
+                              onMouseEnter={e => e.currentTarget.style.background = hover}
+                              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                              style={{
+                                width:'100%', display:'flex', alignItems:'center', gap:10,
+                                padding:'9px 14px', borderRadius:10, border:'none', cursor:'pointer',
+                                background:'transparent', textAlign:'left', transition:'background 0.15s',
+                              }}
+                            >
+                              <span style={{ width:4, height:4, borderRadius:'50%', background:it.accent, flexShrink:0 }} />
+                              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:sColor, letterSpacing:'-0.01em' }}>{c.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   );
-                })}
-              </div>
+                });
+              })()}
             </div>
 
             {/* Close button */}
