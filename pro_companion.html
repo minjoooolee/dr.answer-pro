@@ -1089,54 +1089,87 @@ const CONSULTATIONS = [
 
 const TEST_RESULTS = [
   {
-    name: '혈액검사 (5/7)',
+    name: '혈액검사 결과지',
     date: '2026.05.07',
+    hospital: '서울대학교병원 진단검사의학과',
     icon: '🩸',
     items: [
-      { label:'WBC',  value:'4.2', unit:'×10³/μL', range:'4.0–10.0', status:'normal' },
-      { label:'RBC',  value:'3.8', unit:'×10⁶/μL', range:'4.2–5.4',  status:'low' },
-      { label:'Hb',   value:'11.2', unit:'g/dL',    range:'12.0–16.0', status:'low' },
-      { label:'PLT',  value:'185', unit:'×10³/μL', range:'150–400',  status:'normal' },
-      { label:'CEA',  value:'2.8', unit:'ng/mL',   range:'<5.0',      status:'normal' },
-      { label:'CA19-9', value:'18.4', unit:'U/mL', range:'<37.0',    status:'normal' },
+      { label:'WBC',     value:'4.2',  unit:'×10³/μL', range:'4.0–10.0',  status:'normal' },
+      { label:'RBC',     value:'3.8',  unit:'×10⁶/μL', range:'4.2–5.4',   status:'low' },
+      { label:'Hb',      value:'11.2', unit:'g/dL',    range:'12.0–16.0', status:'low' },
+      { label:'PLT',     value:'185',  unit:'×10³/μL', range:'150–400',   status:'normal' },
+      { label:'CEA',     value:'2.8',  unit:'ng/mL',   range:'<5.0',      status:'normal' },
+      { label:'CA19-9',  value:'18.4', unit:'U/mL',    range:'<37.0',     status:'normal' },
     ],
     ai: '전반적으로 종양 표지자(CEA, CA19-9)는 정상 범위 내로 안정적입니다. 다만 RBC와 Hb 수치가 정상 하한보다 낮아 경증 빈혈이 관찰되며, 이는 항암 치료의 일반적 부작용입니다. 철분 함유 식품(붉은 살코기, 시금치, 콩류) 섭취를 권장하며, 다음 검사에서 추적 관찰이 필요합니다.',
   },
   {
-    name: 'PET-CT (4/23)',
+    name: 'PET-CT 결과지',
     date: '2026.04.23',
+    hospital: '서울대학교병원 핵의학과',
     icon: '🩻',
     items: [
-      { label:'원발 병소', value:'관해', unit:'', range:'-', status:'normal' },
-      { label:'간 전이',  value:'없음', unit:'', range:'-', status:'normal' },
-      { label:'폐 전이',  value:'없음', unit:'', range:'-', status:'normal' },
-      { label:'림프절',   value:'정상', unit:'', range:'-', status:'normal' },
-      { label:'SUVmax',   value:'2.1', unit:'',  range:'<2.5', status:'normal' },
+      { label:'원발 병소', value:'관해', unit:'', range:'-',    status:'normal' },
+      { label:'간 전이',   value:'없음', unit:'', range:'-',    status:'normal' },
+      { label:'폐 전이',   value:'없음', unit:'', range:'-',    status:'normal' },
+      { label:'림프절',    value:'정상', unit:'', range:'-',    status:'normal' },
+      { label:'SUVmax',    value:'2.1',  unit:'',  range:'<2.5', status:'normal' },
     ],
     ai: '전신 PET-CT 소견상 원발 부위와 주요 전이 호발 부위(간, 폐, 림프절)에서 새로운 병변이 관찰되지 않습니다. SUVmax 2.1로 대사 활성도가 낮아 잔존 종양 가능성이 낮습니다. 현재 치료 반응이 매우 양호한 상태로 평가되며, 3개월 후 추적 영상 검사를 권장합니다.',
   },
   {
-    name: '복부 CT (4/23)',
+    name: '조직검사 결과지',
+    date: '2026.03.04',
+    hospital: '서울대학교병원 병리과',
+    icon: '🔬',
+    items: [
+      { label:'조직 종류',   value:'대장 선암', unit:'', range:'-',     status:'caution' },
+      { label:'분화도',      value:'중등도',    unit:'', range:'-',     status:'caution' },
+      { label:'TNM 병기',    value:'T3N1M0',    unit:'', range:'-',     status:'caution' },
+      { label:'절제 경계',   value:'음성',      unit:'', range:'음성',  status:'normal' },
+      { label:'KRAS 변이',   value:'야생형',    unit:'', range:'-',     status:'normal' },
+      { label:'MSI 상태',    value:'MSS',       unit:'', range:'-',     status:'normal' },
+    ],
+    ai: '대장 선암(중등도 분화)이 확인되었으며 TNM 병기는 IIIB(T3N1M0)에 해당합니다. 절제 경계가 음성으로 완전 절제가 이루어졌습니다. KRAS 야생형, MSS 결과로 표적 치료제(EGFR 억제제) 적용 가능성이 있어 종양내과 상담을 권장합니다.',
+  },
+  {
+    name: 'MRI 결과지',
+    date: '2026.04.18',
+    hospital: '서울대학교병원 영상의학과',
+    icon: '🧲',
+    items: [
+      { label:'골반강 내',     value:'정상',  unit:'', range:'-', status:'normal' },
+      { label:'직장 주변 조직', value:'정상',  unit:'', range:'-', status:'normal' },
+      { label:'림프절',        value:'경미',  unit:'', range:'-', status:'caution' },
+      { label:'복수',          value:'없음',  unit:'', range:'-', status:'normal' },
+      { label:'골 전이',       value:'없음',  unit:'', range:'-', status:'normal' },
+    ],
+    ai: '골반 MRI 소견상 직장 주변 조직과 골반강 내 명확한 잔존 병변은 관찰되지 않습니다. 일부 림프절이 경미하게 관찰되나 반응성 변화로 판단되며 임상적 의미는 낮습니다. 골 전이 소견 없으며, 다음 추적 영상은 3개월 후 권장됩니다.',
+  },
+  {
+    name: '복부 CT 결과지',
     date: '2026.04.23',
+    hospital: '서울대학교병원 영상의학과',
     icon: '🖼️',
     items: [
-      { label:'간',     value:'정상', unit:'', range:'-', status:'normal' },
-      { label:'췌장',   value:'정상', unit:'', range:'-', status:'normal' },
-      { label:'신장',   value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'간',          value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'췌장',        value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'신장',        value:'정상', unit:'', range:'-', status:'normal' },
       { label:'복강 림프절', value:'경미', unit:'', range:'-', status:'caution' },
     ],
     ai: '복부 장기에 새로운 병변 소견은 없습니다. 복강 내 일부 림프절이 경미하게 관찰되나 임상적 의미는 낮은 것으로 판단됩니다. 다음 추적 영상 검사에서 변화 여부를 모니터링할 예정이며, 현재 시점에서는 정상 범위로 평가됩니다.',
   },
   {
-    name: '간기능 검사 (5/7)',
+    name: '간기능 검사 결과지',
     date: '2026.05.07',
+    hospital: '서울대학교병원 진단검사의학과',
     icon: '🧪',
     items: [
-      { label:'AST',  value:'28', unit:'U/L',  range:'<40',  status:'normal' },
-      { label:'ALT',  value:'32', unit:'U/L',  range:'<40',  status:'normal' },
-      { label:'ALP',  value:'88', unit:'U/L',  range:'40–130', status:'normal' },
-      { label:'T-Bil', value:'0.8', unit:'mg/dL', range:'<1.2', status:'normal' },
-      { label:'Albumin', value:'3.9', unit:'g/dL', range:'3.5–5.2', status:'normal' },
+      { label:'AST',     value:'28',  unit:'U/L',   range:'<40',     status:'normal' },
+      { label:'ALT',     value:'32',  unit:'U/L',   range:'<40',     status:'normal' },
+      { label:'ALP',     value:'88',  unit:'U/L',   range:'40–130',  status:'normal' },
+      { label:'T-Bil',   value:'0.8', unit:'mg/dL', range:'<1.2',    status:'normal' },
+      { label:'Albumin', value:'3.9', unit:'g/dL',  range:'3.5–5.2', status:'normal' },
     ],
     ai: '간 효소 수치(AST, ALT, ALP)는 모두 정상 범위 내에 있어 항암 치료로 인한 간 독성은 관찰되지 않습니다. 알부민 수치도 정상으로 영양 상태가 양호함을 시사합니다. 현재 용법·용량 유지가 안전한 것으로 평가됩니다.',
   },
@@ -2383,19 +2416,35 @@ function PROScreen({ tweaks, setTweak }) {
                     {/* 검사 결과 분석 */}
                     {recordTab === '검사' && (
                       <>
-                        {/* selector */}
-                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:8, letterSpacing:'-0.01em' }}>검사 기록 선택</div>
-                        <div style={{ display:'flex', gap:8, marginBottom:18, overflowX:'auto', paddingBottom:4 }}>
-                          {TEST_RESULTS.map((t, i) => (
-                            <button key={i} onClick={() => setSelectedTest(i)} style={{
-                              flexShrink:0, padding:'10px 14px', borderRadius:12, cursor:'pointer',
-                              border: selectedTest === i ? `1.5px solid ${C.main}` : `1px solid ${dark?'rgba(255,255,255,0.12)':'rgba(0,0,0,0.1)'}`,
-                              background: selectedTest === i ? (dark?'rgba(65,210,180,0.15)':'rgba(65,210,180,0.08)') : (dark?'rgba(255,255,255,0.03)':'#fff'),
-                              fontFamily:'Pretendard', fontWeight: selectedTest === i ? 700 : 500, fontSize:13,
-                              color: selectedTest === i ? C.main : (dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.65)'),
-                              transition:'all 0.15s', whiteSpace:'nowrap',
-                            }}>{TEST_RESULTS[i].icon} {TEST_RESULTS[i].name}</button>
-                          ))}
+                        {/* selector — vertical list */}
+                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:10, letterSpacing:'-0.01em' }}>검사 기록 선택</div>
+                        <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
+                          {TEST_RESULTS.map((t, i) => {
+                            const sel = selectedTest === i;
+                            return (
+                              <button key={i} onClick={() => setSelectedTest(i)} style={{
+                                width:'100%', padding:'14px 16px', borderRadius:14, cursor:'pointer', textAlign:'left',
+                                border: sel ? `1.5px solid ${C.main}` : `1px solid ${dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)'}`,
+                                background: sel ? (dark?'rgba(65,210,180,0.12)':'rgba(65,210,180,0.07)') : (dark?'rgba(255,255,255,0.03)':'#fff'),
+                                display:'flex', alignItems:'center', gap:12, transition:'all 0.15s',
+                              }}>
+                                <div style={{
+                                  width:38, height:38, borderRadius:11, flexShrink:0,
+                                  background: sel ? (dark?'rgba(65,210,180,0.22)':'rgba(65,210,180,0.15)') : (dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)'),
+                                  display:'flex', alignItems:'center', justifyContent:'center', fontSize:18,
+                                }}>{t.icon}</div>
+                                <div style={{ flex:1, minWidth:0 }}>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:14, color: sel ? C.main : (dark?'#fff':'#000'), marginBottom:2, letterSpacing:'-0.01em' }}>{t.name}</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.hospital} · {t.date}</div>
+                                </div>
+                                {sel ? (
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill={C.main}/><path d="M8 12.5l3 3 5-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                ) : (
+                                  <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke={dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)'} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                )}
+                              </button>
+                            );
+                          })}
                         </div>
 
                         {/* selected report */}
@@ -2408,9 +2457,12 @@ function PROScreen({ tweaks, setTweak }) {
                                 background: dark?'rgba(255,255,255,0.04)':'#fff',
                                 border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
                               }}>
-                                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
-                                  <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{t.icon} {t.name}</div>
-                                  <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{t.date}</div>
+                                <div style={{ marginBottom:14 }}>
+                                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+                                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{t.icon} {t.name}</div>
+                                    <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{t.date}</div>
+                                  </div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)' }}>{t.hospital}</div>
                                 </div>
                                 <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
                                   {t.items.map((it, j) => {
