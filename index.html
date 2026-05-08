@@ -2481,6 +2481,29 @@ function PROScreen({ tweaks, setTweak }) {
                       ))}
                     </div>
 
+                    {/* 식단 탭: 월간 영양소 비율 가로 그래프 (LLM 요약 위) */}
+                    {reportTab === '식단' && (
+                      <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)', marginBottom:12, letterSpacing:'-0.01em' }}>월간 평균 영양소 비율</div>
+                        {[
+                          { label:'단백질', pct:58, val:'71g', color:'#41d2b4' },
+                          { label:'지방',   pct:26, val:'22g', color:'#7d50f0' },
+                          { label:'탄수화물', pct:12, val:'14g', color:'#f59e0b' },
+                          { label:'기타',   pct:4,  val:'—',  color:'rgba(0,0,0,0.18)' },
+                        ].map((item, i) => (
+                          <div key={i} style={{ marginBottom: i < 3 ? 10 : 0 }}>
+                            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.65)' }}>{item.label}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: item.color === 'rgba(0,0,0,0.18)' ? (dark?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.35)') : item.color }}>{item.val} <span style={{ fontWeight:500, fontSize:11 }}>({item.pct}%)</span></span>
+                            </div>
+                            <div style={{ height:8, borderRadius:4, background: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)', overflow:'hidden' }}>
+                              <div style={{ height:'100%', width:`${item.pct}%`, borderRadius:4, background: item.color }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     {/* LLM summary card */}
                     <div style={{
                       borderRadius:16, padding:'14px 16px', marginBottom:20,
@@ -2490,6 +2513,14 @@ function PROScreen({ tweaks, setTweak }) {
                       <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:C.purple, marginBottom:6, letterSpacing:'-0.01em' }}>✨ AI 월간 {reportTab} 요약</div>
                       <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', lineHeight:1.65 }}>{REPORT_LLM_SUMMARY[reportTab]}</div>
                     </div>
+
+                    {/* 체중 탭: 월간 그래프 */}
+                    {reportTab === '체중' && (
+                      <div style={{ borderRadius:16, padding:'10px 6px 6px', marginBottom:14, background: dark?'rgba(65,210,180,0.05)':'rgba(65,210,180,0.05)', border:`1px solid ${dark?'rgba(65,210,180,0.15)':'rgba(65,210,180,0.18)'}` }}>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', paddingLeft:10, marginBottom:4 }}>월간 체중 추이 (kg)</div>
+                        <WeightChart data={REPORT_WEIGHT_DIARY} dark={dark} accent={C.main} />
+                      </div>
+                    )}
 
                     {/* diary entries */}
                     <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
