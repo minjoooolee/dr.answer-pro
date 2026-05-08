@@ -1043,6 +1043,105 @@ const MEDICAL_SCORES = [
 ];
 const MEDICAL_LLM = '5월 전반적으로 통증·기분 지표가 개선 추세를 보였습니다. 5월 9일 복합 이상 반응(통증 1점·피로 1점·신경증상 이상)이 단기적으로 나타났으며 치료 반응을 모니터링할 필요가 있습니다. 소화 관련 수치는 3.6으로 안정적이나 간헐적 소화 불량이 반복되고 있어 식이 상담을 권장합니다. 피로·수면 지표가 3.1로 상대적으로 낮으므로 생활 패턴 점검이 필요합니다.';
 
+// ── Medical records mock data ────────────────────────────────────
+const CONSULTATIONS = [
+  {
+    date: '2026.05.07',
+    department: '종양내과',
+    doctor: '김정훈 교수',
+    color: '#7d50f0',
+    summary: 'FOLFOX 6차 항암 치료 진행 상황을 점검했습니다. 말초신경병증(손발 저림) 증상에 대해 논의했으며, 다음 주기 용량을 80%로 조정하기로 했습니다. 영양 상태 양호, 체중 감소 적정 범위 내로 평가되었습니다.',
+    keypoints: ['항암 6차 진행', '용량 80% 조정', '신경병증 모니터링'],
+  },
+  {
+    date: '2026.04.23',
+    department: '대장암 센터',
+    doctor: '이수진 교수',
+    color: '#ee3f60',
+    summary: '수술 후 6개월 추적 검사 결과를 공유했습니다. CEA 수치가 정상 범위로 안정적이며, 복부 CT상 재발 소견 없습니다. 일상 생활 복귀가 가능하며, 다음 추적 검사는 3개월 후로 예정되었습니다.',
+    keypoints: ['CEA 정상 범위', '재발 소견 없음', '3개월 후 추적'],
+  },
+  {
+    date: '2026.04.10',
+    department: '종양내과',
+    doctor: '김정훈 교수',
+    color: '#7d50f0',
+    summary: 'FOLFOX 5차 항암 치료 후 부작용 면담을 진행했습니다. 메스꺼움은 호전되었으나 피로감 지속됩니다. 항구토제 처방 변경, 충분한 수분 섭취와 휴식 권고하였습니다.',
+    keypoints: ['5차 항암 완료', '항구토제 변경', '피로 관리'],
+  },
+  {
+    date: '2026.03.28',
+    department: '영양 클리닉',
+    doctor: '박지영 영양사',
+    color: '#41d2b4',
+    summary: '항암 치료 중 영양 관리 상담을 진행했습니다. 단백질 섭취 부족 우려가 있어, 일일 단백질 1.2g/kg 목표 설정했습니다. 식단 일지 작성을 통해 패턴을 점검하기로 했습니다.',
+    keypoints: ['단백질 목표 설정', '식단 일지 시작', '소량 다회 식사'],
+  },
+  {
+    date: '2026.03.15',
+    department: '대장암 센터',
+    doctor: '이수진 교수',
+    color: '#ee3f60',
+    summary: '수술 부위 회복 상태를 점검했습니다. 절개 부위 정상 회복, 장 기능 회복 양호합니다. 가벼운 운동(걷기, 요가) 시작 가능하며, 무거운 물건 들기는 4주간 제한입니다.',
+    keypoints: ['수술 부위 정상', '가벼운 운동 가능', '무거운 물건 제한'],
+  },
+];
+
+const TEST_RESULTS = [
+  {
+    name: '혈액검사 (5/7)',
+    date: '2026.05.07',
+    icon: '🩸',
+    items: [
+      { label:'WBC',  value:'4.2', unit:'×10³/μL', range:'4.0–10.0', status:'normal' },
+      { label:'RBC',  value:'3.8', unit:'×10⁶/μL', range:'4.2–5.4',  status:'low' },
+      { label:'Hb',   value:'11.2', unit:'g/dL',    range:'12.0–16.0', status:'low' },
+      { label:'PLT',  value:'185', unit:'×10³/μL', range:'150–400',  status:'normal' },
+      { label:'CEA',  value:'2.8', unit:'ng/mL',   range:'<5.0',      status:'normal' },
+      { label:'CA19-9', value:'18.4', unit:'U/mL', range:'<37.0',    status:'normal' },
+    ],
+    ai: '전반적으로 종양 표지자(CEA, CA19-9)는 정상 범위 내로 안정적입니다. 다만 RBC와 Hb 수치가 정상 하한보다 낮아 경증 빈혈이 관찰되며, 이는 항암 치료의 일반적 부작용입니다. 철분 함유 식품(붉은 살코기, 시금치, 콩류) 섭취를 권장하며, 다음 검사에서 추적 관찰이 필요합니다.',
+  },
+  {
+    name: 'PET-CT (4/23)',
+    date: '2026.04.23',
+    icon: '🩻',
+    items: [
+      { label:'원발 병소', value:'관해', unit:'', range:'-', status:'normal' },
+      { label:'간 전이',  value:'없음', unit:'', range:'-', status:'normal' },
+      { label:'폐 전이',  value:'없음', unit:'', range:'-', status:'normal' },
+      { label:'림프절',   value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'SUVmax',   value:'2.1', unit:'',  range:'<2.5', status:'normal' },
+    ],
+    ai: '전신 PET-CT 소견상 원발 부위와 주요 전이 호발 부위(간, 폐, 림프절)에서 새로운 병변이 관찰되지 않습니다. SUVmax 2.1로 대사 활성도가 낮아 잔존 종양 가능성이 낮습니다. 현재 치료 반응이 매우 양호한 상태로 평가되며, 3개월 후 추적 영상 검사를 권장합니다.',
+  },
+  {
+    name: '복부 CT (4/23)',
+    date: '2026.04.23',
+    icon: '🖼️',
+    items: [
+      { label:'간',     value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'췌장',   value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'신장',   value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'복강 림프절', value:'경미', unit:'', range:'-', status:'caution' },
+    ],
+    ai: '복부 장기에 새로운 병변 소견은 없습니다. 복강 내 일부 림프절이 경미하게 관찰되나 임상적 의미는 낮은 것으로 판단됩니다. 다음 추적 영상 검사에서 변화 여부를 모니터링할 예정이며, 현재 시점에서는 정상 범위로 평가됩니다.',
+  },
+  {
+    name: '간기능 검사 (5/7)',
+    date: '2026.05.07',
+    icon: '🧪',
+    items: [
+      { label:'AST',  value:'28', unit:'U/L',  range:'<40',  status:'normal' },
+      { label:'ALT',  value:'32', unit:'U/L',  range:'<40',  status:'normal' },
+      { label:'ALP',  value:'88', unit:'U/L',  range:'40–130', status:'normal' },
+      { label:'T-Bil', value:'0.8', unit:'mg/dL', range:'<1.2', status:'normal' },
+      { label:'Albumin', value:'3.9', unit:'g/dL', range:'3.5–5.2', status:'normal' },
+    ],
+    ai: '간 효소 수치(AST, ALT, ALP)는 모두 정상 범위 내에 있어 항암 치료로 인한 간 독성은 관찰되지 않습니다. 알부민 수치도 정상으로 영양 상태가 양호함을 시사합니다. 현재 용법·용량 유지가 안전한 것으로 평가됩니다.',
+  },
+];
+
 function ExerciseCard({ dark, accent = '#ee3f60' }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -1099,13 +1198,15 @@ function PROScreen({ tweaks, setTweak }) {
   const [exerciseRecording, setExerciseRecording] = React.useState(false);
   const [reportType, setReportType] = React.useState(null);
   const [reportTab, setReportTab] = React.useState('문진');
+  const [recordTab, setRecordTab] = React.useState('상담');
+  const [selectedTest, setSelectedTest] = React.useState(0);
 
   const closeSheet = () => {
     setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null);
     setTranscript(''); setTodayWeight('');
     setDietMode(null); setDietInput(''); setDietAnalyzed(false); setDietPhoto(null); setDietRecording(false);
     setExerciseDone(null); setExerciseMode(null); setExerciseInput(''); setExerciseAnalyzed(false); setExerciseRecording(false);
-    setReportType(null); setReportTab('문진');
+    setReportType(null); setReportTab('문진'); setRecordTab('상담'); setSelectedTest(0);
   };
   const advanceSurvey = () => { setSurveyStep(s => s + 1); setSubStep(-1); };
 
@@ -2190,6 +2291,14 @@ function PROScreen({ tweaks, setTweak }) {
                       lineHeight: 1.55, marginBottom: 28,
                     }}>어떤 리포트를 확인하시겠어요?</div>
                     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                      <button onClick={() => setReportType('records')} style={{
+                        width:'100%', padding:'20px 22px', borderRadius:18, border:'none', cursor:'pointer',
+                        background: dark ? 'rgba(65,210,180,0.16)' : 'rgba(65,210,180,0.1)',
+                        textAlign:'left', position:'relative', overflow:'hidden',
+                      }}>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:17, color: C.main, marginBottom:4 }}>🩺 나의 진료 기록</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>진료실 상담 기록과 검사 결과 분석을 확인하고 AI 해석을 받아보세요.</div>
+                      </button>
                       <button onClick={() => setReportType('personal')} style={{
                         width:'100%', padding:'20px 22px', borderRadius:18, border:'none', cursor:'pointer',
                         background: dark ? 'rgba(125,80,240,0.18)' : 'rgba(125,80,240,0.08)',
@@ -2207,6 +2316,139 @@ function PROScreen({ tweaks, setTweak }) {
                         <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>수치화된 월간 평균 점수와 AI 분석 요약을 의료진과 공유하세요.</div>
                       </button>
                     </div>
+                  </>
+                )}
+
+                {/* ── 나의 진료 기록 ── */}
+                {reportType === 'records' && (
+                  <>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+                      <button onClick={() => setReportType(null)} style={{ background:'none', border:'none', cursor:'pointer', padding:'4px 0', display:'flex', alignItems:'center', gap:4 }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke={dark?'#fff':'#000'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.5)' }}>뒤로</span>
+                      </button>
+                      <div style={{ width:50 }} />
+                      <div style={{ width:50 }} />
+                    </div>
+                    <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:20, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>🩺 나의 진료 기록</div>
+
+                    {/* tab bar */}
+                    <div style={{ display:'flex', gap:4, marginBottom:20, padding:'3px', borderRadius:12, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)' }}>
+                      {[{key:'상담', label:'진료실 상담 기록'}, {key:'검사', label:'검사 결과 분석'}].map(t => (
+                        <button key={t.key} onClick={() => setRecordTab(t.key)} style={{
+                          flex:1, padding:'9px 0', borderRadius:9, border:'none',
+                          background: recordTab === t.key ? (dark?'rgba(255,255,255,0.18)':'#fff') : 'transparent',
+                          boxShadow: recordTab === t.key ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                          color: recordTab === t.key ? (dark?'#fff':C.main) : (dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)'),
+                          fontFamily:'Pretendard', fontWeight: recordTab === t.key ? 700 : 500, fontSize:13,
+                          cursor:'pointer', transition:'all 0.15s',
+                        }}>{t.label}</button>
+                      ))}
+                    </div>
+
+                    {/* 진료실 상담 기록 */}
+                    {recordTab === '상담' && (
+                      <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                        {CONSULTATIONS.map((c, i) => (
+                          <div key={i} style={{
+                            borderRadius:16, padding:'16px 18px',
+                            background: dark?'rgba(255,255,255,0.04)':'#fff',
+                            border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
+                            borderLeft:`3px solid ${c.color}`,
+                          }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.8)' }}>{c.date}</div>
+                              <div style={{
+                                padding:'3px 10px', borderRadius:10, fontFamily:'Pretendard', fontWeight:600, fontSize:11,
+                                background: `${c.color}1f`, color: c.color,
+                              }}>{c.department}</div>
+                            </div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:14, color: dark?'#fff':'#000', marginBottom:10, letterSpacing:'-0.01em' }}>👨‍⚕️ {c.doctor}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.65)', lineHeight:1.65, marginBottom:12 }}>{c.summary}</div>
+                            <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                              {c.keypoints.map((k, j) => (
+                                <span key={j} style={{
+                                  padding:'4px 10px', borderRadius:10, fontFamily:'Pretendard', fontWeight:500, fontSize:11,
+                                  background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)',
+                                  color: dark?'rgba(255,255,255,0.65)':'rgba(0,0,0,0.55)',
+                                }}>#{k}</span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                        <div style={{ height:20 }} />
+                      </div>
+                    )}
+
+                    {/* 검사 결과 분석 */}
+                    {recordTab === '검사' && (
+                      <>
+                        {/* selector */}
+                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:8, letterSpacing:'-0.01em' }}>검사 기록 선택</div>
+                        <div style={{ display:'flex', gap:8, marginBottom:18, overflowX:'auto', paddingBottom:4 }}>
+                          {TEST_RESULTS.map((t, i) => (
+                            <button key={i} onClick={() => setSelectedTest(i)} style={{
+                              flexShrink:0, padding:'10px 14px', borderRadius:12, cursor:'pointer',
+                              border: selectedTest === i ? `1.5px solid ${C.main}` : `1px solid ${dark?'rgba(255,255,255,0.12)':'rgba(0,0,0,0.1)'}`,
+                              background: selectedTest === i ? (dark?'rgba(65,210,180,0.15)':'rgba(65,210,180,0.08)') : (dark?'rgba(255,255,255,0.03)':'#fff'),
+                              fontFamily:'Pretendard', fontWeight: selectedTest === i ? 700 : 500, fontSize:13,
+                              color: selectedTest === i ? C.main : (dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.65)'),
+                              transition:'all 0.15s', whiteSpace:'nowrap',
+                            }}>{TEST_RESULTS[i].icon} {TEST_RESULTS[i].name}</button>
+                          ))}
+                        </div>
+
+                        {/* selected report */}
+                        {(() => {
+                          const t = TEST_RESULTS[selectedTest];
+                          return (
+                            <>
+                              <div style={{
+                                borderRadius:16, padding:'16px 18px', marginBottom:14,
+                                background: dark?'rgba(255,255,255,0.04)':'#fff',
+                                border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
+                              }}>
+                                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{t.icon} {t.name}</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{t.date}</div>
+                                </div>
+                                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                                  {t.items.map((it, j) => {
+                                    const sc = it.status === 'normal' ? C.main : it.status === 'low' ? C.red : it.status === 'caution' ? '#f59e0b' : C.red;
+                                    const sl = it.status === 'normal' ? '정상' : it.status === 'low' ? '낮음' : it.status === 'caution' ? '주의' : '높음';
+                                    return (
+                                      <div key={j} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', paddingBottom:10, borderBottom: j < t.items.length-1 ? `1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}` : 'none' }}>
+                                        <div>
+                                          <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color: dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.8)' }}>{it.label}</div>
+                                          {it.range !== '-' && <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:10, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginTop:2 }}>참고: {it.range}</div>}
+                                        </div>
+                                        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                                          <div style={{ textAlign:'right' }}>
+                                            <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:sc, letterSpacing:'-0.01em' }}>{it.value}</span>
+                                            {it.unit && <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginLeft:4 }}>{it.unit}</span>}
+                                          </div>
+                                          <span style={{ padding:'2px 8px', borderRadius:8, fontFamily:'Pretendard', fontWeight:600, fontSize:10, background:`${sc}1f`, color:sc, minWidth:34, textAlign:'center' }}>{sl}</span>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+
+                              {/* AI interpretation */}
+                              <div style={{
+                                borderRadius:16, padding:'14px 16px', marginBottom:24,
+                                background: dark?'rgba(125,80,240,0.12)':'rgba(125,80,240,0.07)',
+                                border:`1px solid ${dark?'rgba(125,80,240,0.25)':'rgba(125,80,240,0.18)'}`,
+                              }}>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:C.purple, marginBottom:8, letterSpacing:'-0.01em' }}>✨ AI 해석</div>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.78)':'rgba(0,0,0,0.7)', lineHeight:1.7 }}>{t.ai}</div>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </>
+                    )}
                   </>
                 )}
 
