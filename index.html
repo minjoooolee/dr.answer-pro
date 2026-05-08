@@ -1185,7 +1185,9 @@ function PROScreen({ tweaks, setTweak }) {
           <div onClick={e => e.stopPropagation()} style={{
             width: '100%', background: dark ? '#0d1614' : '#fff',
             borderTopLeftRadius: 28, borderTopRightRadius: 28,
-            padding: '20px 24px 32px',
+            padding: activeTag === '문진' && surveyMode ? '20px 28px 40px' : '20px 24px 32px',
+            minHeight: activeTag === '문진' && surveyMode ? '78%' : 'auto',
+            display: 'flex', flexDirection: 'column',
             animation: 'sheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
           }}>
             {/* drag handle */}
