@@ -2330,7 +2330,7 @@ function PROScreen({ tweaks, setTweak }) {
                         textAlign:'left', position:'relative', overflow:'hidden',
                       }}>
                         <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:17, color: C.main, marginBottom:4 }}>🩺 나의 진료 기록</div>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>진료실 상담 기록과 검사 결과 분석을 확인하고 AI 해석을 받아보세요.</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>병원에서 받은 진료 상담 내용과 검사 결과지를 모아 보고, 각 검사 수치에 대한 AI 해석을 확인할 수 있어요.</div>
                       </button>
                       <button onClick={() => setReportType('personal')} style={{
                         width:'100%', padding:'20px 22px', borderRadius:18, border:'none', cursor:'pointer',
@@ -2338,7 +2338,7 @@ function PROScreen({ tweaks, setTweak }) {
                         textAlign:'left', position:'relative', overflow:'hidden',
                       }}>
                         <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:17, color: C.purple, marginBottom:4 }}>📓 나의 건강 리포트</div>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>다이어리 형식으로 월간 문진·체중·식단·운동 기록과 AI 요약을 확인하세요.</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>매일 기록한 문진·체중·식단·운동을 다이어리 형태로 한 달간 돌아보고, 항목별 AI 월간 요약을 확인할 수 있어요.</div>
                       </button>
                       <button onClick={() => setReportType('medical')} style={{
                         width:'100%', padding:'20px 22px', borderRadius:18, border:'none', cursor:'pointer',
@@ -2346,7 +2346,7 @@ function PROScreen({ tweaks, setTweak }) {
                         textAlign:'left', position:'relative', overflow:'hidden',
                       }}>
                         <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:17, color: C.red, marginBottom:4 }}>🏥 의료진용 리포트</div>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>수치화된 월간 평균 점수와 AI 분석 요약을 의료진과 공유하세요.</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.5 }}>증상별 1–5점 월간 평균 점수와 체중·식단·운동 통계를 한 페이지에 정리해 의료진 진료 시 공유할 수 있어요.</div>
                       </button>
                     </div>
                   </>
