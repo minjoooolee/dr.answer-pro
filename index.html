@@ -4,40 +4,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>닥터앤서 PRO</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 100%; height: 100%; }
-  body {
-    font-family: system-ui, sans-serif;
-    background: #f3f6f5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-  }
-  iframe {
-    width: 100%;
-    height: 100vh;
-    border: none;
-    display: block;
-  }
-  #error {
-    display: none;
-    text-align: center;
-    padding: 40px;
-    color: #555;
-  }
-  #error h2 { margin-bottom: 8px; color: #333; }
-</style>
-</head>
-<body>
-<iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe>
-
 <script>
-(function () {
   var hash = window.location.hash.slice(1) || 'pro_companion';
-  document.getElementById('frame').src = hash + '.html';
-})();
+  window.location.replace(hash + '.html');
 </script>
-</body>
+</head>
+<body></body>
 </html>
