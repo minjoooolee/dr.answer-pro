@@ -1444,6 +1444,8 @@ function PROScreen({ tweaks, setTweak }) {
             onClick={() => submitted ? setSubmitted(false) : setActiveTag('문진')}
           />
           <Tag label="📊 리포트보기" dark={dark} onClick={() => setActiveTag('리포트')} />
+          <Tag label="💊 나의 항암제" dark={dark} onClick={() => setActiveTag('항암제')} />
+          <Tag label="⚠️ 이상증세 기록" dark={dark} onClick={() => setActiveTag('이상증세')} />
           <Tag label="📏 오늘 체중 기록" dark={dark} onClick={() => setActiveTag('체중')} />
           <Tag label="🥗 오늘의 식단 기록" dark={dark} onClick={() => setActiveTag('식단')} />
           <Tag label="🏃 오늘의 운동 기록" dark={dark} onClick={() => setActiveTag('운동')} />
@@ -1582,6 +1584,8 @@ function PROScreen({ tweaks, setTweak }) {
                     { label:'나의 건강 리포트', onClick:() => navTo({ tag:'리포트', reportType:'personal' }) },
                     { label:'의료진용 리포트', onClick:() => navTo({ tag:'리포트', reportType:'medical' }) },
                   ]},
+                  { key:'항암제', icon:'💊', label:'나의 항암제', accent:C.purple, onClick:() => navTo({ tag:'항암제' }) },
+                  { key:'이상증세', icon:'⚠️', label:'이상증세 기록', accent:C.red, onClick:() => navTo({ tag:'이상증세' }) },
                   { key:'체중', icon:'📏', label:'오늘 체중 기록', accent:C.main, onClick:() => navTo({ tag:'체중' }) },
                   { key:'식단', icon:'🥗', label:'오늘 식단 기록', accent:C.purple, onClick:() => navTo({ tag:'식단' }) },
                   { key:'운동', icon:'🏃', label:'오늘 운동 기록', accent:C.red, onClick:() => navTo({ tag:'운동' }) },
@@ -2744,6 +2748,32 @@ function PROScreen({ tweaks, setTweak }) {
                     <div style={{ height:24 }} />
                   </>
                 )}
+              </>
+            ) : (activeTag === '항암제' || activeTag === '이상증세') ? (
+              <>
+                <div style={{
+                  fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                  letterSpacing: '0.22em', textTransform: 'uppercase',
+                  color: activeTag === '항암제' ? C.purple : C.red, marginBottom: 8,
+                }}>{activeTag === '항암제' ? 'CHEMOTHERAPY' : 'SIDE EFFECTS'}</div>
+                <div style={{
+                  fontFamily: 'Pretendard', fontWeight: 800, fontSize: 22,
+                  color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
+                }}>{activeTag === '항암제' ? '💊 나의 항암제' : '⚠️ 이상증세 기록'}</div>
+                <div style={{
+                  fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
+                  color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
+                  lineHeight: 1.55, marginBottom: 22,
+                }}>{activeTag === '항암제'
+                  ? '복용 중인 항암제 정보와 복약 일정, 부작용 가이드를 확인할 수 있어요.'
+                  : '오늘 느낀 통증, 발열, 메스꺼움 등 이상증세를 기록하고 의료진과 공유할 수 있어요.'}</div>
+                <div style={{
+                  padding: '14px 16px', borderRadius: 14,
+                  background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+                  border: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+                  fontFamily: 'Pretendard', fontWeight: 500, fontSize: 13,
+                  color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)', textAlign: 'center',
+                }}>준비 중인 기능입니다.</div>
               </>
             ) : null
             }
