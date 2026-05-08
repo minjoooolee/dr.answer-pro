@@ -1495,6 +1495,9 @@ function PROScreen({ tweaks, setTweak }) {
             borderTopLeftRadius: 28, borderTopRightRadius: 28,
             padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) ? '20px 28px 40px' : '20px 24px 32px',
             minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) ? '88%' : 'auto',
+            maxHeight: '92%',
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
             display: 'flex', flexDirection: 'column',
             animation: 'sheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
           }}>
