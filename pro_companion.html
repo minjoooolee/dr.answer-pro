@@ -1224,6 +1224,86 @@ function ExerciseCard({ dark, accent = '#ee3f60' }) {
   );
 }
 
+// ── Chemotherapy mock data ───────────────────────────────────────
+const CURRENT_CHEMO = {
+  name: '옥살리플라틴',
+  brand: 'Eloxatin (엘록사틴)',
+  cycle: '2주 1회',
+  round: '6차 / 총 12차',
+  regimen: 'FOLFOX 복합 요법',
+  function: '백금 계열 알킬화제로, DNA 이중 가닥에 교차 결합을 형성해 암세포의 복제와 분열을 억제합니다. 대장암 표준 1차 항암 치료에 5-FU·류코보린과 병용 사용합니다.',
+  sideEffects: ['말초신경병증 (손발 저림·냉감)', '오심·구토', '피로감', '구내염', '탈모(경미)', '호중구 감소증', '냉각 과민반응'],
+};
+const COVERED_DRUGS = [
+  {
+    name: '5-FU (플루오로우라실)', received: true,
+    desc: '피리미딘 계열 항대사제. DNA 합성을 차단해 암세포 증식을 억제합니다.',
+    sideEffects: '구내염, 설사, 손발바닥 발적·통증(HFS), 골수 억제',
+  },
+  {
+    name: '카페시타빈 (젤로다)', received: true,
+    desc: '경구용 5-FU 전구약물. 체내에서 5-FU로 변환되어 작용합니다.',
+    sideEffects: '손발바닥증후군(HFS), 오심, 설사, 피로',
+  },
+  {
+    name: '이리노테칸', received: false, color: '#41d2b4',
+    desc: '토포이소머라제 I 억제제. DNA 복제 과정을 방해해 암세포를 사멸시킵니다.',
+    sideEffects: '지연성 설사(주의), 골수 억제, 탈모, 오심',
+  },
+  {
+    name: '베바시주맙 (아바스틴)', received: false, color: '#7d50f0',
+    desc: 'VEGF 표적 항체. 종양 혈관 신생을 차단해 암세포 영양 공급을 억제합니다.',
+    sideEffects: '고혈압, 단백뇨, 출혈 위험, 상처 회복 지연',
+  },
+  {
+    name: '세툭시맙 (얼비툭스)', received: false, color: '#ee3f60',
+    desc: 'EGFR 표적 단클론항체. KRAS 야생형 대장암에 효과적입니다.',
+    sideEffects: '여드름성 피부 발진(효과 지표), 저마그네슘혈증, 주입 반응',
+  },
+  {
+    name: '파니투무맙 (벡티빅스)', received: false, color: '#f59e0b',
+    desc: '완전 인간화 EGFR 단클론항체. 세툭시맙 대비 주입 반응 위험이 낮습니다.',
+    sideEffects: '피부 독성, 손발톱 주위염, 피로, 저마그네슘혈증',
+  },
+  {
+    name: '엔코라페닙 (비라토비)', received: false, color: '#41d2b4',
+    desc: 'BRAF V600E 억제제. 세툭시맙과 병용해 BRAF 변이 대장암에 사용합니다.',
+    sideEffects: '피로, 관절통, 오심, 광과민반응',
+  },
+  {
+    name: '펨브롤리주맙 (키트루다)', received: false, color: '#7d50f0',
+    desc: 'PD-1 면역관문억제제. MSI-H/MMR 결함 대장암에서 강한 효과를 보입니다.',
+    sideEffects: '면역 관련 폐렴·간염·내분비 이상, 피로, 피부 발진',
+  },
+  {
+    name: '론서프 (TAS-102)', received: false, color: '#ee3f60',
+    desc: '트리플루리딘+티피라실 경구 복합제. 다중 치료 실패 후 3·4차에 사용합니다.',
+    sideEffects: '골수 억제(호중구 감소), 오심, 피로, 식욕 감소',
+  },
+  {
+    name: '스티바가 (레고라페닙)', received: false, color: '#f59e0b',
+    desc: '다중 키나제 억제제(경구). 혈관·기질·종양 경로를 동시에 차단합니다.',
+    sideEffects: '수족구증후군, 피로, 고혈압, 간 독성(간수치 모니터링)',
+  },
+];
+const NONCOVERED_DRUGS = [
+  {
+    name: '라무시루맙 (사이람자)', color: '#41d2b4',
+    desc: 'VEGFR-2 표적 단클론항체. 이리노테칸과 병용해 2차 치료에 사용됩니다.',
+    sideEffects: '고혈압, 단백뇨, 피로, 혈전·출혈 위험',
+  },
+  {
+    name: '프루퀸티닙 (프루퀴티닙)', color: '#7d50f0',
+    desc: '고선택적 VEGFR 1/2/3 억제제(경구). 다중 치료 실패 후 단독 사용합니다.',
+    sideEffects: '고혈압, 단백뇨, 수족구증후군, 발성장애, 피로',
+  },
+  {
+    name: '트라스투주맙 + 퍼투주맙', color: '#ee3f60',
+    desc: 'HER2 표적 이중 항체 병용 요법. HER2 양성 대장암 후기 치료에 사용됩니다.',
+    sideEffects: '심장 독성(좌심실 기능 모니터링), 주입 반응, 설사, 피로',
+  },
+];
+
 function PROScreen({ tweaks, setTweak }) {
   const [text, setText] = React.useState('');
   const [recording, setRecording] = React.useState(false);
@@ -1251,6 +1331,9 @@ function PROScreen({ tweaks, setTweak }) {
   const [recordTab, setRecordTab] = React.useState('상담');
   const [selectedTest, setSelectedTest] = React.useState(0);
   const [navExpanded, setNavExpanded] = React.useState(null);
+  const [chemoTab, setChemoTab] = React.useState('나의 항암제');
+  const [coverTab, setCoverTab] = React.useState('급여');
+  const [expandedDrug, setExpandedDrug] = React.useState(null);
 
   const navTo = (cfg) => {
     setSidebarOpen(false);
@@ -1265,6 +1348,7 @@ function PROScreen({ tweaks, setTweak }) {
     setDietMode(null); setDietInput(''); setDietAnalyzed(false); setDietPhoto(null); setDietRecording(false);
     setExerciseDone(null); setExerciseMode(null); setExerciseInput(''); setExerciseAnalyzed(false); setExerciseRecording(false);
     setReportType(null); setReportTab('문진'); setRecordTab('상담'); setSelectedTest(0);
+    setChemoTab('나의 항암제'); setCoverTab('급여'); setExpandedDrug(null);
   };
   const advanceSurvey = () => { setSurveyStep(s => s + 1); setSubStep(-1); };
 
@@ -1666,8 +1750,8 @@ function PROScreen({ tweaks, setTweak }) {
           <div onClick={e => e.stopPropagation()} style={{
             width: '100%', background: dark ? '#0d1614' : '#fff',
             borderTopLeftRadius: 28, borderTopRightRadius: 28,
-            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) ? '20px 28px 40px' : '20px 24px 32px',
-            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) ? '88%' : 'auto',
+            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) || activeTag === '항암제' ? '20px 28px 40px' : '20px 24px 32px',
+            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) || activeTag === '항암제' ? '88%' : 'auto',
             maxHeight: '92%',
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch',
@@ -2749,31 +2833,155 @@ function PROScreen({ tweaks, setTweak }) {
                   </>
                 )}
               </>
-            ) : (activeTag === '항암제' || activeTag === '이상증세') ? (
+            ) : activeTag === '항암제' ? (
               <>
-                <div style={{
-                  fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
-                  letterSpacing: '0.22em', textTransform: 'uppercase',
-                  color: activeTag === '항암제' ? C.purple : C.red, marginBottom: 8,
-                }}>{activeTag === '항암제' ? 'CHEMOTHERAPY' : 'SIDE EFFECTS'}</div>
-                <div style={{
-                  fontFamily: 'Pretendard', fontWeight: 800, fontSize: 22,
-                  color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
-                }}>{activeTag === '항암제' ? '💊 나의 항암제' : '⚠️ 이상증세 기록'}</div>
-                <div style={{
-                  fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
-                  color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
-                  lineHeight: 1.55, marginBottom: 22,
-                }}>{activeTag === '항암제'
-                  ? '복용 중인 항암제 정보와 복약 일정, 부작용 가이드를 확인할 수 있어요.'
-                  : '오늘 느낀 통증, 발열, 메스꺼움 등 이상증세를 기록하고 의료진과 공유할 수 있어요.'}</div>
-                <div style={{
-                  padding: '14px 16px', borderRadius: 14,
-                  background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
-                  border: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
-                  fontFamily: 'Pretendard', fontWeight: 500, fontSize: 13,
-                  color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)', textAlign: 'center',
-                }}>준비 중인 기능입니다.</div>
+                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.purple, marginBottom:8 }}>CHEMOTHERAPY</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>💊 나의 항암제</div>
+
+                {/* 3-tab bar */}
+                <div style={{ display:'flex', gap:4, marginBottom:20, padding:'3px', borderRadius:12, background:dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)' }}>
+                  {['나의 항암제','최신 논문','임상 소식'].map(t => (
+                    <button key={t} onClick={() => setChemoTab(t)} style={{
+                      flex:1, padding:'8px 0', borderRadius:9, border:'none',
+                      background: chemoTab===t ? (dark?'rgba(255,255,255,0.18)':'#fff') : 'transparent',
+                      boxShadow: chemoTab===t ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                      color: chemoTab===t ? (dark?'#fff':C.purple) : (dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)'),
+                      fontFamily:'Pretendard', fontWeight:chemoTab===t?700:500, fontSize:12,
+                      cursor:'pointer', transition:'all 0.15s',
+                    }}>{t}</button>
+                  ))}
+                </div>
+
+                {/* ── 나의 항암제 탭 ── */}
+                {chemoTab === '나의 항암제' && (
+                  <>
+                    {/* 현재 항암제 카드 */}
+                    <div style={{ borderRadius:18, padding:'18px 18px', marginBottom:20, background:`linear-gradient(135deg, ${C.purple}22, ${C.main}18)`, border:`1.5px solid ${C.purple}44` }}>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+                        <div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color:dark?'#fff':'#000', letterSpacing:'-0.02em' }}>{CURRENT_CHEMO.name}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', marginTop:2 }}>{CURRENT_CHEMO.brand}</div>
+                        </div>
+                        <span style={{ padding:'5px 12px', borderRadius:20, background:C.purple, fontFamily:'Pretendard', fontWeight:700, fontSize:11, color:'#fff' }}>진행 중</span>
+                      </div>
+                      <div style={{ display:'flex', gap:8, marginBottom:14 }}>
+                        {[{label:'주기', val:CURRENT_CHEMO.cycle},{label:'회차', val:CURRENT_CHEMO.round},{label:'요법', val:CURRENT_CHEMO.regimen}].map((it,i) => (
+                          <div key={i} style={{ flex:1, padding:'8px 10px', borderRadius:10, background:dark?'rgba(0,0,0,0.25)':'rgba(255,255,255,0.6)', textAlign:'center' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:10, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', marginBottom:3 }}>{it.label}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{it.val}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color:C.purple, marginBottom:5 }}>약물 기전</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color:dark?'rgba(255,255,255,0.72)':'rgba(0,0,0,0.65)', lineHeight:1.65, marginBottom:12 }}>{CURRENT_CHEMO.function}</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color:C.red, marginBottom:7 }}>주요 부작용</div>
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                        {CURRENT_CHEMO.sideEffects.map((s,i) => (
+                          <span key={i} style={{ padding:'4px 9px', borderRadius:8, fontFamily:'Pretendard', fontWeight:500, fontSize:11, background:dark?'rgba(238,63,96,0.18)':'rgba(238,63,96,0.09)', color:C.red }}>{s}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 급여 / 비급여 서브탭 */}
+                    <div style={{ display:'flex', gap:4, marginBottom:14, padding:'3px', borderRadius:10, background:dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)', width:'fit-content' }}>
+                      {['급여','비급여'].map(t => (
+                        <button key={t} onClick={() => setCoverTab(t)} style={{
+                          padding:'6px 18px', borderRadius:8, border:'none',
+                          background: coverTab===t ? (dark?'rgba(255,255,255,0.15)':'#fff') : 'transparent',
+                          boxShadow: coverTab===t ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          fontFamily:'Pretendard', fontWeight:coverTab===t?700:500, fontSize:12,
+                          color: coverTab===t ? (dark?'#fff':'#000') : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)'),
+                          cursor:'pointer', transition:'all 0.15s',
+                        }}>{t}</button>
+                      ))}
+                    </div>
+
+                    {/* 급여 목록 */}
+                    {coverTab === '급여' && (
+                      <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                        {COVERED_DRUGS.map(drug => {
+                          const isExp = expandedDrug === drug.name;
+                          return (
+                            <div key={drug.name} style={{
+                              borderRadius:14, overflow:'hidden',
+                              border: `1px solid ${drug.received ? (dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)') : `${drug.color}44`}`,
+                              background: drug.received ? (dark?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.02)') : (dark?`${drug.color}15`:`${drug.color}0d`),
+                            }}>
+                              <button onClick={() => setExpandedDrug(isExp ? null : drug.name)} style={{
+                                width:'100%', display:'flex', alignItems:'center', gap:12,
+                                padding:'13px 16px', border:'none', background:'transparent', cursor:'pointer', textAlign:'left',
+                              }}>
+                                <div style={{ width:8, height:8, borderRadius:'50%', flexShrink:0, background:drug.received?(dark?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.2)'):drug.color }} />
+                                <span style={{ flex:1, fontFamily:'Pretendard', fontWeight:600, fontSize:13, color:drug.received?(dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.38)'):(dark?'#fff':'#000'), letterSpacing:'-0.01em' }}>{drug.name}</span>
+                                {drug.received && <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10, color:dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)', marginRight:6 }}>완료</span>}
+                                <svg width="10" height="6" viewBox="0 0 10 6" style={{ transform:isExp?'rotate(180deg)':'none', transition:'transform 0.2s', flexShrink:0 }}>
+                                  <path d="M1 1l4 4 4-4" stroke={drug.received?(dark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.25)'):drug.color} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </button>
+                              {isExp && (
+                                <div style={{ padding:'0 16px 14px', borderTop:`1px solid ${drug.received?(dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'):`${drug.color}33`}` }}>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color:drug.received?(dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'):( dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.7)'), lineHeight:1.65, marginTop:10, marginBottom:8 }}>{drug.desc}</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10, color:C.red, marginBottom:4 }}>부작용</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.55)', lineHeight:1.6 }}>{drug.sideEffects}</div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* 비급여 목록 */}
+                    {coverTab === '비급여' && (
+                      <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                        {NONCOVERED_DRUGS.map(drug => {
+                          const isExp = expandedDrug === drug.name;
+                          return (
+                            <div key={drug.name} style={{
+                              borderRadius:14, overflow:'hidden',
+                              border:`1px solid ${drug.color}44`,
+                              background: dark?`${drug.color}15`:`${drug.color}0d`,
+                            }}>
+                              <button onClick={() => setExpandedDrug(isExp ? null : drug.name)} style={{
+                                width:'100%', display:'flex', alignItems:'center', gap:12,
+                                padding:'13px 16px', border:'none', background:'transparent', cursor:'pointer', textAlign:'left',
+                              }}>
+                                <div style={{ width:8, height:8, borderRadius:'50%', flexShrink:0, background:drug.color }} />
+                                <span style={{ flex:1, fontFamily:'Pretendard', fontWeight:600, fontSize:13, color:dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{drug.name}</span>
+                                <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10, padding:'2px 8px', borderRadius:8, background:`${drug.color}33`, color:drug.color, marginRight:4 }}>비급여</span>
+                                <svg width="10" height="6" viewBox="0 0 10 6" style={{ transform:isExp?'rotate(180deg)':'none', transition:'transform 0.2s', flexShrink:0 }}>
+                                  <path d="M1 1l4 4 4-4" stroke={drug.color} strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </button>
+                              {isExp && (
+                                <div style={{ padding:'0 16px 14px', borderTop:`1px solid ${drug.color}33` }}>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color:dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.7)', lineHeight:1.65, marginTop:10, marginBottom:8 }}>{drug.desc}</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10, color:C.red, marginBottom:4 }}>부작용</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.55)', lineHeight:1.6 }}>{drug.sideEffects}</div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <div style={{ height:24 }} />
+                  </>
+                )}
+
+                {/* ── 최신 논문 / 임상 소식 탭 ── */}
+                {(chemoTab === '최신 논문' || chemoTab === '임상 소식') && (
+                  <div style={{ padding:'14px 16px', borderRadius:14, background:dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.03)', border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'}`, fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', textAlign:'center' }}>
+                    준비 중인 기능입니다.
+                  </div>
+                )}
+              </>
+            ) : activeTag === '이상증세' ? (
+              <>
+                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>SIDE EFFECTS</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:6 }}>⚠️ 이상증세 기록</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:14, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.55, marginBottom:22 }}>오늘 느낀 통증, 발열, 메스꺼움 등 이상증세를 기록하고 의료진과 공유할 수 있어요.</div>
+                <div style={{ padding:'14px 16px', borderRadius:14, background:dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.03)', border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'}`, fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', textAlign:'center' }}>준비 중인 기능입니다.</div>
               </>
             ) : null
             }
