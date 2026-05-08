@@ -1478,6 +1478,11 @@ function PROScreen({ tweaks, setTweak }) {
   const pad = n => String(n).padStart(2,'0');
   const [symptomDate, setSymptomDate] = React.useState(`${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`);
   const [symptomTime, setSymptomTime] = React.useState(`${pad(today.getHours())}:${pad(today.getMinutes())}`);
+  const [symptomLog, setSymptomLog] = React.useState([
+    { id:1, date:'2026-05-05', time:'21:40', text:'저녁 식사 후 메스꺼움이 30분 정도 지속됨. 구토는 없음. 통증 점수 3/10.', media:[] },
+    { id:2, date:'2026-05-03', time:'08:15', text:'양쪽 손끝이 저리고 차갑게 느껴짐. 컵 잡기 어려울 정도. 약 2시간 지속.', media:[] },
+    { id:3, date:'2026-04-28', time:'14:20', text:'미열(37.8℃)과 함께 전신 피로감. 휴식 후 호전됨.', media:[] },
+  ]);
 
   const navTo = (cfg) => {
     setSidebarOpen(false);
@@ -3390,7 +3395,12 @@ function PROScreen({ tweaks, setTweak }) {
                 />
 
                 <button
-                  onClick={closeSheet}
+                  onClick={() => {
+                    if (!symptomText) return;
+                    setSymptomLog([{ id:Date.now(), date:symptomDate, time:symptomTime, text:symptomText, media:symptomMedia }, ...symptomLog]);
+                    setSymptomText('');
+                    setSymptomMedia([]);
+                  }}
                   disabled={!symptomText}
                   style={{
                     width:'100%', height:54, borderRadius:16, border:'none',
@@ -3402,6 +3412,46 @@ function PROScreen({ tweaks, setTweak }) {
                     transition:'all 0.15s',
                   }}
                 >저장하기</button>
+
+                {/* 누적된 기록 */}
+                <div style={{ marginTop:32, paddingTop:24, borderTop:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` }}>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                    <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:dark?'#fff':'#000', letterSpacing:'-0.01em' }}>지난 기록</div>
+                    <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:11, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', letterSpacing:'0.06em' }}>{symptomLog.length} ENTRIES</div>
+                  </div>
+                  {symptomLog.length === 0 ? (
+                    <div style={{ padding:'24px 0', textAlign:'center', fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)' }}>아직 기록된 이상증세가 없어요.</div>
+                  ) : (
+                    <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                      {symptomLog.map(it => (
+                        <div key={it.id} style={{
+                          padding:'14px 16px', borderRadius:14,
+                          background:dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.025)',
+                          border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`,
+                        }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+                            <span style={{ width:6, height:6, borderRadius:'50%', background:C.red }} />
+                            <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:11, color:C.red, letterSpacing:'0.04em' }}>
+                              {it.date.replaceAll('-','.')} · {it.time}
+                            </span>
+                          </div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', lineHeight:1.55, letterSpacing:'-0.01em' }}>{it.text}</div>
+                          {it.media && it.media.length > 0 && (
+                            <div style={{ display:'flex', gap:6, marginTop:10, flexWrap:'wrap' }}>
+                              {it.media.map((m,i) => (
+                                <div key={i} style={{ width:48, height:48, borderRadius:8, overflow:'hidden', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` }}>
+                                  {m.type === 'image'
+                                    ? <img src={m.url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                                    : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, background:dark?'rgba(255,255,255,0.05)':'#f5f5f5' }}>🎬</div>}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div style={{ height:16 }} />
               </>
             ) : null
