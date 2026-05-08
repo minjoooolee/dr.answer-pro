@@ -1480,9 +1480,20 @@ function PROScreen({ tweaks, setTweak }) {
   const [symptomDate, setSymptomDate] = React.useState(`${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`);
   const [symptomTime, setSymptomTime] = React.useState(`${pad(today.getHours())}:${pad(today.getMinutes())}`);
   const [symptomLog, setSymptomLog] = React.useState([
-    { id:1, date:'2026-05-05', time:'21:40', text:'저녁 식사 후 메스꺼움이 30분 정도 지속됨. 구토는 없음. 통증 점수 3/10.', media:[] },
-    { id:2, date:'2026-05-03', time:'08:15', text:'양쪽 손끝이 저리고 차갑게 느껴짐. 컵 잡기 어려울 정도. 약 2시간 지속.', media:[] },
-    { id:3, date:'2026-04-28', time:'14:20', text:'미열(37.8℃)과 함께 전신 피로감. 휴식 후 호전됨.', media:[] },
+    { id:1, date:'2026-05-05', time:'21:40', text:'저녁 식사 후 메스꺼움이 30분 정도 지속됨. 구토는 없음. 통증 점수 3/10.',
+      media:[
+        { type:'image', url:'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=160&h=160&fit=crop' },
+        { type:'image', url:'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=160&h=160&fit=crop' },
+      ]},
+    { id:2, date:'2026-05-03', time:'08:15', text:'양쪽 손끝이 저리고 차갑게 느껴짐. 컵 잡기 어려울 정도. 약 2시간 지속.',
+      media:[
+        { type:'image', url:'https://images.unsplash.com/photo-1606206522398-de57b9d11ce0?w=160&h=160&fit=crop' },
+        { type:'video', url:'' },
+      ]},
+    { id:3, date:'2026-04-28', time:'14:20', text:'미열(37.8℃)과 함께 전신 피로감. 휴식 후 호전됨.',
+      media:[
+        { type:'image', url:'https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?w=160&h=160&fit=crop' },
+      ]},
   ]);
 
   const navTo = (cfg) => {
@@ -3461,15 +3472,23 @@ function PROScreen({ tweaks, setTweak }) {
                   }}
                   disabled={!symptomText}
                   style={{
-                    width:'100%', height:54, borderRadius:16, border:'none',
+                    width:'100%', height:56, borderRadius:18, border:'none',
                     cursor:symptomText?'pointer':'not-allowed',
-                    background: symptomText ? C.red : (dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)'),
-                    color: symptomText ? '#fff' : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)'),
-                    fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em',
-                    boxShadow: symptomText ? '0 8px 22px rgba(238,63,96,0.35)' : 'none',
-                    transition:'all 0.15s',
+                    background: symptomText
+                      ? `linear-gradient(135deg, ${C.main} 0%, ${C.purple} 100%)`
+                      : (dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'),
+                    color: symptomText ? '#fff' : (dark?'rgba(255,255,255,0.35)':'rgba(0,0,0,0.3)'),
+                    fontFamily:'Pretendard', fontWeight:700, fontSize:15, letterSpacing:'-0.01em',
+                    boxShadow: symptomText
+                      ? `0 10px 28px ${dark?'rgba(74,159,143,0.45)':'rgba(74,159,143,0.32)'}, 0 2px 6px rgba(0,0,0,0.08)`
+                      : 'none',
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                    transition:'all 0.2s ease',
                   }}
-                >저장하기</button>
+                >
+                  <span style={{ fontSize:16 }}>✓</span>
+                  <span>기록 저장하기</span>
+                </button>
 
                 {/* 누적된 기록 */}
                 <div style={{ marginTop:32, paddingTop:24, borderTop:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` }}>
