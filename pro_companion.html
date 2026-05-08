@@ -863,6 +863,62 @@ const VOICE_RESPONSES_PAIN = [
   '머리 아픈 건 별로 신경 안 쓰였어',
 ];
 
+const TREATMENT_START_WEIGHT = 70.5;
+const WEIGHT_HISTORY = [
+  { date: '4/24', value: 68.2 },
+  { date: '4/27', value: 67.8 },
+  { date: '4/30', value: 67.5 },
+  { date: '5/3',  value: 67.1 },
+  { date: '5/6',  value: 66.9 },
+];
+
+function WeightChart({ data, dark, accent = '#41d2b4' }) {
+  const w = 320, h = 160;
+  const pad = { top: 26, right: 16, bottom: 32, left: 16 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+  const values = data.map(d => d.value);
+  const min = Math.min(...values) - 0.6;
+  const max = Math.max(...values) + 0.6;
+  const range = max - min || 1;
+  const points = data.map((d, i) => ({
+    x: pad.left + (i / Math.max(1, data.length - 1)) * cw,
+    y: pad.top + ch - ((d.value - min) / range) * ch,
+    ...d,
+  }));
+  const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const last = points[points.length - 1];
+  const first = points[0];
+  const areaPath = `${path} L ${last.x} ${pad.top + ch} L ${first.x} ${pad.top + ch} Z`;
+
+  return (
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none"
+         style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id="wgtGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={accent} stopOpacity="0.28" />
+          <stop offset="100%" stopColor={accent} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill="url(#wgtGrad)" />
+      <path d={path} fill="none" stroke={accent} strokeWidth="2.5"
+            strokeLinecap="round" strokeLinejoin="round" />
+      {points.map((p, i) => (
+        <g key={i}>
+          <circle cx={p.x} cy={p.y} r="4" fill={dark ? '#0d1614' : '#fff'}
+                  stroke={accent} strokeWidth="2" />
+          <text x={p.x} y={p.y - 10} textAnchor="middle"
+                fontFamily="Pretendard" fontWeight="600" fontSize="11"
+                fill={dark ? '#fff' : '#111'}>{p.value}</text>
+          <text x={p.x} y={h - 10} textAnchor="middle"
+                fontFamily="Pretendard" fontWeight="400" fontSize="10"
+                fill={dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)'}>{p.date}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 function PROScreen({ tweaks, setTweak }) {
   const [text, setText] = React.useState('');
   const [recording, setRecording] = React.useState(false);
@@ -874,8 +930,9 @@ function PROScreen({ tweaks, setTweak }) {
   const [subStep, setSubStep] = React.useState(-1);
   const [surveyMode, setSurveyMode] = React.useState(null);
   const [transcript, setTranscript] = React.useState('');
+  const [todayWeight, setTodayWeight] = React.useState('');
 
-  const closeSheet = () => { setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null); setTranscript(''); };
+  const closeSheet = () => { setActiveTag(null); setSurveyStep(0); setSubStep(-1); setSurveyMode(null); setTranscript(''); setTodayWeight(''); };
   const advanceSurvey = () => { setSurveyStep(s => s + 1); setSubStep(-1); };
 
   React.useEffect(() => {
@@ -1572,6 +1629,114 @@ function PROScreen({ tweaks, setTweak }) {
                   >확인</button>
                 </>
               )
+            ) : activeTag === '체중' ? (
+              <>
+                <div style={{
+                  fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                  letterSpacing: '0.22em', textTransform: 'uppercase',
+                  color: C.main, marginBottom: 8,
+                }}>WEIGHT LOG</div>
+                <div style={{
+                  fontFamily: 'Pretendard', fontWeight: 800, fontSize: 22,
+                  color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 18,
+                }}>오늘 체중 기록</div>
+
+                {/* treatment-start weight (locked) */}
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{
+                    display: 'block',
+                    fontFamily: 'Pretendard', fontWeight: 500, fontSize: 12,
+                    color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
+                    marginBottom: 6, letterSpacing: '-0.01em',
+                  }}>치료 전 체중 (kg)</label>
+                  <div style={{
+                    display: 'flex', alignItems: 'center',
+                    height: 50, borderRadius: 14, padding: '0 16px',
+                    background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+                    border: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+                  }}>
+                    <input
+                      type="text"
+                      value={TREATMENT_START_WEIGHT}
+                      disabled
+                      style={{
+                        flex: 1, border: 'none', outline: 'none', background: 'transparent',
+                        fontFamily: 'Pretendard', fontWeight: 600, fontSize: 16,
+                        color: dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)',
+                        cursor: 'not-allowed',
+                      }}
+                    />
+                    <span style={{
+                      fontFamily: 'Pretendard', fontWeight: 500, fontSize: 13,
+                      color: dark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
+                    }}>🔒 고정</span>
+                  </div>
+                </div>
+
+                {/* today's weight (active) */}
+                <div style={{ marginBottom: 22 }}>
+                  <label style={{
+                    display: 'block',
+                    fontFamily: 'Pretendard', fontWeight: 500, fontSize: 12,
+                    color: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.7)',
+                    marginBottom: 6, letterSpacing: '-0.01em',
+                  }}>오늘 체중 (kg)</label>
+                  <div style={{
+                    display: 'flex', alignItems: 'center',
+                    height: 50, borderRadius: 14, padding: '0 16px',
+                    background: dark ? 'rgba(255,255,255,0.06)' : '#fff',
+                    border: `1.5px solid ${todayWeight ? C.main : (dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)')}`,
+                    transition: 'border-color 0.15s',
+                  }}>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={todayWeight}
+                      onChange={e => setTodayWeight(e.target.value)}
+                      placeholder="예: 66.8"
+                      style={{
+                        flex: 1, border: 'none', outline: 'none', background: 'transparent',
+                        fontFamily: 'Pretendard', fontWeight: 600, fontSize: 16,
+                        color: dark ? '#fff' : '#000',
+                      }}
+                    />
+                    <span style={{
+                      fontFamily: 'Pretendard', fontWeight: 500, fontSize: 13,
+                      color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)',
+                    }}>kg</span>
+                  </div>
+                </div>
+
+                {/* chart */}
+                <div style={{
+                  fontFamily: 'Pretendard', fontWeight: 600, fontSize: 12,
+                  color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.6)',
+                  marginBottom: 8, letterSpacing: '-0.01em',
+                }}>최근 기록</div>
+                <div style={{
+                  borderRadius: 16, padding: '6px 4px',
+                  background: dark ? 'rgba(255,255,255,0.04)' : 'rgba(65,210,180,0.05)',
+                  border: `1px solid ${dark ? 'rgba(255,255,255,0.06)' : 'rgba(65,210,180,0.15)'}`,
+                  marginBottom: 22,
+                }}>
+                  <WeightChart data={WEIGHT_HISTORY} dark={dark} accent={C.main} />
+                </div>
+
+                <button
+                  onClick={closeSheet}
+                  disabled={!todayWeight}
+                  style={{
+                    width: '100%', height: 54, borderRadius: 16, border: 'none',
+                    cursor: todayWeight ? 'pointer' : 'not-allowed',
+                    background: todayWeight ? C.main : (dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'),
+                    color: todayWeight ? '#fff' : (dark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.35)'),
+                    fontFamily: 'Pretendard', fontWeight: 800, fontSize: 15,
+                    letterSpacing: '-0.01em',
+                    boxShadow: todayWeight ? '0 8px 22px rgba(65,210,180,0.35)' : 'none',
+                    transition: 'all 0.15s',
+                  }}
+                >저장하기</button>
+              </>
             ) : (
               <>
                 <div style={{
