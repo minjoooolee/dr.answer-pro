@@ -1053,6 +1053,35 @@ const MEDICAL_SCORES = [
   { label:'기분 및 정서',   score:3.9, trend:'↓ 개선', color:'#41d2b4' },
   { label:'신경증상',        score:4.1, trend:'→ 유지', color:'#41d2b4' },
 ];
+const MEDICAL_TABLE_DATES = [
+  { d:'5/1', cycle:'D1' }, { d:'5/2', cycle:'D2' }, { d:'5/3', cycle:'D3' },
+  { d:'5/4', cycle:'D4' }, { d:'5/5', cycle:'D5' }, { d:'5/6', cycle:'D6' },
+  { d:'5/7', cycle:'D7' }, { d:'5/8', cycle:'D8' }, { d:'5/9', cycle:'D9' },
+];
+const MEDICAL_TABLE_GROUPS = [
+  { icon:'🌱', label:'컨디션 및 생활습관', rows:[
+    { name:'전반적 컨디션', type:'face', values:['🙂','🙂','🙂','😊','😊','🙂','🙂','🙂','😐'] },
+    { name:'식사 만족도', type:'score', values:[null,null,null,4,2,null,null,null,3] },
+    { name:'오늘의 운동', type:'score', values:[null,null,null,null,'기록됨',null,2,null,4] },
+    { name:'오늘의 메모', type:'memo', values:[null,null,null,null,null,null,null,'메모 있음','메모 있음'] },
+  ]},
+  { icon:'🍽️', label:'소화기계', rows:[
+    { name:'설사', star:true, type:'score5', values:[2,0,1,0,0,1,1,1,4] },
+    { name:'오심', type:'score5', values:[0,0,0,0,0,0,0,0,0] },
+    { name:'구내염', type:'score5', values:[0,0,0,0,0,0,0,0,0] },
+  ]},
+  { icon:'💪', label:'전신 증상', rows:[
+    { name:'피로', star:true, type:'score5', values:[1,1,1,1,1,1,1,1,2] },
+    { name:'불면', type:'score5', values:[0,0,0,0,0,0,0,0,0] },
+  ]},
+  { icon:'🧠', label:'신경계', rows:[
+    { name:'말초신경병증', star:true, type:'score5', values:[1,2,1,1,2,2,2,2,3] },
+    { name:'냉각 유발 감각이상', type:'score5', values:[null,null,null,null,null,null,null,null,null] },
+  ]},
+  { icon:'✋', label:'피부계', rows:[
+    { name:'수족증후군', star:true, type:'score5', values:[0,0,0,1,0,1,0,0,0] },
+  ]},
+];
 const MEDICAL_LLM_SECTIONS = [
   {
     title: '전반적 추세',
@@ -3283,33 +3312,7 @@ function PROScreen({ tweaks, setTweak }) {
                     <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:20, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:6 }}>🏥 의료진용 리포트</div>
                     <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.18em', textTransform:'uppercase', color:C.red, marginBottom:20 }}>CLINICAL REPORT — {getReportMonthLabel(reportMonthOffset)}</div>
 
-                    {/* Score section */}
-                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:12, letterSpacing:'-0.01em' }}>월간 증상 평균 점수 (1–5점)</div>
-                    <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
-                      {MEDICAL_SCORES.map(item => (
-                        <div key={item.label} style={{ borderRadius:14, padding:'12px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
-                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-                            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.75)' }}>{item.label}</span>
-                            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                              <span style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.trend}</span>
-                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:17, color:item.color, letterSpacing:'-0.02em' }}>{item.score}</span>
-                            </div>
-                          </div>
-                          {/* score bar */}
-                          <div style={{ height:6, borderRadius:3, background: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)', overflow:'hidden' }}>
-                            <div style={{ height:'100%', width:`${(item.score/5)*100}%`, borderRadius:3, background:`linear-gradient(90deg, ${item.color}99, ${item.color})`, transition:'width 0.5s' }} />
-                          </div>
-                          {/* 1-5 scale labels */}
-                          <div style={{ display:'flex', justifyContent:'space-between', marginTop:4 }}>
-                            {[1,2,3,4,5].map(n => (
-                              <span key={n} style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10, color: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.3)' }}>{n}</span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* LLM 문진 요약 */}
+                    {/* AI 문진 분석 요약 (top) */}
                     <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>AI 문진 분석 요약</div>
                     <div style={{ borderRadius:16, padding:'4px 16px', marginBottom:22, background: dark?'rgba(238,63,96,0.1)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.14)'}` }}>
                       {MEDICAL_LLM_SECTIONS.map((sec, i) => (
@@ -3319,6 +3322,101 @@ function PROScreen({ tweaks, setTweak }) {
                         </div>
                       ))}
                     </div>
+
+                    {/* Daily symptom table */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>일자별 증상 점수표</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>★ 핵심 부작용</div>
+                    </div>
+                    {(() => {
+                      const headerBg = dark?'rgba(255,255,255,0.04)':'#f5f7f6';
+                      const groupBg = dark?'rgba(165,114,217,0.10)':'rgba(165,114,217,0.07)';
+                      const cellBorder = dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+                      const textC = dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)';
+                      const mutedC = dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.28)';
+                      const scoreColor = (v) => {
+                        if (v === null || v === undefined || v === '기록됨' || v === '메모 있음') return null;
+                        const n = typeof v === 'number' ? v : parseInt(v);
+                        if (isNaN(n)) return null;
+                        if (n === 0) return null;
+                        if (n <= 1) return { bg:dark?'rgba(125,80,240,0.18)':'rgba(125,80,240,0.12)', fg:'#7d50f0' };
+                        if (n === 2) return { bg:dark?'rgba(125,80,240,0.30)':'rgba(125,80,240,0.20)', fg:'#5e35d8' };
+                        if (n === 3) return { bg:dark?'rgba(255,160,60,0.22)':'rgba(255,160,60,0.18)', fg:'#e07a00' };
+                        if (n >= 4) return { bg:dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.16)', fg:C.red };
+                        return null;
+                      };
+                      const Cell = ({ v, type }) => {
+                        const sc = scoreColor(v);
+                        if (v === null || v === undefined) {
+                          return <span style={{ color:mutedC, fontSize:12 }}>-</span>;
+                        }
+                        if (type === 'face') return <span style={{ fontSize:16 }}>{v}</span>;
+                        if (type === 'memo' || v === '메모 있음') {
+                          return <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.2 }}>메모<br/>있음</span>;
+                        }
+                        if (v === '기록됨') {
+                          return <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>기록됨</span>;
+                        }
+                        if (sc) {
+                          return (
+                            <span style={{
+                              display:'inline-flex', alignItems:'center', justifyContent:'center',
+                              minWidth:22, height:22, padding:'0 6px', borderRadius:6,
+                              background:sc.bg, color:sc.fg,
+                              fontFamily:'Pretendard', fontWeight:800, fontSize:13, letterSpacing:'-0.01em',
+                            }}>{v}</span>
+                          );
+                        }
+                        return <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:13, color:textC }}>{v}</span>;
+                      };
+                      const COL_W = 38;
+                      const NAME_W = 96;
+                      return (
+                        <div style={{
+                          marginBottom:24, borderRadius:14, overflow:'hidden',
+                          border:`1px solid ${cellBorder}`,
+                          background: dark?'rgba(255,255,255,0.02)':'#fff',
+                          overflowX:'auto', WebkitOverflowScrolling:'touch',
+                        }}>
+                          <div style={{ minWidth: NAME_W + COL_W * MEDICAL_TABLE_DATES.length }}>
+                            {/* date header */}
+                            <div style={{ display:'flex', background:headerBg, borderBottom:`1px solid ${cellBorder}` }}>
+                              <div style={{ width:NAME_W, flexShrink:0, padding:'8px 10px', fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:textC, borderRight:`1px solid ${cellBorder}` }}>증상</div>
+                              {MEDICAL_TABLE_DATES.map((d,i) => (
+                                <div key={i} style={{ width:COL_W, flexShrink:0, padding:'6px 0', textAlign:'center', borderRight: i<MEDICAL_TABLE_DATES.length-1?`1px solid ${cellBorder}`:'none' }}>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11, color:textC }}>{d.d}</div>
+                                  <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:9, color:dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)', marginTop:1 }}>{d.cycle}</div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {MEDICAL_TABLE_GROUPS.map((g, gi) => (
+                              <React.Fragment key={gi}>
+                                {/* group header */}
+                                <div style={{ display:'flex', background:groupBg, borderBottom:`1px solid ${cellBorder}` }}>
+                                  <div style={{ width:NAME_W + COL_W * MEDICAL_TABLE_DATES.length, padding:'6px 10px', fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:dark?'#fff':'#000', letterSpacing:'-0.01em' }}>
+                                    <span style={{ fontSize:13, marginRight:4 }}>{g.icon}</span>{g.label}
+                                  </div>
+                                </div>
+                                {/* rows */}
+                                {g.rows.map((r, ri) => (
+                                  <div key={ri} style={{ display:'flex', borderBottom: (gi===MEDICAL_TABLE_GROUPS.length-1 && ri===g.rows.length-1) ? 'none' : `1px solid ${cellBorder}` }}>
+                                    <div style={{ width:NAME_W, flexShrink:0, padding:'10px 10px', fontFamily:'Pretendard', fontWeight:600, fontSize:12, color:textC, borderRight:`1px solid ${cellBorder}`, display:'flex', alignItems:'center', gap:4 }}>
+                                      {r.name}{r.star && <span style={{ color:C.red, fontSize:11 }}>★</span>}
+                                    </div>
+                                    {r.values.map((v, vi) => (
+                                      <div key={vi} style={{ width:COL_W, flexShrink:0, height:42, display:'flex', alignItems:'center', justifyContent:'center', borderRight: vi<r.values.length-1?`1px solid ${cellBorder}`:'none' }}>
+                                        <Cell v={v} type={r.type} />
+                                      </div>
+                                    ))}
+                                  </div>
+                                ))}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Weight monthly summary */}
                     <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>체중 월간 요약</div>
