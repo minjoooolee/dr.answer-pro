@@ -1157,7 +1157,7 @@ function SymptomTable(props) {
 
   return (
     <table style={{
-      width:'100%', tableLayout:'fixed', borderCollapse:'collapse',
+      width:'100%', minWidth:540, tableLayout:'fixed', borderCollapse:'collapse',
       marginBottom:24, borderRadius:12, overflow:'hidden',
       border:`1px solid ${borderColor}`,
       background: dark ? '#152120' : '#fafbfb',
@@ -3425,7 +3425,9 @@ function PROScreen({ tweaks, setTweak }) {
                       <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>일자별 증상 점수표</div>
                       <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>★ 핵심 부작용</div>
                     </div>
-                    <SymptomTable dark={dark} />
+                    <div style={{ overflowX:'auto' }}>
+                      <SymptomTable dark={dark} />
+                    </div>
 
                     {/* Weight monthly summary */}
                     <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>체중 월간 요약</div>
