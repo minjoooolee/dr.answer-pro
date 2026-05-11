@@ -1118,6 +1118,69 @@ function renderTableCell(v, rowType, dark) {
   }, String(n));
 }
 
+function SymptomTable({ dark }) {
+  var C_red = '#ee3f60';
+  var colW = 38;
+  var labelW = 100;
+  var dates = MEDICAL_TABLE_DATES;
+  var groups = MEDICAL_TABLE_GROUPS;
+  var flatRows = [];
+  for (var gi = 0; gi < groups.length; gi++) {
+    var g = groups[gi];
+    flatRows.push({ kind: 'group', key: 'g' + gi, icon: g.icon, label: g.label });
+    for (var ri = 0; ri < g.rows.length; ri++) {
+      var r = g.rows[ri];
+      var isLast = gi === groups.length - 1 && ri === g.rows.length - 1;
+      flatRows.push({ kind: 'row', key: 'r' + gi + '_' + ri, name: r.name, star: r.star, type: r.type, values: r.values, isLast: isLast });
+    }
+  }
+  return (
+    <div style={{
+      marginBottom: 24, borderRadius: 14,
+      border: '1px solid ' + (dark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.1)'),
+      background: dark ? '#0d1614' : '#fff',
+      overflowX: 'auto', WebkitOverflowScrolling: 'touch',
+    }}>
+      <div style={{ width: labelW + colW * dates.length, fontFamily: 'Pretendard' }}>
+        <div style={{ display: 'flex', background: dark ? 'rgba(255,255,255,0.06)' : '#f5f7f6', borderBottom: '1px solid ' + (dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)') }}>
+          <div style={{ width: labelW, flexShrink: 0, padding: '8px 10px', fontWeight: 700, fontSize: 11.5, color: dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.78)', borderRight: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)') }}>증상</div>
+          {dates.map(function(d, i) {
+            return (
+              <div key={i} style={{ width: colW, flexShrink: 0, padding: '6px 0', textAlign: 'center' }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.78)' }}>{d.d}</div>
+                <div style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 9, color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)', marginTop: 1 }}>{d.cycle}</div>
+              </div>
+            );
+          })}
+        </div>
+        {flatRows.map(function(item) {
+          if (item.kind === 'group') {
+            return (
+              <div key={item.key} style={{ padding: '7px 10px', background: dark ? 'rgba(165,114,217,0.18)' : 'rgba(165,114,217,0.1)', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderBottom: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)') }}>
+                <span style={{ fontSize: 13, marginRight: 4 }}>{item.icon}</span>{item.label}
+              </div>
+            );
+          }
+          return (
+            <div key={item.key} style={{ display: 'flex', borderBottom: item.isLast ? 'none' : '1px solid ' + (dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)') }}>
+              <div style={{ width: labelW, flexShrink: 0, padding: '10px', fontWeight: 600, fontSize: 12, color: dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.78)', borderRight: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'), display: 'flex', alignItems: 'center', gap: 3 }}>
+                <span>{item.name}</span>{item.star ? <span style={{ color: C_red, fontSize: 11 }}>★</span> : null}
+              </div>
+              {item.values.map(function(v, vi) {
+                return (
+                  <div key={vi} style={{ width: colW, flexShrink: 0, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {renderTableCell(v, item.type, dark)}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 const MEDICAL_LLM_SECTIONS = [
   {
     title: '전반적 추세',
@@ -3359,73 +3422,12 @@ function PROScreen({ tweaks, setTweak }) {
                       ))}
                     </div>
 
-                    {/* TEST MARKER v3 — should be visible */}
-                    <div style={{ background:'#ee3f60', color:'#fff', padding:'12px 16px', borderRadius:8, marginBottom:12, fontSize:14, fontWeight:800 }}>
-                      ⬇️ TABLE BELOW v3 ({MEDICAL_TABLE_DATES ? MEDICAL_TABLE_DATES.length : 'NO DATA'} dates, {MEDICAL_TABLE_GROUPS ? MEDICAL_TABLE_GROUPS.length : 'NO DATA'} groups)
-                    </div>
                     {/* Daily symptom table */}
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
                       <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>일자별 증상 점수표</div>
                       <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>★ 핵심 부작용</div>
                     </div>
-                    {(() => {
-                      const colW = 38;
-                      const labelW = 100;
-                      const totalW = labelW + colW * MEDICAL_TABLE_DATES.length;
-                      const flatRows = [];
-                      MEDICAL_TABLE_GROUPS.forEach((g, gi) => {
-                        flatRows.push({ kind:'group', key:'g'+gi, icon:g.icon, label:g.label });
-                        g.rows.forEach((r, ri) => {
-                          flatRows.push({ kind:'row', key:'r'+gi+'-'+ri, row:r, isLast: gi===MEDICAL_TABLE_GROUPS.length-1 && ri===g.rows.length-1 });
-                        });
-                      });
-                      return (
-                        <div style={{
-                          marginBottom:24, borderRadius:14,
-                          border:`1px solid ${dark?'rgba(255,255,255,0.14)':'rgba(0,0,0,0.1)'}`,
-                          background: dark?'#0d1614':'#fff',
-                          overflowX:'auto', WebkitOverflowScrolling:'touch',
-                        }}>
-                          <div style={{ width: totalW, fontFamily:'Pretendard' }}>
-                            {/* date header */}
-                            <div style={{ display:'flex', background:dark?'rgba(255,255,255,0.06)':'#f5f7f6', borderBottom:`1px solid ${dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.06)'}` }}>
-                              <div style={{ width:labelW, flexShrink:0, padding:'8px 10px', fontWeight:700, fontSize:11.5, color:dark?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.78)', borderRight:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}` }}>증상</div>
-                              {MEDICAL_TABLE_DATES.map((d,i) => (
-                                <div key={i} style={{ width:colW, flexShrink:0, padding:'6px 0', textAlign:'center' }}>
-                                  <div style={{ fontWeight:700, fontSize:11, color:dark?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.78)' }}>{d.d}</div>
-                                  <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:9, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.4)', marginTop:1 }}>{d.cycle}</div>
-                                </div>
-                              ))}
-                            </div>
-                            {flatRows.map((item) => {
-                              if (item.kind === 'group') {
-                                return (
-                                  <div key={item.key} style={{ width:totalW, padding:'7px 10px', background:dark?'rgba(165,114,217,0.18)':'rgba(165,114,217,0.1)', fontWeight:700, fontSize:11.5, color:dark?'#fff':'#000', borderBottom:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}` }}>
-                                    <span style={{ fontSize:13, marginRight:4 }}>{item.icon}</span>{item.label}
-                                  </div>
-                                );
-                              }
-                              const r = item.row;
-                              return (
-                                <div key={item.key} style={{ display:'flex', borderBottom: item.isLast ? 'none' : `1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}` }}>
-                                  <div style={{ width:labelW, flexShrink:0, padding:'10px', fontWeight:600, fontSize:12, color:dark?'rgba(255,255,255,0.9)':'rgba(0,0,0,0.78)', borderRight:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'}`, display:'flex', alignItems:'center', gap:3 }}>
-                                    <span>{r.name}</span>{r.star ? <span style={{ color:C.red, fontSize:11 }}>★</span> : null}
-                                  </div>
-                                  {r.values.map((v, vi) => (
-                                    <div key={vi} style={{ width:colW, flexShrink:0, height:42, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                                      {renderTableCell(v, r.type, dark)}
-                                    </div>
-                                  ))}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                    <div style={{ background:'#41d2b4', color:'#fff', padding:'12px 16px', borderRadius:8, marginBottom:24, fontSize:14, fontWeight:800 }}>
-                      ⬆️ TABLE ABOVE v3 — if you see this but no table, table render failed
-                    </div>
+                    <SymptomTable dark={dark} />
 
                     {/* Weight monthly summary */}
                     <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>체중 월간 요약</div>
