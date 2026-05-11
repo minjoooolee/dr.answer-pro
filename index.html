@@ -1139,9 +1139,9 @@ function SymptomTable(props) {
       h('div', { key: 'c', style: { fontFamily: 'Poppins', fontWeight: 600, fontSize: 8.5, color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)', marginTop: 1 } }, d.cycle)
     ));
   }
-  rowBlocks.push(h.apply(null, ['div',
-    { key: 'header', style: { display: 'flex', background: dark ? 'rgba(255,255,255,0.08)' : '#eef1f0', borderBottom: '1px solid ' + borderColor } }
-  ].concat(headerCells)));
+  rowBlocks.push(h('div',
+    { key: 'header', style: { display: 'flex', background: dark ? 'rgba(255,255,255,0.08)' : '#eef1f0', borderBottom: '1px solid ' + borderColor } },
+    headerCells));
 
   // body
   for (var gi = 0; gi < groups.length; gi++) {
@@ -1168,13 +1168,13 @@ function SymptomTable(props) {
           renderTableCell(r.values[vi], r.type, dark)
         ));
       }
-      rowBlocks.push(h.apply(null, ['div',
-        { key: 'r' + gi + '_' + ri, style: { display: 'flex', borderBottom: isLast ? 'none' : '1px solid ' + rowBorderColor } }
-      ].concat(rowCells)));
+      rowBlocks.push(h('div',
+        { key: 'r' + gi + '_' + ri, style: { display: 'flex', borderBottom: isLast ? 'none' : '1px solid ' + rowBorderColor } },
+        rowCells));
     }
   }
 
-  return h.apply(null, ['div',
+  return h('div',
     {
       style: {
         marginBottom: 24, borderRadius: 12,
@@ -1183,8 +1183,8 @@ function SymptomTable(props) {
         fontFamily: 'Pretendard',
         overflow: 'hidden',
       }
-    }
-  ].concat(rowBlocks));
+    },
+    rowBlocks);
 }
 
 const MEDICAL_LLM_SECTIONS = [
