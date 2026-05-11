@@ -1631,6 +1631,7 @@ function PROScreen({ tweaks, setTweak }) {
   const [surveyStep, setSurveyStep] = React.useState(0);
   const [subStep, setSubStep] = React.useState(-1);
   const [surveyMode, setSurveyMode] = React.useState(null);
+  const [likertAnswers, setLikertAnswers] = React.useState({});
   const [transcript, setTranscript] = React.useState('');
   const [todayWeight, setTodayWeight] = React.useState('');
   const [dietMode, setDietMode] = React.useState(null);
@@ -2125,10 +2126,12 @@ function PROScreen({ tweaks, setTweak }) {
                 const sColor = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.55)';
                 const hover = dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
                 const items = [
-                  { key:'문진', icon:'📝', label:'문진하기', accent:C.purple, children:[
-                    { label:'음성으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'voice' }) },
-                    { label:'버튼으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'button' }) },
-                  ]},
+                  elderMode
+                    ? { key:'문진', icon:'📝', label:'문진하기', accent:C.purple, children:[
+                        { label:'음성으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'voice' }) },
+                        { label:'버튼으로 문진하기', onClick:() => navTo({ tag:'문진', surveyMode:'button' }) },
+                      ]}
+                    : { key:'문진', icon:'📝', label:'문진하기', accent:C.purple, onClick:() => navTo({ tag:'문진', surveyMode:'list' }) },
                   { key:'리포트', icon:'📊', label:'리포트보기', accent:C.red, children:[
                     { label:'나의 진료 기록', onClick:() => navTo({ tag:'리포트', reportType:'records' }) },
                     { label:'나의 건강 리포트', onClick:() => navTo({ tag:'리포트', reportType:'personal' }) },
@@ -2502,6 +2505,107 @@ function PROScreen({ tweaks, setTweak }) {
                     </button>
                   </div>
                 </>
+              ) : surveyMode === 'list' ? (
+                surveyStep < SURVEY_CATEGORIES.length ? (
+                  <>
+                    {/* progress */}
+                    <div style={{ display:'flex', gap:6, marginBottom:18 }}>
+                      {SURVEY_CATEGORIES.map((_, i) => (
+                        <div key={i} style={{
+                          flex:1, height:3, borderRadius:99,
+                          background: i <= surveyStep ? C.purple : (dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'),
+                          transition:'background 0.3s',
+                        }} />
+                      ))}
+                    </div>
+
+                    <div style={{
+                      fontFamily:'Poppins', fontWeight:400, fontSize:11,
+                      letterSpacing:'0.18em', textTransform:'uppercase',
+                      color:C.purple, marginBottom:6,
+                    }}>{surveyStep + 1} / {SURVEY_CATEGORIES.length}</div>
+                    <div style={{
+                      fontFamily:'Pretendard', fontWeight:800, fontSize:20,
+                      color: dark ? '#fff' : '#000', letterSpacing:'-0.02em',
+                      marginBottom:18,
+                    }}>{SURVEY_CATEGORIES[surveyStep]}</div>
+
+                    {PAIN_QUESTIONS.map((q, qi) => {
+                      const key = surveyStep + '_' + qi;
+                      const ans = likertAnswers[key];
+                      return (
+                        <div key={qi} style={{
+                          padding:'14px 0',
+                          borderBottom: qi < PAIN_QUESTIONS.length - 1 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` : 'none',
+                        }}>
+                          <div style={{
+                            fontFamily:'Pretendard', fontWeight:500, fontSize:14,
+                            color: dark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.78)',
+                            lineHeight:1.45, marginBottom:10,
+                          }}>{qi + 1}. {q}</div>
+                          <div style={{ display:'flex', gap:6 }}>
+                            {[1,2,3,4,5].map(n => {
+                              const active = ans === n;
+                              return (
+                                <button key={n}
+                                  onClick={() => setLikertAnswers(a => ({ ...a, [key]: n }))}
+                                  style={{
+                                    flex:1, height:40, borderRadius:10, cursor:'pointer',
+                                    border:`1.5px solid ${active ? C.purple : (dark?'rgba(255,255,255,0.14)':'rgba(0,0,0,0.1)')}`,
+                                    background: active ? C.purple : (dark?'rgba(255,255,255,0.04)':'#fff'),
+                                    color: active ? '#fff' : (dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.7)'),
+                                    fontFamily:'Pretendard', fontWeight:700, fontSize:14,
+                                    letterSpacing:'-0.01em', transition:'all 0.12s',
+                                  }}>{n}</button>
+                              );
+                            })}
+                          </div>
+                          <div style={{
+                            display:'flex', justifyContent:'space-between',
+                            marginTop:6, fontFamily:'Pretendard', fontSize:10.5,
+                            color: dark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)',
+                          }}>
+                            <span>전혀 없음</span>
+                            <span>매우 심함</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    <button
+                      onClick={advanceSurvey}
+                      style={{
+                        width:'100%', height:54, marginTop:20, borderRadius:16, border:'none', cursor:'pointer',
+                        background:C.purple, color:'#fff',
+                        fontFamily:'Pretendard', fontWeight:800, fontSize:15,
+                        letterSpacing:'-0.01em',
+                        boxShadow:'0 8px 22px rgba(125,80,240,0.35)',
+                      }}
+                    >{surveyStep < SURVEY_CATEGORIES.length - 1 ? '다음' : '완료'}</button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ textAlign:'center', padding:'12px 0 20px' }}>
+                      <div style={{ fontSize:40, marginBottom:14 }}>✅</div>
+                      <div style={{
+                        fontFamily:'Pretendard', fontWeight:800, fontSize:20,
+                        color: dark ? '#fff' : '#000', letterSpacing:'-0.02em', marginBottom:6,
+                      }}>문진이 완료되었습니다</div>
+                      <div style={{
+                        fontFamily:'Pretendard', fontWeight:400, fontSize:14,
+                        color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
+                      }}>오늘의 건강 기록이 저장되었습니다</div>
+                    </div>
+                    <button onClick={closeSheet}
+                      style={{
+                        width:'100%', height:54, borderRadius:16, border:'none', cursor:'pointer',
+                        background:C.purple, color:'#fff',
+                        fontFamily:'Pretendard', fontWeight:800, fontSize:15,
+                        letterSpacing:'-0.01em',
+                        boxShadow:'0 8px 22px rgba(125,80,240,0.35)',
+                      }}>확인</button>
+                  </>
+                )
               ) : surveyMode === 'voice' ? (
                 surveyStep < SURVEY_CATEGORIES.length ? (
                   <>
