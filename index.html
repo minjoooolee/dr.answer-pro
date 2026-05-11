@@ -1118,69 +1118,70 @@ function renderTableCell(v, rowType, dark) {
   }, String(n));
 }
 
-function SymptomTable({ dark }) {
+function SymptomTable(props) {
+  var dark = props && props.dark;
+  var h = React.createElement;
   var C_red = '#ee3f60';
   var dates = MEDICAL_TABLE_DATES;
   var groups = MEDICAL_TABLE_GROUPS;
-  var labelStyle = { flex: '0 0 76px', padding: '8px 8px', fontWeight: 700, fontSize: 11.5, color: dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.78)', borderRight: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'), display: 'flex', alignItems: 'center', gap: 2, lineHeight: 1.2, wordBreak: 'keep-all' };
-  var dateColStyle = { flex: '1 1 0', minWidth: 0, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
-  var flatRows = [];
+  var borderColor = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)';
+  var rowBorderColor = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
+
+  var children = [];
+
+  // header row
+  var headerCells = [
+    h('div', { key: 'lbl', style: { flex: '0 0 76px', padding: '8px 8px', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + borderColor } }, '증상'),
+  ];
+  for (var di = 0; di < dates.length; di++) {
+    var d = dates[di];
+    headerCells.push(
+      h('div', { key: 'd' + di, style: { flex: '1 1 0', minWidth: 0, padding: '6px 0', textAlign: 'center', borderRight: di < dates.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
+        h('div', { style: { fontWeight: 700, fontSize: 10.5, color: dark ? '#fff' : '#000' } }, d.d),
+        h('div', { style: { fontFamily: 'Poppins', fontWeight: 600, fontSize: 8.5, color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)', marginTop: 1 } }, d.cycle)
+      )
+    );
+  }
+  children.push(h('div', { key: 'header', style: { display: 'flex', background: dark ? 'rgba(255,255,255,0.08)' : '#eef1f0', borderBottom: '1px solid ' + borderColor } }, headerCells));
+
+  // body rows
   for (var gi = 0; gi < groups.length; gi++) {
     var g = groups[gi];
-    flatRows.push({ kind: 'group', key: 'g' + gi, icon: g.icon, label: g.label });
+    children.push(
+      h('div', { key: 'g' + gi, style: { padding: '7px 10px', background: dark ? 'rgba(165,114,217,0.24)' : 'rgba(165,114,217,0.14)', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderBottom: '1px solid ' + borderColor } },
+        h('span', { style: { fontSize: 13, marginRight: 4 } }, g.icon),
+        g.label
+      )
+    );
     for (var ri = 0; ri < g.rows.length; ri++) {
       var r = g.rows[ri];
       var isLast = gi === groups.length - 1 && ri === g.rows.length - 1;
-      flatRows.push({ kind: 'row', key: 'r' + gi + '_' + ri, name: r.name, star: r.star, type: r.type, values: r.values, isLast: isLast });
+      var rowCells = [
+        h('div', { key: 'name', style: { flex: '0 0 76px', padding: '8px 8px', fontWeight: 600, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + rowBorderColor, display: 'flex', alignItems: 'center', gap: 2, lineHeight: 1.2, wordBreak: 'keep-all' } },
+          h('span', null, r.name),
+          r.star ? h('span', { style: { color: C_red, fontSize: 10 } }, '★') : null
+        ),
+      ];
+      for (var vi = 0; vi < r.values.length; vi++) {
+        rowCells.push(
+          h('div', { key: 'v' + vi, style: { flex: '1 1 0', minWidth: 0, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderRight: vi < r.values.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
+            renderTableCell(r.values[vi], r.type, dark)
+          )
+        );
+      }
+      children.push(h('div', { key: 'r' + gi + '_' + ri, style: { display: 'flex', borderBottom: isLast ? 'none' : '1px solid ' + rowBorderColor } }, rowCells));
     }
   }
-  var borderColor = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)';
-  var rowBorderColor = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
-  return (
-    <div style={{
+
+  return h('div', {
+    style: {
       marginBottom: 24, borderRadius: 12,
       border: '1px solid ' + borderColor,
       background: dark ? '#152120' : '#fff',
       fontFamily: 'Pretendard',
       overflow: 'hidden',
-    }}>
-      <div style={{ display: 'flex', background: dark ? 'rgba(255,255,255,0.08)' : '#eef1f0', borderBottom: '1px solid ' + borderColor }}>
-        <div style={{ flex: '0 0 76px', padding: '8px 8px', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + borderColor }}>증상</div>
-        {dates.map(function(d, i) {
-          return (
-            <div key={i} style={{ flex: '1 1 0', minWidth: 0, padding: '6px 0', textAlign: 'center', borderRight: i < dates.length - 1 ? '1px solid ' + rowBorderColor : 'none' }}>
-              <div style={{ fontWeight: 700, fontSize: 10.5, color: dark ? '#fff' : '#000' }}>{d.d}</div>
-              <div style={{ fontFamily: 'Poppins', fontWeight: 600, fontSize: 8.5, color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)', marginTop: 1 }}>{d.cycle}</div>
-            </div>
-          );
-        })}
-      </div>
-      {flatRows.map(function(item) {
-        if (item.kind === 'group') {
-          return (
-            <div key={item.key} style={{ padding: '7px 10px', background: dark ? 'rgba(165,114,217,0.24)' : 'rgba(165,114,217,0.14)', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderBottom: '1px solid ' + borderColor }}>
-              <span style={{ fontSize: 13, marginRight: 4 }}>{item.icon}</span>{item.label}
-            </div>
-          );
-        }
-        return (
-          <div key={item.key} style={{ display: 'flex', borderBottom: item.isLast ? 'none' : '1px solid ' + rowBorderColor }}>
-            <div style={{ flex: '0 0 76px', padding: '8px 8px', fontWeight: 600, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + rowBorderColor, display: 'flex', alignItems: 'center', gap: 2, lineHeight: 1.2, wordBreak: 'keep-all' }}>
-              <span>{item.name}</span>
-              {item.star ? <span style={{ color: C_red, fontSize: 10 }}>★</span> : null}
-            </div>
-            {item.values.map(function(v, vi) {
-              return (
-                <div key={vi} style={{ flex: '1 1 0', minWidth: 0, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderRight: vi < item.values.length - 1 ? '1px solid ' + rowBorderColor : 'none' }}>
-                  {renderTableCell(v, item.type, dark)}
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
-    </div>
-  );
+    }
+  }, children);
 }
 
 const MEDICAL_LLM_SECTIONS = [
