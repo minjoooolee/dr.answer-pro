@@ -1128,7 +1128,7 @@ function SymptomTable(props) {
   const textColor = dark ? '#fff' : '#000';
   const subColor = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)';
 
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 7;
   const [page, setPage] = React.useState(0);
   const totalPages = Math.ceil(MEDICAL_TABLE_DATES.length / PAGE_SIZE);
   const visibleDates = MEDICAL_TABLE_DATES.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
