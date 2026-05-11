@@ -1121,84 +1121,70 @@ function renderTableCell(v, rowType, dark) {
 function SymptomTable(props) {
   var dark = props && props.dark;
   var h = React.createElement;
-  // DIAG: return a simple visible box first to confirm the component renders at all
-  return h('div', {
-    style: {
-      background: '#ff6b00', color: '#fff', padding: '20px',
-      borderRadius: 12, marginBottom: 24, fontWeight: 800, fontSize: 14,
-      minHeight: 100, boxShadow: '0 0 0 4px #000',
-    }
-  },
-    'DIAG v9 — SymptomTable is rendering. dates=' + (MEDICAL_TABLE_DATES ? MEDICAL_TABLE_DATES.length : 'NULL') +
-    ', groups=' + (MEDICAL_TABLE_GROUPS ? MEDICAL_TABLE_GROUPS.length : 'NULL') +
-    ', dark=' + String(dark)
-  );
-}
-
-function SymptomTable_real(props) {
-  var dark = props && props.dark;
-  var h = React.createElement;
   var C_red = '#ee3f60';
   var dates = MEDICAL_TABLE_DATES;
   var groups = MEDICAL_TABLE_GROUPS;
-  var borderColor = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)';
+  var borderColor = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.18)';
   var rowBorderColor = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
-
-  var children = [];
+  var rowBlocks = [];
 
   // header row
-  var headerCells = [
-    h('div', { key: 'lbl', style: { flex: '0 0 76px', padding: '8px 8px', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + borderColor } }, '증상'),
-  ];
+  var headerCells = [h('div', { key: 'lbl', style: { flex: '0 0 76px', padding: '8px', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + borderColor } }, '증상')];
   for (var di = 0; di < dates.length; di++) {
     var d = dates[di];
-    headerCells.push(
-      h('div', { key: 'd' + di, style: { flex: '1 1 0', minWidth: 0, padding: '6px 0', textAlign: 'center', borderRight: di < dates.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
-        h('div', { style: { fontWeight: 700, fontSize: 10.5, color: dark ? '#fff' : '#000' } }, d.d),
-        h('div', { style: { fontFamily: 'Poppins', fontWeight: 600, fontSize: 8.5, color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)', marginTop: 1 } }, d.cycle)
-      )
-    );
+    headerCells.push(h(
+      'div',
+      { key: 'd' + di, style: { flex: '1 1 0', minWidth: 0, padding: '6px 0', textAlign: 'center', borderRight: di < dates.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
+      h('div', { key: 't', style: { fontWeight: 700, fontSize: 10.5, color: dark ? '#fff' : '#000' } }, d.d),
+      h('div', { key: 'c', style: { fontFamily: 'Poppins', fontWeight: 600, fontSize: 8.5, color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)', marginTop: 1 } }, d.cycle)
+    ));
   }
-  children.push(h('div', { key: 'header', style: { display: 'flex', background: dark ? 'rgba(255,255,255,0.08)' : '#eef1f0', borderBottom: '1px solid ' + borderColor } }, headerCells));
+  rowBlocks.push(h.apply(null, ['div',
+    { key: 'header', style: { display: 'flex', background: dark ? 'rgba(255,255,255,0.08)' : '#eef1f0', borderBottom: '1px solid ' + borderColor } }
+  ].concat(headerCells)));
 
-  // body rows
+  // body
   for (var gi = 0; gi < groups.length; gi++) {
     var g = groups[gi];
-    children.push(
-      h('div', { key: 'g' + gi, style: { padding: '7px 10px', background: dark ? 'rgba(165,114,217,0.24)' : 'rgba(165,114,217,0.14)', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderBottom: '1px solid ' + borderColor } },
-        h('span', { style: { fontSize: 13, marginRight: 4 } }, g.icon),
-        g.label
-      )
-    );
+    rowBlocks.push(h(
+      'div',
+      { key: 'g' + gi, style: { padding: '7px 10px', background: dark ? 'rgba(165,114,217,0.26)' : 'rgba(165,114,217,0.16)', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderBottom: '1px solid ' + borderColor } },
+      h('span', { key: 'ic', style: { fontSize: 13, marginRight: 4 } }, g.icon),
+      g.label
+    ));
     for (var ri = 0; ri < g.rows.length; ri++) {
       var r = g.rows[ri];
       var isLast = gi === groups.length - 1 && ri === g.rows.length - 1;
-      var rowCells = [
-        h('div', { key: 'name', style: { flex: '0 0 76px', padding: '8px 8px', fontWeight: 600, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + rowBorderColor, display: 'flex', alignItems: 'center', gap: 2, lineHeight: 1.2, wordBreak: 'keep-all' } },
-          h('span', null, r.name),
-          r.star ? h('span', { style: { color: C_red, fontSize: 10 } }, '★') : null
-        ),
-      ];
+      var rowCells = [h(
+        'div',
+        { key: 'name', style: { flex: '0 0 76px', padding: '8px', fontWeight: 600, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + rowBorderColor, display: 'flex', alignItems: 'center', gap: 2, lineHeight: 1.2, wordBreak: 'keep-all' } },
+        h('span', { key: 'n' }, r.name),
+        r.star ? h('span', { key: 's', style: { color: C_red, fontSize: 10 } }, '★') : null
+      )];
       for (var vi = 0; vi < r.values.length; vi++) {
-        rowCells.push(
-          h('div', { key: 'v' + vi, style: { flex: '1 1 0', minWidth: 0, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderRight: vi < r.values.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
-            renderTableCell(r.values[vi], r.type, dark)
-          )
-        );
+        rowCells.push(h(
+          'div',
+          { key: 'v' + vi, style: { flex: '1 1 0', minWidth: 0, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderRight: vi < r.values.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
+          renderTableCell(r.values[vi], r.type, dark)
+        ));
       }
-      children.push(h('div', { key: 'r' + gi + '_' + ri, style: { display: 'flex', borderBottom: isLast ? 'none' : '1px solid ' + rowBorderColor } }, rowCells));
+      rowBlocks.push(h.apply(null, ['div',
+        { key: 'r' + gi + '_' + ri, style: { display: 'flex', borderBottom: isLast ? 'none' : '1px solid ' + rowBorderColor } }
+      ].concat(rowCells)));
     }
   }
 
-  return h('div', {
-    style: {
-      marginBottom: 24, borderRadius: 12,
-      border: '1px solid ' + borderColor,
-      background: dark ? '#152120' : '#fff',
-      fontFamily: 'Pretendard',
-      overflow: 'hidden',
+  return h.apply(null, ['div',
+    {
+      style: {
+        marginBottom: 24, borderRadius: 12,
+        border: '1px solid ' + borderColor,
+        background: dark ? '#152120' : '#fafbfb',
+        fontFamily: 'Pretendard',
+        overflow: 'hidden',
+      }
     }
-  }, children);
+  ].concat(rowBlocks));
 }
 
 const MEDICAL_LLM_SECTIONS = [
@@ -3447,13 +3433,7 @@ function PROScreen({ tweaks, setTweak }) {
                       <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>일자별 증상 점수표</div>
                       <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>★ 핵심 부작용</div>
                     </div>
-                    <div style={{ background:'#00cc66', color:'#000', padding:14, borderRadius:8, marginBottom:8, fontWeight:800, fontSize:14, boxShadow:'0 0 0 3px #000' }}>
-                      STEP A v9 — directly above SymptomTable call
-                    </div>
                     <SymptomTable dark={dark} />
-                    <div style={{ background:'#00ccff', color:'#000', padding:14, borderRadius:8, marginBottom:24, fontWeight:800, fontSize:14, boxShadow:'0 0 0 3px #000' }}>
-                      STEP B v9 — directly below SymptomTable call
-                    </div>
 
                     {/* Weight monthly summary */}
                     <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>체중 월간 요약</div>
