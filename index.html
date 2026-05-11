@@ -1137,10 +1137,14 @@ function SymptomTable({ dark }) {
   return (
     <div style={{
       marginBottom: 24, borderRadius: 14,
-      border: '1px solid ' + (dark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.1)'),
+      border: '3px solid #ee3f60',
       background: dark ? '#0d1614' : '#fff',
       overflowX: 'auto', WebkitOverflowScrolling: 'touch',
+      minHeight: 60,
     }}>
+      <div style={{ background:'#ee3f60', color:'#fff', padding:'6px 10px', fontWeight:800, fontSize:12 }}>
+        DEBUG: SymptomTable rendered. dates={dates ? dates.length : 'NULL'}, groups={groups ? groups.length : 'NULL'}, rows={flatRows.length}
+      </div>
       <div style={{ width: labelW + colW * dates.length, fontFamily: 'Pretendard' }}>
         <div style={{ display: 'flex', background: dark ? 'rgba(255,255,255,0.06)' : '#f5f7f6', borderBottom: '1px solid ' + (dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)') }}>
           <div style={{ width: labelW, flexShrink: 0, padding: '8px 10px', fontWeight: 700, fontSize: 11.5, color: dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.78)', borderRight: '1px solid ' + (dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)') }}>증상</div>
