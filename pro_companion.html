@@ -1119,72 +1119,64 @@ function renderTableCell(v, rowType, dark) {
 }
 
 function SymptomTable(props) {
-  var dark = props && props.dark;
-  var h = React.createElement;
-  var C_red = '#ee3f60';
-  var dates = MEDICAL_TABLE_DATES;
-  var groups = MEDICAL_TABLE_GROUPS;
-  var borderColor = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.18)';
-  var rowBorderColor = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
-  var rowBlocks = [];
+  const dark = props && props.dark;
+  const C_red = '#ee3f60';
+  const borderColor = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.18)';
+  const rowBorderColor = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
+  const headerBg = dark ? 'rgba(255,255,255,0.08)' : '#eef1f0';
+  const groupBg = dark ? 'rgba(165,114,217,0.26)' : 'rgba(165,114,217,0.16)';
+  const textColor = dark ? '#fff' : '#000';
+  const subColor = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)';
 
-  // header row
-  var headerCells = [h('div', { key: 'lbl', style: { flex: '0 0 76px', padding: '8px', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + borderColor } }, '증상')];
-  for (var di = 0; di < dates.length; di++) {
-    var d = dates[di];
-    headerCells.push(h(
-      'div',
-      { key: 'd' + di, style: { flex: '1 1 0', minWidth: 0, padding: '6px 0', textAlign: 'center', borderRight: di < dates.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
-      h('div', { key: 't', style: { fontWeight: 700, fontSize: 10.5, color: dark ? '#fff' : '#000' } }, d.d),
-      h('div', { key: 'c', style: { fontFamily: 'Poppins', fontWeight: 600, fontSize: 8.5, color: dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)', marginTop: 1 } }, d.cycle)
-    ));
-  }
-  rowBlocks.push(h('div',
-    { key: 'header', style: { display: 'flex', background: dark ? 'rgba(255,255,255,0.08)' : '#eef1f0', borderBottom: '1px solid ' + borderColor } },
-    headerCells));
+  const bodyRows = [];
+  MEDICAL_TABLE_GROUPS.forEach((g, gi) => {
+    bodyRows.push(
+      <tr key={'g'+gi}>
+        <td colSpan={MEDICAL_TABLE_DATES.length + 1} style={{ padding:'7px 10px', background: groupBg, fontWeight:700, fontSize:11.5, color: textColor, borderBottom:`1px solid ${borderColor}` }}>
+          <span style={{ fontSize:13, marginRight:4 }}>{g.icon}</span>{g.label}
+        </td>
+      </tr>
+    );
+    g.rows.forEach((r, ri) => {
+      const isLast = gi === MEDICAL_TABLE_GROUPS.length - 1 && ri === g.rows.length - 1;
+      bodyRows.push(
+        <tr key={'r'+gi+'_'+ri} style={{ borderBottom: isLast ? 'none' : `1px solid ${rowBorderColor}` }}>
+          <td style={{ width:76, padding:'8px', fontWeight:600, fontSize:11.5, color: textColor, borderRight:`1px solid ${rowBorderColor}`, lineHeight:1.2, wordBreak:'keep-all' }}>
+            <span>{r.name}</span>
+            {r.star && <span style={{ color: C_red, fontSize:10, marginLeft:2 }}>★</span>}
+          </td>
+          {r.values.map((v, vi) => (
+            <td key={vi} style={{ height:42, textAlign:'center', verticalAlign:'middle', borderRight: vi < r.values.length - 1 ? `1px solid ${rowBorderColor}` : 'none' }}>
+              {renderTableCell(v, r.type, dark)}
+            </td>
+          ))}
+        </tr>
+      );
+    });
+  });
 
-  // body
-  for (var gi = 0; gi < groups.length; gi++) {
-    var g = groups[gi];
-    rowBlocks.push(h(
-      'div',
-      { key: 'g' + gi, style: { padding: '7px 10px', background: dark ? 'rgba(165,114,217,0.26)' : 'rgba(165,114,217,0.16)', fontWeight: 700, fontSize: 11.5, color: dark ? '#fff' : '#000', borderBottom: '1px solid ' + borderColor } },
-      h('span', { key: 'ic', style: { fontSize: 13, marginRight: 4 } }, g.icon),
-      g.label
-    ));
-    for (var ri = 0; ri < g.rows.length; ri++) {
-      var r = g.rows[ri];
-      var isLast = gi === groups.length - 1 && ri === g.rows.length - 1;
-      var rowCells = [h(
-        'div',
-        { key: 'name', style: { flex: '0 0 76px', padding: '8px', fontWeight: 600, fontSize: 11.5, color: dark ? '#fff' : '#000', borderRight: '1px solid ' + rowBorderColor, display: 'flex', alignItems: 'center', gap: 2, lineHeight: 1.2, wordBreak: 'keep-all' } },
-        h('span', { key: 'n' }, r.name),
-        r.star ? h('span', { key: 's', style: { color: C_red, fontSize: 10 } }, '★') : null
-      )];
-      for (var vi = 0; vi < r.values.length; vi++) {
-        rowCells.push(h(
-          'div',
-          { key: 'v' + vi, style: { flex: '1 1 0', minWidth: 0, height: 42, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', borderRight: vi < r.values.length - 1 ? '1px solid ' + rowBorderColor : 'none' } },
-          renderTableCell(r.values[vi], r.type, dark)
-        ));
-      }
-      rowBlocks.push(h('div',
-        { key: 'r' + gi + '_' + ri, style: { display: 'flex', borderBottom: isLast ? 'none' : '1px solid ' + rowBorderColor } },
-        rowCells));
-    }
-  }
-
-  return h('div',
-    {
-      style: {
-        marginBottom: 24, borderRadius: 12,
-        border: '1px solid ' + borderColor,
-        background: dark ? '#152120' : '#fafbfb',
-        fontFamily: 'Pretendard',
-        overflow: 'hidden',
-      }
-    },
-    rowBlocks);
+  return (
+    <table style={{
+      width:'100%', tableLayout:'fixed', borderCollapse:'collapse',
+      marginBottom:24, borderRadius:12, overflow:'hidden',
+      border:`1px solid ${borderColor}`,
+      background: dark ? '#152120' : '#fafbfb',
+      fontFamily:'Pretendard',
+    }}>
+      <thead>
+        <tr style={{ background: headerBg, borderBottom:`1px solid ${borderColor}` }}>
+          <th style={{ width:76, padding:'8px', fontWeight:700, fontSize:11.5, color: textColor, borderRight:`1px solid ${borderColor}`, textAlign:'left' }}>증상</th>
+          {MEDICAL_TABLE_DATES.map((d, di) => (
+            <th key={di} style={{ padding:'6px 0', textAlign:'center', borderRight: di < MEDICAL_TABLE_DATES.length - 1 ? `1px solid ${rowBorderColor}` : 'none', fontWeight:400 }}>
+              <div style={{ fontWeight:700, fontSize:10.5, color: textColor }}>{d.d}</div>
+              <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:8.5, color: subColor, marginTop:1 }}>{d.cycle}</div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>{bodyRows}</tbody>
+    </table>
+  );
 }
 
 const MEDICAL_LLM_SECTIONS = [
