@@ -1627,7 +1627,7 @@ function PROScreen({ tweaks, setTweak }) {
   const [surgeryDates, setSurgeryDates] = React.useState(['2026-04-08']);
   const [leftNavOpen, setLeftNavOpen] = React.useState(false);
   const [welcomeAlert, setWelcomeAlert] = React.useState(true);
-  const [elderMode, setElderMode] = React.useState(false);
+  const [elderMode, setElderMode] = React.useState(true);
   const [surveyStep, setSurveyStep] = React.useState(0);
   const [subStep, setSubStep] = React.useState(-1);
   const [surveyMode, setSurveyMode] = React.useState(null);
@@ -1864,7 +1864,7 @@ function PROScreen({ tweaks, setTweak }) {
             label={submitted ? '🏠 홈화면으로 가기' : '🩺 문진하기'}
             dark={dark}
             dot={!submitted}
-            onClick={() => submitted ? setSubmitted(false) : setActiveTag('문진')}
+            onClick={() => submitted ? setSubmitted(false) : (setActiveTag('문진'), !elderMode && setSurveyMode('list'))}
           />
           <Tag label="📊 리포트보기" dark={dark} onClick={() => setActiveTag('리포트')} />
           <Tag label="💊 나의 항암제" dark={dark} onClick={() => setActiveTag('항암제')} />
@@ -1990,7 +1990,7 @@ function PROScreen({ tweaks, setTweak }) {
                 }}
               >나중에</button>
               <button
-                onClick={() => { setWelcomeAlert(false); setActiveTag('문진'); }}
+                onClick={() => { setWelcomeAlert(false); setActiveTag('문진'); if (!elderMode) setSurveyMode('list'); }}
                 style={{
                   flex:1, height:48, borderRadius:14, border:'none', cursor:'pointer',
                   background:`linear-gradient(135deg, ${C.main}, ${C.purple})`,
