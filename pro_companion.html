@@ -1053,33 +1053,33 @@ const MEDICAL_SCORES = [
   { label:'기분 및 정서',   score:3.9, trend:'↓ 개선', color:'#41d2b4' },
   { label:'신경증상',        score:4.1, trend:'→ 유지', color:'#41d2b4' },
 ];
-const MEDICAL_TABLE_DATES = [
-  { d:'5/1', cycle:'D1' }, { d:'5/2', cycle:'D2' }, { d:'5/3', cycle:'D3' },
-  { d:'5/4', cycle:'D4' }, { d:'5/5', cycle:'D5' }, { d:'5/6', cycle:'D6' },
-  { d:'5/7', cycle:'D7' }, { d:'5/8', cycle:'D8' }, { d:'5/9', cycle:'D9' },
-];
+const MEDICAL_TABLE_DATES = (() => {
+  const arr = [];
+  for (let i = 1; i <= 30; i++) arr.push({ d: '5/' + i, cycle: 'D' + i });
+  return arr;
+})();
 const MEDICAL_TABLE_GROUPS = [
   { icon:'🌱', label:'컨디션 및 생활습관', rows:[
-    { name:'전반적 컨디션', type:'face', values:['🙂','🙂','🙂','😊','😊','🙂','🙂','🙂','😐'] },
-    { name:'식사 만족도', type:'score', values:[null,null,null,4,2,null,null,null,3] },
-    { name:'오늘의 운동', type:'score', values:[null,null,null,null,'기록됨',null,2,null,4] },
-    { name:'오늘의 메모', type:'memo', values:[null,null,null,null,null,null,null,'메모 있음','메모 있음'] },
+    { name:'전반적 컨디션', type:'face', values:['🙂','🙂','🙂','😊','😊','🙂','🙂','🙂','😐','😐','🙂','🙂','😊','😊','😊','🙂','🙂','🙂','🙂','😊','😊','🙂','😐','🙂','🙂','😊','😊','🙂','🙂','😊'] },
+    { name:'식사 만족도', type:'score', values:[null,null,null,4,2,null,null,null,3,null,3,null,4,4,null,null,3,null,null,4,4,null,2,null,3,null,4,null,null,4] },
+    { name:'오늘의 운동', type:'score', values:[null,null,null,null,'기록됨',null,2,null,4,null,null,3,null,'기록됨',null,null,2,null,null,3,null,null,null,4,null,'기록됨',null,2,null,3] },
+    { name:'오늘의 메모', type:'memo', values:[null,null,null,null,null,null,null,'메모 있음','메모 있음',null,null,'메모 있음',null,null,null,null,'메모 있음',null,null,null,null,'메모 있음','메모 있음',null,null,null,null,'메모 있음',null,null] },
   ]},
   { icon:'🍽️', label:'소화기계', rows:[
-    { name:'설사', star:true, type:'score5', values:[2,0,1,0,0,1,1,1,4] },
-    { name:'오심', type:'score5', values:[0,0,0,0,0,0,0,0,0] },
-    { name:'구내염', type:'score5', values:[0,0,0,0,0,0,0,0,0] },
+    { name:'설사', star:true, type:'score5', values:[2,0,1,0,0,1,1,1,4,3,2,1,1,0,0,1,2,1,0,0,1,2,3,1,1,0,0,1,1,0] },
+    { name:'오심', type:'score5', values:[0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0] },
+    { name:'구내염', type:'score5', values:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0] },
   ]},
   { icon:'💪', label:'전신 증상', rows:[
-    { name:'피로', star:true, type:'score5', values:[1,1,1,1,1,1,1,1,2] },
-    { name:'불면', type:'score5', values:[0,0,0,0,0,0,0,0,0] },
+    { name:'피로', star:true, type:'score5', values:[1,1,1,1,1,1,1,1,2,2,2,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1] },
+    { name:'불면', type:'score5', values:[0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0] },
   ]},
   { icon:'🧠', label:'신경계', rows:[
-    { name:'말초신경병증', star:true, type:'score5', values:[1,2,1,1,2,2,2,2,3] },
-    { name:'냉각 유발 감각이상', type:'score5', values:[null,null,null,null,null,null,null,null,null] },
+    { name:'말초신경병증', star:true, type:'score5', values:[1,2,1,1,2,2,2,2,3,3,2,2,2,2,2,2,3,2,2,2,2,3,3,2,2,2,2,2,2,2] },
+    { name:'냉각 유발 감각이상', type:'score5', values:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] },
   ]},
   { icon:'✋', label:'피부계', rows:[
-    { name:'수족증후군', star:true, type:'score5', values:[0,0,0,1,0,1,0,0,0] },
+    { name:'수족증후군', star:true, type:'score5', values:[0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0] },
   ]},
 ];
 function renderTableCell(v, rowType, dark) {
