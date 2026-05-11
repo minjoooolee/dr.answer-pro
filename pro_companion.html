@@ -1128,25 +1128,31 @@ function SymptomTable(props) {
   const textColor = dark ? '#fff' : '#000';
   const subColor = dark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.45)';
 
+  const PAGE_SIZE = 5;
+  const [page, setPage] = React.useState(0);
+  const totalPages = Math.ceil(MEDICAL_TABLE_DATES.length / PAGE_SIZE);
+  const visibleDates = MEDICAL_TABLE_DATES.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+
   const bodyRows = [];
   MEDICAL_TABLE_GROUPS.forEach((g, gi) => {
     bodyRows.push(
       <tr key={'g'+gi}>
-        <td colSpan={MEDICAL_TABLE_DATES.length + 1} style={{ padding:'7px 10px', background: groupBg, fontWeight:700, fontSize:11.5, color: textColor, borderBottom:`1px solid ${borderColor}` }}>
+        <td colSpan={visibleDates.length + 1} style={{ padding:'7px 10px', background: groupBg, fontWeight:700, fontSize:11.5, color: textColor, borderBottom:`1px solid ${borderColor}` }}>
           <span style={{ fontSize:13, marginRight:4 }}>{g.icon}</span>{g.label}
         </td>
       </tr>
     );
     g.rows.forEach((r, ri) => {
       const isLast = gi === MEDICAL_TABLE_GROUPS.length - 1 && ri === g.rows.length - 1;
+      const visibleValues = r.values.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
       bodyRows.push(
         <tr key={'r'+gi+'_'+ri} style={{ borderBottom: isLast ? 'none' : `1px solid ${rowBorderColor}` }}>
           <td style={{ width:76, padding:'8px', fontWeight:600, fontSize:11.5, color: textColor, borderRight:`1px solid ${rowBorderColor}`, lineHeight:1.2, wordBreak:'keep-all' }}>
             <span>{r.name}</span>
             {r.star && <span style={{ color: C_red, fontSize:10, marginLeft:2 }}>★</span>}
           </td>
-          {r.values.map((v, vi) => (
-            <td key={vi} style={{ height:42, textAlign:'center', verticalAlign:'middle', borderRight: vi < r.values.length - 1 ? `1px solid ${rowBorderColor}` : 'none' }}>
+          {visibleValues.map((v, vi) => (
+            <td key={vi} style={{ height:42, textAlign:'center', verticalAlign:'middle', borderRight: vi < visibleValues.length - 1 ? `1px solid ${rowBorderColor}` : 'none' }}>
               {renderTableCell(v, r.type, dark)}
             </td>
           ))}
@@ -1155,27 +1161,46 @@ function SymptomTable(props) {
     });
   });
 
+  const btnStyle = (disabled) => ({
+    width:28, height:28, borderRadius:'50%', border:'none', cursor: disabled ? 'default' : 'pointer',
+    background: disabled ? (dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)') : (dark?'rgba(255,255,255,0.12)':'rgba(0,0,0,0.08)'),
+    display:'flex', alignItems:'center', justifyContent:'center', padding:0, flexShrink:0,
+  });
+
   return (
-    <table style={{
-      width:'100%', tableLayout:'fixed', borderCollapse:'collapse',
-      marginBottom:24, borderRadius:12, overflow:'hidden',
-      border:`1px solid ${borderColor}`,
-      background: dark ? '#152120' : '#fafbfb',
-      fontFamily:'Pretendard',
-    }}>
-      <thead>
-        <tr style={{ background: headerBg, borderBottom:`1px solid ${borderColor}` }}>
-          <th style={{ width:76, padding:'8px', fontWeight:700, fontSize:11.5, color: textColor, borderRight:`1px solid ${borderColor}`, textAlign:'left' }}>증상</th>
-          {MEDICAL_TABLE_DATES.map((d, di) => (
-            <th key={di} style={{ padding:'6px 0', textAlign:'center', borderRight: di < MEDICAL_TABLE_DATES.length - 1 ? `1px solid ${rowBorderColor}` : 'none', fontWeight:400 }}>
-              <div style={{ fontWeight:700, fontSize:10.5, color: textColor }}>{d.d}</div>
-              <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:8.5, color: subColor, marginTop:1 }}>{d.cycle}</div>
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>{bodyRows}</tbody>
-    </table>
+    <>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:6, marginBottom:6 }}>
+        <span style={{ fontFamily:'Pretendard', fontSize:11, color: subColor }}>
+          {page * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE + PAGE_SIZE, MEDICAL_TABLE_DATES.length)}일 / 전체 {MEDICAL_TABLE_DATES.length}일
+        </span>
+        <button style={btnStyle(page === 0)} disabled={page === 0} onClick={() => setPage(p => p - 1)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke={dark?'#fff':'#000'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+        <button style={btnStyle(page === totalPages - 1)} disabled={page === totalPages - 1} onClick={() => setPage(p => p + 1)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke={dark?'#fff':'#000'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
+      <table style={{
+        width:'100%', tableLayout:'fixed', borderCollapse:'collapse',
+        marginBottom:24, borderRadius:12, overflow:'hidden',
+        border:`1px solid ${borderColor}`,
+        background: dark ? '#152120' : '#fafbfb',
+        fontFamily:'Pretendard',
+      }}>
+        <thead>
+          <tr style={{ background: headerBg, borderBottom:`1px solid ${borderColor}` }}>
+            <th style={{ width:76, padding:'8px', fontWeight:700, fontSize:11.5, color: textColor, borderRight:`1px solid ${borderColor}`, textAlign:'left' }}>증상</th>
+            {visibleDates.map((d, di) => (
+              <th key={di} style={{ padding:'6px 0', textAlign:'center', borderRight: di < visibleDates.length - 1 ? `1px solid ${rowBorderColor}` : 'none', fontWeight:400 }}>
+                <div style={{ fontWeight:700, fontSize:10.5, color: textColor }}>{d.d}</div>
+                <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:8.5, color: subColor, marginTop:1 }}>{d.cycle}</div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>{bodyRows}</tbody>
+      </table>
+    </>
   );
 }
 
