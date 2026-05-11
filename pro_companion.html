@@ -1155,19 +1155,18 @@ function SymptomTable(props) {
     });
   });
 
+  const dateColWidth = 52;
   return (
+    <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', marginBottom:24, borderRadius:12, border:`1px solid ${borderColor}`, background: dark ? '#152120' : '#fafbfb' }}>
     <table style={{
       width:'100%', tableLayout:'fixed', borderCollapse:'collapse',
-      marginBottom:24, borderRadius:12, overflow:'hidden',
-      border:`1px solid ${borderColor}`,
-      background: dark ? '#152120' : '#fafbfb',
       fontFamily:'Pretendard',
     }}>
       <thead>
         <tr style={{ background: headerBg, borderBottom:`1px solid ${borderColor}` }}>
           <th style={{ width:76, padding:'8px', fontWeight:700, fontSize:11.5, color: textColor, borderRight:`1px solid ${borderColor}`, textAlign:'left' }}>증상</th>
           {MEDICAL_TABLE_DATES.map((d, di) => (
-            <th key={di} style={{ padding:'6px 0', textAlign:'center', borderRight: di < MEDICAL_TABLE_DATES.length - 1 ? `1px solid ${rowBorderColor}` : 'none', fontWeight:400 }}>
+            <th key={di} style={{ width:dateColWidth, padding:'6px 0', textAlign:'center', borderRight: di < MEDICAL_TABLE_DATES.length - 1 ? `1px solid ${rowBorderColor}` : 'none', fontWeight:400 }}>
               <div style={{ fontWeight:700, fontSize:10.5, color: textColor }}>{d.d}</div>
               <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:8.5, color: subColor, marginTop:1 }}>{d.cycle}</div>
             </th>
@@ -1176,6 +1175,7 @@ function SymptomTable(props) {
       </thead>
       <tbody>{bodyRows}</tbody>
     </table>
+    </div>
   );
 }
 
