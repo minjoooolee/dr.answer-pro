@@ -1155,10 +1155,10 @@ function SymptomTable(props) {
     });
   });
 
-  const tableEl = (
+  return (
     <table style={{
-      width:'100%', minWidth:540, tableLayout:'fixed', borderCollapse:'collapse',
-      borderRadius:12, overflow:'hidden',
+      width:'100%', tableLayout:'fixed', borderCollapse:'collapse',
+      marginBottom:24, borderRadius:12, overflow:'hidden',
       border:`1px solid ${borderColor}`,
       background: dark ? '#152120' : '#fafbfb',
       fontFamily:'Pretendard',
@@ -1177,7 +1177,6 @@ function SymptomTable(props) {
       <tbody>{bodyRows}</tbody>
     </table>
   );
-  return React.createElement('div', { style: { overflowX:'auto', marginBottom:24 } }, tableEl);
 }
 
 const MEDICAL_LLM_SECTIONS = [
