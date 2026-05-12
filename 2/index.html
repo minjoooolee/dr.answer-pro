@@ -25,7 +25,15 @@
     0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(-5px); }
   }
-  @keyframes syncRing {
+  @keyframes barBlink {
+    0%, 100% { opacity: 1; }
+    40%      { opacity: 0.25; }
+  }
+  @keyframes barSettle {
+    0%   { opacity: 0.3; transform: scaleY(0.6); }
+    60%  { opacity: 1;   transform: scaleY(1.08); }
+    100% { opacity: 1;   transform: scaleY(1); }
+  }
     0%   { transform: scale(0.8); opacity: 0.7; }
     100% { transform: scale(2.4); opacity: 0; }
   }
@@ -497,7 +505,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 10.5, color: C.mute, fontWeight: 500, marginBottom: 4 }}>오늘 추세</div>
-            <BarChart bars={[3,4,3,5,4,6,7,8]} highlightLast accentTone="warn" w={86} h={28}/>
+            <BarChart bars={[3,4,3,5,4,6,7,8]} highlightLast accentTone="warn" w={86} h={28} animate/>
           </div>
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: C.warn, opacity: 0.85 }}/>
         </div>
@@ -546,22 +554,44 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
 }
 
 // ─── Small bar chart for metric cards ──────────────────────────
-function BarChart({ bars, highlightLast = true, accentTone = 'ok', w = 96, h = 26 }) {
+function BarChart({ bars, highlightLast = true, accentTone = 'ok', w = 96, h = 26, animate = false }) {
   const max = Math.max(...bars);
+  const accent = accentTone === 'warn' ? C.warn : C.ok;
   const gap = 2;
   const barW = (w - gap * (bars.length - 1)) / bars.length;
-  const accent = accentTone === 'warn' ? C.warn : C.ok;
+
+  // Track whether the last bar has settled yet
+  const [settled, setSettled] = React.useState(!animate);
+  React.useEffect(() => {
+    if (!animate) return;
+    setSettled(false);
+    // blink 3 times (~1.5s) then settle
+    const t = setTimeout(() => setSettled(true), 1500);
+    return () => clearTimeout(t);
+  }, [animate]);
+
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
+    <div style={{ position: 'relative', width: w, height: h, display: 'flex', alignItems: 'flex-end', gap: gap }}>
       {bars.map((v, i) => {
         const bh = Math.max(2, (v / max) * (h - 2));
-        const x = i * (barW + gap);
-        const y = h - bh;
         const isLast = i === bars.length - 1;
         const fill = isLast && highlightLast ? accent : 'rgba(180,194,210,0.55)';
-        return <rect key={i} x={x} y={y} width={barW} height={bh} rx={1.2} fill={fill}/>;
+        let anim = 'none';
+        if (animate && isLast) {
+          anim = settled
+            ? 'barSettle 0.45s cubic-bezier(.22,.68,0,1.2) forwards'
+            : 'barBlink 0.5s ease-in-out 3';
+        }
+        return (
+          <div key={i} style={{
+            width: barW, height: bh, borderRadius: 1.5,
+            background: fill, flexShrink: 0,
+            transformOrigin: 'bottom',
+            animation: anim,
+          }}/>
+        );
       })}
-    </svg>
+    </div>
   );
 }
 
@@ -601,7 +631,7 @@ function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusT
         {statusText}
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 6 }}>
-        <BarChart bars={bars} accentTone={tone} w={120} h={26}/>
+        <BarChart bars={bars} accentTone={tone} w={120} h={26} animate/>
       </div>
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: accent, opacity: 0.85 }}/>
     </div>
