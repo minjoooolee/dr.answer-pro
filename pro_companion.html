@@ -3100,41 +3100,119 @@ function PROScreen({ tweaks, setTweak }) {
                 )}
 
                 {exerciseDone === true && exerciseMode === 'walk' && (
-                  <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-                    <div style={{ padding:'14px 16px', borderRadius:16, background: dark?'rgba(65,210,180,0.08)':'rgba(65,210,180,0.07)', border:`1px solid ${dark?'rgba(65,210,180,0.22)':'rgba(65,210,180,0.18)'}` }}>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:C.main, marginBottom:10, letterSpacing:'-0.01em' }}>오늘의 걷기 기록</div>
-                      <div style={{ display:'flex', gap:0 }}>
-                        {[
-                          { label:'걸음 수', val:'8,342', unit:'steps' },
-                          { label:'이동 거리', val:'5.8', unit:'km' },
-                          { label:'소모 칼로리', val:'312', unit:'kcal' },
-                        ].map((item, i) => (
-                          <div key={i} style={{ flex:1, textAlign:'center', borderRight: i<2 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none', padding:'6px 0' }}>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color:C.main, letterSpacing:'-0.02em' }}>{item.val}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:10, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', marginTop:2 }}>{item.unit}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.5)', marginTop:1 }}>{item.label}</div>
-                          </div>
-                        ))}
+                  <div style={{ display:'flex', flexDirection:'column', gap:14, marginTop:-8 }}>
+                    {/* header with save button */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                      <div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>자율 걷기</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', marginTop:2 }}>2026.05.05 18:56</div>
+                      </div>
+                      <button onClick={closeSheet} style={{ height:36, padding:'0 16px', borderRadius:18, border:'none', cursor:'pointer', background:C.main, color:'#fff', fontFamily:'Pretendard', fontWeight:700, fontSize:13, letterSpacing:'-0.01em', boxShadow:'0 4px 12px rgba(65,210,180,0.3)' }}>저장</button>
+                    </div>
+
+                    {/* GPS map with route */}
+                    <div style={{ position:'relative', width:'100%', borderRadius:16, overflow:'hidden', background: dark?'#1f2a28':'#e9ede9', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` }}>
+                      <svg viewBox="0 0 320 240" style={{ width:'100%', display:'block' }}>
+                        {/* street grid */}
+                        <g stroke={dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.06)'} strokeWidth="1">
+                          <line x1="0" y1="40" x2="320" y2="38" />
+                          <line x1="0" y1="90" x2="320" y2="92" />
+                          <line x1="0" y1="150" x2="320" y2="148" />
+                          <line x1="0" y1="200" x2="320" y2="202" />
+                          <line x1="50" y1="0" x2="48" y2="240" />
+                          <line x1="120" y1="0" x2="122" y2="240" />
+                          <line x1="200" y1="0" x2="198" y2="240" />
+                          <line x1="270" y1="0" x2="272" y2="240" />
+                        </g>
+                        <g stroke={dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.09)'} strokeWidth="2.5">
+                          <line x1="0" y1="68" x2="320" y2="70" />
+                          <line x1="0" y1="175" x2="320" y2="178" />
+                          <line x1="160" y1="0" x2="158" y2="240" />
+                        </g>
+                        {/* river */}
+                        <path d="M 280 0 Q 285 60 295 130 Q 305 200 300 240" fill="none" stroke={dark?'rgba(120,180,220,0.25)':'rgba(120,180,220,0.45)'} strokeWidth="10" strokeLinecap="round" />
+
+                        {/* walking route — segments colored by speed */}
+                        <g fill="none" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="160,180 140,175 120,170" stroke="#22c55e" />
+                          <polyline points="120,170 105,165 92,158" stroke="#22c55e" />
+                          <polyline points="92,158 82,148 75,135" stroke="#facc15" />
+                          <polyline points="75,135 70,118 72,100" stroke="#fb923c" />
+                          <polyline points="72,100 78,85 90,75" stroke="#ef4444" />
+                          <polyline points="90,75 105,68 125,62" stroke="#ef4444" />
+                          <polyline points="125,62 145,58 165,58" stroke="#fb923c" />
+                          <polyline points="165,58 185,60 200,68" stroke="#facc15" />
+                          <polyline points="200,68 218,75 230,90" stroke="#22c55e" />
+                          <polyline points="230,90 238,105 240,122" stroke="#22c55e" />
+                          <polyline points="240,122 238,140 230,155" stroke="#facc15" />
+                          <polyline points="230,155 215,168 195,175" stroke="#facc15" />
+                          <polyline points="195,175 175,180 160,180" stroke="#22c55e" />
+                        </g>
+
+                        {/* START label */}
+                        <g>
+                          <rect x="142" y="186" width="44" height="16" rx="8" fill="#222" />
+                          <text x="164" y="197" textAnchor="middle" fontFamily="Pretendard" fontSize="9" fontWeight="700" fill="#fff">START</text>
+                          <circle cx="160" cy="180" r="4" fill="#22c55e" stroke="#fff" strokeWidth="1.5" />
+                        </g>
+                        {/* FINISH label */}
+                        <g>
+                          <rect x="172" y="160" width="46" height="16" rx="8" fill="#3b82f6" />
+                          <text x="195" y="171" textAnchor="middle" fontFamily="Pretendard" fontSize="9" fontWeight="700" fill="#fff">FINISH</text>
+                        </g>
+                        {/* BEST label */}
+                        <g>
+                          <rect x="118" y="50" width="40" height="16" rx="8" fill="#3b82f6" />
+                          <text x="138" y="61" textAnchor="middle" fontFamily="Pretendard" fontSize="9" fontWeight="700" fill="#fff">👍 BEST</text>
+                        </g>
+                      </svg>
+                      <div style={{ position:'absolute', left:8, bottom:6, fontFamily:'Poppins', fontWeight:700, fontSize:11, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', letterSpacing:'-0.01em' }}>
+                        <span style={{ color:'#4285F4' }}>G</span><span style={{ color:'#EA4335' }}>o</span><span style={{ color:'#FBBC05' }}>o</span><span style={{ color:'#4285F4' }}>g</span><span style={{ color:'#34A853' }}>l</span><span style={{ color:'#EA4335' }}>e</span>
                       </div>
                     </div>
 
-                    <div style={{ display:'flex', gap:8 }}>
+                    {/* stats - top row */}
+                    <div style={{ display:'flex', justifyContent:'space-around', padding:'10px 0' }}>
                       {[
-                        { label:'걷기', time:'42분', pct:70 },
-                        { label:'빠르게 걷기', time:'15분', pct:25 },
-                        { label:'뛰기', time:'3분', pct:5 },
-                      ].map((act, i) => (
-                        <div key={i} style={{ flex:1, padding:'10px 12px', borderRadius:12, background: dark?'rgba(255,255,255,0.05)':'#f7f9f8', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
-                          <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11.5, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', marginBottom:4 }}>{act.label}</div>
-                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:13, color:C.main }}>{act.time}</div>
-                          <div style={{ marginTop:6, height:4, borderRadius:99, background: dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)' }}>
-                            <div style={{ width: act.pct+'%', height:'100%', borderRadius:99, background:C.main }} />
-                          </div>
+                        { val:'21:12', label:'시간' },
+                        { val:'1.68', label:'거리(km)' },
+                        { val:"12'34\"", label:'평균 페이스' },
+                      ].map((s, i) => (
+                        <div key={i} style={{ textAlign:'center' }}>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:24, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>{s.val}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', marginTop:2 }}>{s.label}</div>
                         </div>
                       ))}
                     </div>
 
-                    <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.main, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(65,210,180,0.35)' }}>등록하기</button>
+                    {/* stats - bottom row */}
+                    <div style={{ display:'flex', justifyContent:'space-around', padding:'6px 0 14px' }}>
+                      {[
+                        { val:'2,587', label:'걸음 수' },
+                        { val:'82', label:'칼로리' },
+                      ].map((s, i) => (
+                        <div key={i} style={{ textAlign:'center', minWidth:90 }}>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:24, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>{s.val}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', marginTop:2 }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* speed legend */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:14, padding:'10px 0 4px', fontFamily:'Pretendard', fontSize:10.5, fontWeight:500, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)' }}>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:4 }}>
+                        <span style={{ width:10, height:10, borderRadius:'50%', background:'#22c55e' }} /> 느림
+                      </span>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:4 }}>
+                        <span style={{ width:10, height:10, borderRadius:'50%', background:'#facc15' }} /> 보통
+                      </span>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:4 }}>
+                        <span style={{ width:10, height:10, borderRadius:'50%', background:'#fb923c' }} /> 빠름
+                      </span>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:4 }}>
+                        <span style={{ width:10, height:10, borderRadius:'50%', background:'#ef4444' }} /> 매우 빠름
+                      </span>
+                    </div>
                   </div>
                 )}
               </>
