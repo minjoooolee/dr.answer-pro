@@ -3224,50 +3224,50 @@ function PROScreen({ tweaks, setTweak }) {
                           <text x="14" y="195" fontSize="7" opacity="0.7">동작이로</text>
                         </g>
 
-                        {/* route shadow (blur) */}
-                        <path d="M 185 230 Q 155 220 130 215 Q 100 208 80 195 Q 60 180 55 155 Q 52 130 65 105 Q 80 80 110 70 Q 145 60 180 60 Q 215 62 240 75 Q 265 90 270 115 Q 273 140 265 165 Q 252 185 225 195 Q 200 200 185 230 Z" fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" filter="url(#routeShadow)" opacity="0.7" />
+                        {/* route shadow (blur) — rectangular loop */}
+                        <path d="M 180 215 L 60 215 L 60 80 L 280 80 L 280 215 L 195 215" fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" filter="url(#routeShadow)" opacity="0.7" />
 
                         {/* white route base */}
-                        <path d="M 185 230 Q 155 220 130 215 Q 100 208 80 195 Q 60 180 55 155 Q 52 130 65 105 Q 80 80 110 70 Q 145 60 180 60 Q 215 62 240 75 Q 265 90 270 115 Q 273 140 265 165 Q 252 185 225 195 Q 200 200 185 230 Z" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M 180 215 L 60 215 L 60 80 L 280 80 L 280 215 L 195 215" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
 
-                        {/* route colored by speed - smooth curves */}
+                        {/* route colored by speed - rectangular segments */}
                         <g fill="none" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M 185 230 Q 155 220 130 215" stroke="#22c55e" />
-                          <path d="M 130 215 Q 100 208 80 195" stroke="#22c55e" />
-                          <path d="M 80 195 Q 60 180 55 155" stroke="#facc15" />
-                          <path d="M 55 155 Q 52 130 65 105" stroke="#fb923c" />
-                          <path d="M 65 105 Q 80 80 110 70" stroke="#ef4444" />
-                          <path d="M 110 70 Q 145 60 180 60" stroke="#ef4444" />
-                          <path d="M 180 60 Q 215 62 240 75" stroke="#fb923c" />
-                          <path d="M 240 75 Q 265 90 270 115" stroke="#facc15" />
-                          <path d="M 270 115 Q 273 140 265 165" stroke="#22c55e" />
-                          <path d="M 265 165 Q 252 185 225 195" stroke="#facc15" />
-                          <path d="M 225 195 Q 200 200 185 230" stroke="#22c55e" />
+                          <polyline points="180,215 120,215" stroke="#22c55e" />
+                          <polyline points="120,215 60,215" stroke="#22c55e" />
+                          <polyline points="60,215 60,150" stroke="#facc15" />
+                          <polyline points="60,150 60,80" stroke="#fb923c" />
+                          <polyline points="60,80 140,80" stroke="#ef4444" />
+                          <polyline points="140,80 220,80" stroke="#ef4444" />
+                          <polyline points="220,80 280,80" stroke="#fb923c" />
+                          <polyline points="280,80 280,150" stroke="#facc15" />
+                          <polyline points="280,150 280,215" stroke="#22c55e" />
+                          <polyline points="280,215 210,215" stroke="#facc15" />
+                          <polyline points="210,215 195,215" stroke="#22c55e" />
                         </g>
 
                         {/* 1km marker */}
                         <g>
-                          <circle cx="170" cy="62" r="9" fill="#fff" stroke={dark?'rgba(0,0,0,0.4)':'rgba(0,0,0,0.18)'} strokeWidth="1.2" />
-                          <text x="170" y="66" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#222">1</text>
+                          <circle cx="230" cy="80" r="9" fill="#fff" stroke={dark?'rgba(0,0,0,0.4)':'rgba(0,0,0,0.18)'} strokeWidth="1.2" />
+                          <text x="230" y="84" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#222">1</text>
                         </g>
 
                         {/* START - pulsing */}
-                        <circle cx="185" cy="230" r="14" fill="url(#startGlow)" />
-                        <circle cx="185" cy="230" r="7" fill="#22c55e" stroke="#fff" strokeWidth="2.5" />
+                        <circle cx="180" cy="215" r="14" fill="url(#startGlow)" />
+                        <circle cx="180" cy="215" r="7" fill="#22c55e" stroke="#fff" strokeWidth="2.5" />
                         <g>
-                          <rect x="158" y="240" width="54" height="18" rx="9" fill="#222" />
-                          <text x="185" y="252" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff" letterSpacing="0.05em">START</text>
+                          <rect x="153" y="228" width="54" height="18" rx="9" fill="#222" />
+                          <text x="180" y="240" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff" letterSpacing="0.05em">START</text>
                         </g>
                         {/* FINISH */}
                         <g>
-                          <rect x="158" y="206" width="56" height="18" rx="9" fill="#3b82f6" />
-                          <text x="186" y="218" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff" letterSpacing="0.05em">FINISH</text>
-                          <polygon points="186,224 182,228 190,228" fill="#3b82f6" />
+                          <rect x="167" y="192" width="56" height="18" rx="9" fill="#3b82f6" />
+                          <text x="195" y="204" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff" letterSpacing="0.05em">FINISH</text>
+                          <polygon points="195,210 191,214 199,214" fill="#3b82f6" />
                         </g>
                         {/* BEST */}
                         <g>
-                          <rect x="146" y="42" width="52" height="18" rx="9" fill="#3b82f6" />
-                          <text x="172" y="54" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff">👍 BEST</text>
+                          <rect x="144" y="52" width="52" height="18" rx="9" fill="#3b82f6" />
+                          <text x="170" y="64" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff">👍 BEST</text>
                         </g>
 
                         {/* compass */}
