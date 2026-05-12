@@ -1168,6 +1168,28 @@ function Report() {
 
 // ─── My Info screen ─────────────────────────────────────────────
 function MyInfo() {
+  const initial = {
+    childName: '김민준', age: '5', condition: '만성호흡부전',
+    hospital: '신촌세브란스병원', doctor: '호흡기내과 이진환 교수',
+    device: 'ResMed Astral 150', mode: 'AVAPS-AE (BiPAP)',
+    lastChange: '2025년 4월 22일',
+    ipap: '18 cmH₂O', epap: '6 cmH₂O', bpm: '16 회/min', ti: '0.9 s', fio2: '21 %',
+    notify: '켜짐', emergency: '02-2228-0000', sync: '10분마다',
+  };
+  const [data, setData] = React.useState(initial);
+  const [draft, setDraft] = React.useState(initial);
+  const [editing, setEditing] = React.useState(false);
+  const [savedFlash, setSavedFlash] = React.useState(false);
+
+  const startEdit = () => { setDraft(data); setEditing(true); };
+  const cancel    = () => { setDraft(data); setEditing(false); };
+  const save      = () => {
+    setData(draft); setEditing(false);
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1400);
+  };
+  const update = (k) => (e) => setDraft(d => ({ ...d, [k]: e.target.value }));
+
   const Section = ({ title, children }) => (
     <div style={{ padding: '22px 22px 4px' }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: C.mute, letterSpacing: 1.4, textTransform: 'uppercase', marginBottom: 10 }}>
@@ -1181,7 +1203,15 @@ function MyInfo() {
     </div>
   );
 
-  const Row = ({ icon, label, value, last = false, badge }) => (
+  const inputStyle = {
+    fontSize: 14, fontWeight: 600, color: C.ink, letterSpacing: -0.3,
+    border: '1px solid rgba(14,17,22,0.14)', borderRadius: 8,
+    padding: '6px 10px', outline: 'none', background: '#fff',
+    width: '100%', maxWidth: 220, textAlign: 'right',
+    fontFamily: 'inherit',
+  };
+
+  const Row = ({ icon, label, value, last = false, badge, field }) => (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 14,
       padding: '14px 18px',
@@ -1194,13 +1224,35 @@ function MyInfo() {
       }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>{label}</div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, letterSpacing: -0.3, marginTop: 1 }}>{value}</div>
+        {editing && field ? (
+          <input value={draft[field]} onChange={update(field)} style={{
+            ...inputStyle, marginTop: 4, textAlign: 'left', maxWidth: '100%',
+          }}/>
+        ) : (
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, letterSpacing: -0.3, marginTop: 1 }}>{value}</div>
+        )}
       </div>
-      {badge && (
+      {badge && !editing && (
         <span style={{
           fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 100,
           background: badge.bg, color: badge.fg, letterSpacing: -0.1, flexShrink: 0,
         }}>{badge.label}</span>
+      )}
+    </div>
+  );
+
+  const KVRow = ({ label, field, last }) => (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '12px 18px',
+      borderBottom: last ? 'none' : `1px solid ${C.line}`,
+      gap: 12,
+    }}>
+      <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 500, letterSpacing: -0.2, flexShrink: 0 }}>{label}</span>
+      {editing ? (
+        <input value={draft[field]} onChange={update(field)} style={inputStyle}/>
+      ) : (
+        <span style={{ fontSize: 13.5, color: C.ink, fontWeight: 700, letterSpacing: -0.3 }}>{data[field]}</span>
       )}
     </div>
   );
@@ -1252,10 +1304,36 @@ function MyInfo() {
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 130, background: C.bg }}>
       {/* 헤더 */}
-      <div style={{ padding: '18px 22px 0' }}>
+      <div style={{ padding: '18px 22px 0', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ fontSize: 24, fontWeight: 800, color: C.ink, letterSpacing: -0.8, lineHeight: 1.18 }}>
           내 정보
         </div>
+        {editing ? (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={cancel} style={{
+              padding: '7px 14px', borderRadius: 100, cursor: 'pointer',
+              background: '#fff', border: '1px solid rgba(14,17,22,0.14)',
+              fontSize: 12.5, fontWeight: 700, color: C.ink2, letterSpacing: -0.2,
+            }}>취소</button>
+            <button onClick={save} style={{
+              padding: '7px 16px', borderRadius: 100, cursor: 'pointer',
+              background: C.ink, border: 0, color: '#fff',
+              fontSize: 12.5, fontWeight: 700, letterSpacing: -0.2,
+            }}>저장</button>
+          </div>
+        ) : (
+          <button onClick={startEdit} style={{
+            padding: '7px 14px', borderRadius: 100, cursor: 'pointer',
+            background: '#fff', border: '1px solid rgba(14,17,22,0.14)',
+            fontSize: 12.5, fontWeight: 700, color: C.ink, letterSpacing: -0.2,
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M4 20h4l10-10-4-4L4 16v4zM14 6l4 4" stroke={C.ink} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            편집
+          </button>
+        )}
       </div>
 
       {/* 프로필 요약 */}
@@ -1267,69 +1345,79 @@ function MyInfo() {
           fontSize: 26,
         }}>👦</div>
         <div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: C.ink, letterSpacing: -0.5 }}>김민준</div>
-          <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, marginTop: 2, letterSpacing: -0.1 }}>5세 · 만성호흡부전</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: C.ink, letterSpacing: -0.5 }}>{data.childName}</div>
+          <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, marginTop: 2, letterSpacing: -0.1 }}>{data.age}세 · {data.condition}</div>
         </div>
         <div style={{ flex: 1 }}/>
-        <div style={{
-          padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 700,
-          background: 'rgba(224,136,58,0.12)', color: C.warn, letterSpacing: -0.2,
-          display: 'flex', alignItems: 'center', gap: 5,
-        }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.warn, display: 'inline-block' }}/>
-          관찰 중
-        </div>
+        {!editing && (
+          <div style={{
+            padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 700,
+            background: 'rgba(224,136,58,0.12)', color: C.warn, letterSpacing: -0.2,
+            display: 'flex', alignItems: 'center', gap: 5,
+          }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.warn, display: 'inline-block' }}/>
+            관찰 중
+          </div>
+        )}
       </div>
 
       <Section title="환아 정보">
-        <Row icon={icons.child}    label="이름 · 나이"  value="김민준 · 5세"/>
-        <Row icon={icons.hospital} label="진료 병원"    value="신촌세브란스병원"/>
-        <Row icon={icons.doctor}   label="주치의"       value="호흡기내과 이진환 교수" last/>
+        {editing ? (
+          <>
+            <div style={{ padding: '14px 18px', display: 'grid', gridTemplateColumns: '1fr 80px', gap: 10, alignItems: 'end', borderBottom: `1px solid ${C.line}` }}>
+              <div>
+                <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, marginBottom: 4 }}>이름</div>
+                <input value={draft.childName} onChange={update('childName')} style={{...inputStyle, textAlign: 'left'}}/>
+              </div>
+              <div>
+                <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, marginBottom: 4 }}>나이</div>
+                <input value={draft.age} onChange={update('age')} style={{...inputStyle, textAlign: 'left'}}/>
+              </div>
+            </div>
+            <Row icon={icons.hospital} label="진료 병원" value={data.hospital} field="hospital"/>
+            <Row icon={icons.doctor}   label="주치의"    value={data.doctor}   field="doctor" last/>
+          </>
+        ) : (
+          <>
+            <Row icon={icons.child}    label="이름 · 나이"  value={`${data.childName} · ${data.age}세`}/>
+            <Row icon={icons.hospital} label="진료 병원"    value={data.hospital}/>
+            <Row icon={icons.doctor}   label="주치의"       value={data.doctor} last/>
+          </>
+        )}
       </Section>
 
       <Section title="인공호흡기 정보">
-        <Row icon={icons.device} label="기기명"     value="ResMed Astral 150"/>
-        <Row icon={icons.mode}   label="환기 모드"  value="AVAPS-AE (BiPAP)"/>
-        <Row icon={icons.status} label="현재 상태"  value="정상 작동 중"
+        <Row icon={icons.device}   label="기기명"     value={data.device} field="device"/>
+        <Row icon={icons.mode}     label="환기 모드"  value={data.mode}   field="mode"/>
+        <Row icon={icons.status}   label="현재 상태"  value="정상 작동 중"
           badge={{ label: '연결됨', bg: 'rgba(43,182,115,0.10)', fg: C.ok }}/>
-        <Row icon={icons.calendar} label="마지막 설정 변경" value="2025년 4월 22일" last/>
+        <Row icon={icons.calendar} label="마지막 설정 변경" value={data.lastChange} field="lastChange" last/>
       </Section>
 
       <Section title="처방 파라미터">
-        {[
-          { label: 'IPAP',    value: '18 cmH₂O' },
-          { label: 'EPAP',    value: '6 cmH₂O' },
-          { label: 'BPM',     value: '16 회/min' },
-          { label: 'Ti',      value: '0.9 s' },
-          { label: 'FiO₂',    value: '21 %' },
-        ].map((p, i, arr) => (
-          <div key={p.label} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '12px 18px',
-            borderBottom: i === arr.length - 1 ? 'none' : `1px solid ${C.line}`,
-          }}>
-            <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 500, letterSpacing: -0.2 }}>{p.label}</span>
-            <span style={{ fontSize: 13.5, color: C.ink, fontWeight: 700, letterSpacing: -0.3 }}>{p.value}</span>
-          </div>
-        ))}
+        <KVRow label="IPAP" field="ipap"/>
+        <KVRow label="EPAP" field="epap"/>
+        <KVRow label="BPM"  field="bpm"/>
+        <KVRow label="Ti"   field="ti"/>
+        <KVRow label="FiO₂" field="fio2" last/>
       </Section>
 
       <Section title="앱 설정">
-        {[
-          { label: '알림 수신',      value: '켜짐' },
-          { label: '응급 연락처',    value: '02-2228-0000' },
-          { label: '동기화 주기',    value: '10분마다' },
-        ].map((p, i, arr) => (
-          <div key={p.label} style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '12px 18px',
-            borderBottom: i === arr.length - 1 ? 'none' : `1px solid ${C.line}`,
-          }}>
-            <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 500, letterSpacing: -0.2 }}>{p.label}</span>
-            <span style={{ fontSize: 13.5, color: C.ink, fontWeight: 600, letterSpacing: -0.3 }}>{p.value}</span>
-          </div>
-        ))}
+        <KVRow label="알림 수신"   field="notify"/>
+        <KVRow label="응급 연락처" field="emergency"/>
+        <KVRow label="동기화 주기" field="sync" last/>
       </Section>
+
+      {savedFlash && (
+        <div style={{
+          position: 'absolute', left: '50%', bottom: 110, transform: 'translateX(-50%)',
+          background: C.ink, color: '#fff', padding: '10px 18px', borderRadius: 100,
+          fontSize: 12.5, fontWeight: 700, letterSpacing: -0.2,
+          boxShadow: '0 8px 24px rgba(14,17,22,0.25)', zIndex: 60,
+        }}>
+          ✓ 저장됐어요
+        </div>
+      )}
     </div>
   );
 }
