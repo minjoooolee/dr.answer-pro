@@ -1892,6 +1892,19 @@ function PROScreen({ tweaks, setTweak }) {
           <input
             value={text}
             onChange={e => setText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && text.trim()) {
+                const SYMPTOM_KEYWORDS = ['아파','아프','아픈','아픔','이상해','이상한','이상하','불편','힘들','힘들어','못자','못 자','두통','머리','열','기침','토','구토','어지','어지럽','메스','구역','통증','쑤시','쑤셔','따갑','따가워','쓰려','쓰려워','저려','저린','답답','숨','기운','피곤','피로','식은땀','오한','설사','변비','소화','복통','가슴','두근','심장'];
+                if (SYMPTOM_KEYWORDS.some(k => text.includes(k))) {
+                  setText('');
+                  setActiveTag('문진');
+                  if (!elderMode) setSurveyMode('list');
+                } else {
+                  setText('');
+                  setSubmitted(true);
+                }
+              }
+            }}
             placeholder="오늘은 좀 어떠세요?에 대한 답변을 해주세요"
             style={{
               flex: 1, border: 'none', outline: 'none', background: 'transparent',
@@ -1900,7 +1913,17 @@ function PROScreen({ tweaks, setTweak }) {
             }}
           />
           {text.length > 0 && (
-            <button onClick={() => setText('')} style={{
+            <button onClick={() => {
+              const SYMPTOM_KEYWORDS = ['아파','아프','아픈','아픔','이상해','이상한','이상하','불편','힘들','힘들어','못자','못 자','두통','머리','열','기침','토','구토','어지','어지럽','메스','구역','통증','쑤시','쑤셔','따갑','따가워','쓰려','쓰려워','저려','저린','답답','숨','기운','피곤','피로','식은땀','오한','설사','변비','소화','복통','가슴','두근','심장'];
+              if (SYMPTOM_KEYWORDS.some(k => text.includes(k))) {
+                setText('');
+                setActiveTag('문진');
+                if (!elderMode) setSurveyMode('list');
+              } else {
+                setText('');
+                setSubmitted(true);
+              }
+            }} style={{
               width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
               background: C.main, display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(65,210,180,0.4)',
@@ -3925,6 +3948,63 @@ function PROScreen({ tweaks, setTweak }) {
                         ))}
                       </div>
                     </div>
+
+                    {/* 부작용 보고 (이상증세 기록) */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>⚠️ 부작용 보고</div>
+                      <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'0.06em' }}>{symptomLog.length} ENTRIES</div>
+                    </div>
+                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:24, background: dark?'rgba(238,63,96,0.08)':'rgba(238,63,96,0.05)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.14)'}` }}>
+                      {symptomLog.length === 0 ? (
+                        <div style={{ padding:'12px 0', textAlign:'center', fontFamily:'Pretendard', fontWeight:500, fontSize:12.5, color:dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>기록된 이상증세가 없어요.</div>
+                      ) : (
+                        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                          {symptomLog.map((it, idx) => (
+                            <div key={it.id} style={{
+                              padding:'12px 14px', borderRadius:12,
+                              background: dark?'rgba(0,0,0,0.2)':'rgba(255,255,255,0.6)',
+                              border:`1px solid ${dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'}`,
+                            }}>
+                              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+                                <span style={{ width:6, height:6, borderRadius:'50%', background:C.red, flexShrink:0 }} />
+                                <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'0.04em' }}>
+                                  {it.date.replaceAll('-','.')} · {it.time}
+                                </span>
+                              </div>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12.5, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', lineHeight:1.55, letterSpacing:'-0.01em' }}>{it.text}</div>
+                              {it.media && it.media.length > 0 && (
+                                <div style={{ display:'flex', gap:5, marginTop:8, flexWrap:'wrap' }}>
+                                  {it.media.map((m,i) => (
+                                    <div key={i} style={{ width:42, height:42, borderRadius:7, overflow:'hidden', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` }}>
+                                      {m.type === 'image'
+                                        ? <img src={m.url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                                        : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, background:dark?'rgba(255,255,255,0.05)':'#f5f5f5' }}>🎬</div>}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 의료진에게 리포트 전달하기 */}
+                    <button
+                      onClick={() => alert('의료진에게 리포트가 전달되었습니다.')}
+                      style={{
+                        width:'100%', height:56, minHeight:56, flexShrink:0, borderRadius:14, border:'none', cursor:'pointer',
+                        background:`linear-gradient(135deg, ${C.red} 0%, ${C.purple} 100%)`,
+                        color:'#fff',
+                        fontFamily:'Pretendard', fontWeight:700, fontSize:14, letterSpacing:'-0.01em',
+                        boxShadow:`0 10px 24px ${dark?'rgba(238,63,96,0.35)':'rgba(238,63,96,0.25)'}, 0 2px 6px rgba(0,0,0,0.06)`,
+                        display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                        transition:'all 0.2s ease',
+                      }}
+                    >
+                      <span style={{ fontSize:16 }}>📤</span>
+                      <span>의료진에게 리포트 전달하기</span>
+                    </button>
 
                     <div style={{ height:24 }} />
                   </>
