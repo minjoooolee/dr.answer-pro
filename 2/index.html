@@ -361,17 +361,16 @@ function AgentPopup({ onClose, onWorry }) {
   );
 }
 
-function Home({ onWorry }) {
+function Home({ showAgent = false, onAgentClose, onWorry }) {
   // 'ok' | 'watch' | 'alert' — 오브/카드 색상 연동
   const STATUS = 'watch';
   const sui = STATUS_UI[STATUS];
-  const [showAgent, setShowAgent] = React.useState(true);
 
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 120, background: C.bg, position: 'relative' }}>
       {showAgent && <AgentPopup
-        onClose={() => setShowAgent(false)}
-        onWorry={() => { setShowAgent(false); onWorry && onWorry(); }}
+        onClose={onAgentClose}
+        onWorry={onWorry}
       />}
 
       {/* Minimal header */}
@@ -668,7 +667,7 @@ function TabBar({ active = 'home', onChange }) {
 }
 
 // ─── Status check survey (questionnaire) ────────────────────────
-function Survey({ onBack }) {
+function Survey({ onBack, onSubmit }) {
   const BLUE = '#3D6BE6';
   const [q1, setQ1] = React.useState('same');
   const [q2, setQ2] = React.useState('checked');
@@ -837,7 +836,7 @@ function Survey({ onBack }) {
       {/* 제출 버튼 */}
       <div style={{ padding: '22px 16px 0' }}>
         <button
-          onClick={onBack}
+          onClick={onSubmit || onBack}
           style={{
             width: '100%', padding: '16px 0', borderRadius: 16, border: 0, cursor: 'pointer',
             background: C.ink, color: '#fff',
@@ -851,12 +850,54 @@ function Survey({ onBack }) {
   );
 }
 
+function SubmitToast() {
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, zIndex: 250,
+      background: 'rgba(14,17,22,0.35)', backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px',
+    }}>
+      <div style={{
+        background: '#fff', borderRadius: 18, padding: '22px 24px',
+        textAlign: 'center', width: '100%',
+        boxShadow: '0 12px 40px rgba(14,17,22,0.18)',
+      }}>
+        <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
+        <div style={{ fontSize: 14.5, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>
+          AI에게 전달했어요
+        </div>
+        <div style={{ fontSize: 12, color: C.mute, marginTop: 4, letterSpacing: -0.1 }}>
+          분석 결과는 곧 홈에서 확인할 수 있어요
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [screen, setScreen] = React.useState('home');
+  const [agentSeen, setAgentSeen] = React.useState(false);
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const handleSubmit = () => {
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setScreen('home');
+    }, 1100);
+  };
+
   return (
     <IOSDevice>
-      {screen === 'home' && <Home onWorry={() => setScreen('record')}/>}
-      {screen === 'record' && <Survey onBack={() => setScreen('home')}/>}
+      {screen === 'home' && (
+        <Home
+          showAgent={!agentSeen}
+          onAgentClose={() => setAgentSeen(true)}
+          onWorry={() => { setAgentSeen(true); setScreen('record'); }}
+        />
+      )}
+      {screen === 'record' && <Survey onBack={() => setScreen('home')} onSubmit={handleSubmit}/>}
       {screen === 'report' && (
         <div style={{ flex: 1, padding: 60, color: C.mute, textAlign: 'center', background: C.bg }}>리포트 화면 준비중</div>
       )}
@@ -864,6 +905,7 @@ function App() {
         <div style={{ flex: 1, padding: 60, color: C.mute, textAlign: 'center', background: C.bg }}>내정보 화면 준비중</div>
       )}
       <TabBar active={screen === 'home' ? 'home' : screen} onChange={setScreen}/>
+      {submitting && <SubmitToast/>}
     </IOSDevice>
   );
 }
