@@ -3388,11 +3388,10 @@ function PROScreen({ tweaks, setTweak }) {
                     </div>
 
                     {/* secondary stats grid */}
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10 }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10 }}>
                       {[
                         { icon:'⚡', label:'최고 페이스', val:"9'48\"", unit:'/km', accent:'#fb923c' },
                         { icon:'⛰️', label:'상승 고도', val:'12', unit:'m', accent:'#7d50f0' },
-                        { icon:'🦶', label:'분당 걸음 수', val:'122', unit:'걸음/분', accent:C.main },
                       ].map((s, i) => (
                         <div key={i} style={{ padding:'12px 14px', borderRadius:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)'}`, display:'flex', alignItems:'center', gap:11 }}>
                           <div style={{ width:34, height:34, borderRadius:11, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, flexShrink:0 }}>{s.icon}</div>
