@@ -720,24 +720,21 @@ function Survey({ onBack }) {
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 50, paddingBottom: 130, background: C.bg }}>
       {/* 헤더 */}
-      <div style={{
-        background: `linear-gradient(160deg, #5B89FF 0%, ${BLUE} 100%)`,
-        color: '#fff', padding: '18px 22px 24px',
-      }}>
+      <div style={{ padding: '18px 22px 4px' }}>
         <button onClick={onBack} style={{
-          background: 'none', border: 'none', color: '#fff', cursor: 'pointer',
+          background: 'none', border: 'none', cursor: 'pointer',
           padding: 0, display: 'inline-flex', alignItems: 'center', gap: 4,
-          fontSize: 13, fontWeight: 600, opacity: 0.95,
+          fontSize: 12.5, fontWeight: 600, color: C.mute, marginBottom: 12,
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M15 6l-6 6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M15 6l-6 6 6 6" stroke={C.mute} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           홈으로
         </button>
-        <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.6, marginTop: 8 }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, letterSpacing: -0.7, lineHeight: 1.18 }}>
           상태 확인 문진
         </div>
-        <div style={{ fontSize: 12.5, opacity: 0.85, marginTop: 4, letterSpacing: -0.1 }}>
+        <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, marginTop: 4, letterSpacing: -0.1 }}>
           AI가 현재 상태를 더 자세히 파악합니다
         </div>
       </div>
