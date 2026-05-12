@@ -277,30 +277,30 @@ function AgentPopup({ onClose }) {
   return (
     <div style={{
       position: 'absolute', inset: 0, zIndex: 200,
-      background: 'rgba(14,17,22,0.55)', backdropFilter: 'blur(6px)',
+      background: 'rgba(14,17,22,0.45)', backdropFilter: 'blur(6px)',
       WebkitBackdropFilter: 'blur(6px)',
-      display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-      padding: '0 0 28px',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '0 24px',
     }} onClick={onClose}>
       <div style={{
-        width: '100%', background: '#fff', borderRadius: '24px 24px 20px 20px',
-        padding: '24px 22px 20px', boxShadow: '0 -8px 32px rgba(14,17,22,0.14)',
+        width: '100%', background: '#fff', borderRadius: 20,
+        padding: '22px 22px 20px',
+        boxShadow: '0 12px 40px rgba(14,17,22,0.18)',
       }} onClick={e => e.stopPropagation()}>
 
         {/* 헤더 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{
-              width: 28, height: 28, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #6c5aff 0%, #a89bff 100%)',
-              boxShadow: '0 0 10px rgba(108,90,255,0.4)',
+              width: 22, height: 22, borderRadius: '50%',
+              background: C.ink,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
                 <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" fill="#fff"/>
               </svg>
             </div>
-            <span style={{ fontSize: 13.5, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>AI 모니터링 에이전트</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>AI 모니터링 에이전트</span>
           </div>
           <button onClick={onClose} style={{
             background: 'none', border: 'none', cursor: 'pointer',
@@ -309,41 +309,37 @@ function AgentPopup({ onClose }) {
         </div>
 
         {/* 상태 메시지 */}
-        <div style={{
-          background: 'rgba(224,136,58,0.08)', borderRadius: 16, padding: '14px 16px', marginBottom: 20,
-          borderLeft: '3px solid #E0883A',
-        }}>
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: C.ink, lineHeight: 1.6, letterSpacing: -0.2 }}>
+        <div style={{ marginBottom: 22 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 700, color: C.ink, lineHeight: 1.55, letterSpacing: -0.3 }}>
             호흡수(RR)가 기준치보다 다소 높게 측정되고 있어요.
           </div>
-          <div style={{ fontSize: 13, color: C.ink2, marginTop: 4, lineHeight: 1.5, letterSpacing: -0.1 }}>
+          <div style={{ fontSize: 13.5, color: C.ink2, marginTop: 6, lineHeight: 1.55, letterSpacing: -0.2 }}>
             지금 민준이 상태가 어떤가요?
           </div>
         </div>
 
         {/* 질문 + 버튼 */}
-        <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, marginBottom: 12, letterSpacing: -0.1 }}>
+        <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, marginBottom: 10, letterSpacing: -0.1 }}>
           지금 아이가 평소와 비교해서 어떤가요?
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={() => handleAnswer('ok')} style={{
-            flex: 1, padding: '14px 0', borderRadius: 16, border: 'none', cursor: 'pointer',
-            background: answered === 'ok' ? '#2BB673' : 'rgba(43,182,115,0.10)',
-            color: answered === 'ok' ? '#fff' : '#2BB673',
-            fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
-            transition: 'all 0.2s',
-          }}>
-            😊 괜찮아요
-          </button>
-          <button onClick={() => handleAnswer('warn')} style={{
-            flex: 1, padding: '14px 0', borderRadius: 16, border: 'none', cursor: 'pointer',
-            background: answered === 'warn' ? '#D14B5C' : 'rgba(209,75,92,0.10)',
-            color: answered === 'warn' ? '#fff' : '#D14B5C',
-            fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
-            transition: 'all 0.2s',
-          }}>
-            😟 걱정돼요
-          </button>
+          {[
+            { v: 'ok',   emoji: '😊', label: '괜찮아요' },
+            { v: 'warn', emoji: '😟', label: '걱정돼요' },
+          ].map(o => (
+            <button key={o.v} onClick={() => handleAnswer(o.v)} style={{
+              flex: 1, padding: '13px 0', borderRadius: 14, cursor: 'pointer',
+              background: '#fff',
+              border: `1px solid ${answered === o.v ? C.ink : 'rgba(14,17,22,0.14)'}`,
+              color: C.ink,
+              fontSize: 14, fontWeight: 600, letterSpacing: -0.3,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              transition: 'border-color 0.2s',
+            }}>
+              <span style={{ fontSize: 16 }}>{o.emoji}</span>
+              {o.label}
+            </button>
+          ))}
         </div>
       </div>
     </div>
