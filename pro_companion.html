@@ -3102,22 +3102,19 @@ function PROScreen({ tweaks, setTweak }) {
                 {exerciseDone === true && exerciseMode === 'walk' && (
                   <div style={{ display:'flex', flexDirection:'column', gap:14, marginTop:-6 }}>
                     {/* header */}
-                    <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                        <div style={{ width:42, height:42, borderRadius:13, background:`linear-gradient(135deg, ${C.main}, #2dbfa0)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, boxShadow:'0 6px 16px rgba(65,210,180,0.3)' }}>👟</div>
-                        <div>
-                          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>자율 걷기</div>
-                            <div style={{ padding:'2px 7px', borderRadius:6, background: dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.14)', fontFamily:'Pretendard', fontWeight:700, fontSize:9.5, color:C.main, letterSpacing:'-0.01em' }}>가져옴</div>
-                          </div>
-                          <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:3 }}>
-                            <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>2026.05.05 (화) 18:56</span>
-                            <span style={{ width:3, height:3, borderRadius:'50%', background: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)' }} />
-                            <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>한강공원</span>
-                          </div>
+                    <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                      <div style={{ width:42, height:42, borderRadius:13, background:`linear-gradient(135deg, ${C.main}, #2dbfa0)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, boxShadow:'0 6px 16px rgba(65,210,180,0.3)' }}>👟</div>
+                      <div>
+                        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>자율 걷기</div>
+                          <div style={{ padding:'2px 7px', borderRadius:6, background: dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.14)', fontFamily:'Pretendard', fontWeight:700, fontSize:9.5, color:C.main, letterSpacing:'-0.01em' }}>가져옴</div>
+                        </div>
+                        <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:3 }}>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>2026.05.05 (화) 18:56</span>
+                          <span style={{ width:3, height:3, borderRadius:'50%', background: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)' }} />
+                          <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>한강공원</span>
                         </div>
                       </div>
-                      <button onClick={closeSheet} style={{ height:38, padding:'0 18px', borderRadius:19, border:'none', cursor:'pointer', background:`linear-gradient(135deg, ${C.main}, #2dbfa0)`, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:13, letterSpacing:'-0.01em', boxShadow:'0 6px 16px rgba(65,210,180,0.4)', flexShrink:0 }}>저장</button>
                     </div>
 
                     {/* GPS map */}
@@ -3395,7 +3392,7 @@ function PROScreen({ tweaks, setTweak }) {
                       {[
                         { icon:'⚡', label:'최고 페이스', val:"9'48\"", unit:'/km', accent:'#fb923c' },
                         { icon:'⛰️', label:'상승 고도', val:'12', unit:'m', accent:'#7d50f0' },
-                        { icon:'🦶', label:'분당 케이던스', val:'122', unit:'spm', accent:C.main },
+                        { icon:'🦶', label:'분당 걸음 수', val:'122', unit:'걸음/분', accent:C.main },
                       ].map((s, i) => (
                         <div key={i} style={{ padding:'12px 14px', borderRadius:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)'}`, display:'flex', alignItems:'center', gap:11 }}>
                           <div style={{ width:34, height:34, borderRadius:11, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, flexShrink:0 }}>{s.icon}</div>
@@ -3420,6 +3417,8 @@ function PROScreen({ tweaks, setTweak }) {
                         오늘 걷기는 평소보다 <b style={{ color:C.main }}>12% 빠른 페이스</b>를 유지했어요. 항암 치료 중 안전한 강도 범위 내에서 잘 운동하고 계십니다. 다음엔 휴식 구간을 1~2번 짧게 가져보세요.
                       </div>
                     </div>
+
+                    <button onClick={closeSheet} style={{ width:'100%', height:54, marginTop:6, borderRadius:16, border:'none', cursor:'pointer', background:`linear-gradient(135deg, ${C.main}, #2dbfa0)`, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(65,210,180,0.4)' }}>저장</button>
                   </div>
                 )}
               </>
