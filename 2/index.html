@@ -214,63 +214,7 @@ function MeshOrb({ size = 96, status = 'ok' }) {
   );
 }
 
-// ─── Sparkline ──────────────────────────────────────────────────
-function Spark({ data, w = 110, h = 28, color = C.accent }) {
-  const min = Math.min(...data), max = Math.max(...data);
-  const range = max - min || 1;
-  const step = w / (data.length - 1);
-  const pts = data.map((v, i) => [i * step, h - ((v - min) / range) * (h - 6) - 3]);
-  const path = pts.map((p, i) => (i === 0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`)).join(' ');
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <path d={path} fill="none" stroke={color} strokeOpacity="0.85"
-            strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round"/>
-      <circle cx={pts[pts.length-1][0]} cy={pts[pts.length-1][1]} r="2.2" fill={color}/>
-    </svg>
-  );
-}
-
-// ─── Pressure waveform ──────────────────────────────────────────
-function VentWave({ w = 326, h = 50, color = C.accent }) {
-  const cycles = 4;
-  const cycleW = w / cycles;
-  let d = `M0,${h - 4}`;
-  for (let i = 0; i < cycles; i++) {
-    const x0 = i * cycleW;
-    d += ` L${x0 + cycleW*0.05},${h - 4}`;
-    d += ` C${x0 + cycleW*0.10},${h*0.18} ${x0 + cycleW*0.30},${h*0.12} ${x0 + cycleW*0.42},${h*0.20}`;
-    d += ` L${x0 + cycleW*0.55},${h*0.24}`;
-    d += ` C${x0 + cycleW*0.62},${h*0.55} ${x0 + cycleW*0.75},${h - 6} ${x0 + cycleW*0.95},${h - 4}`;
-  }
-  return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <path d={d} fill="none" stroke={color} strokeOpacity="0.9"
-            strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round"/>
-    </svg>
-  );
-}
-
-// ─── Stat tile ──────────────────────────────────────────────────
-function Stat({ label, value, unit, sub, chart }) {
-  return (
-    <div style={{
-      background: C.card, borderRadius: 20, padding: '14px 16px 14px',
-      display: 'flex', flexDirection: 'column', gap: 4,
-      boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
-    }}>
-      <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, letterSpacing: -0.2 }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginTop: 2 }}>
-        <span style={{ fontSize: 26, fontWeight: 700, color: C.ink, letterSpacing: -0.7, lineHeight: 1 }}>{value}</span>
-        {unit && <span style={{ fontSize: 12, color: C.mute, fontWeight: 500 }}>{unit}</span>}
-      </div>
-      {sub && <div style={{ fontSize: 11.5, color: C.mute2, fontWeight: 500 }}>{sub}</div>}
-      {chart && <div style={{ marginTop: 8, marginLeft: -2 }}>{chart}</div>}
-    </div>
-  );
-}
-
 // ─── HOME ───────────────────────────────────────────────────────
-// Status-aware UI palette for the card / badge
 const STATUS_UI = {
   ok:    { label: '정상',     labelColor: '#5dffa0', gradColor: 'rgba(30,200,90,0.28)'  },
   watch: { label: '관찰 필요', labelColor: '#ffcc55', gradColor: 'rgba(220,130,30,0.28)' },
@@ -278,13 +222,9 @@ const STATUS_UI = {
 };
 
 function Home() {
-  // ← 여기서 상태를 변경하면 오브 + 카드 색상이 연동됩니다
-  const STATUS = 'ok'; // 'ok' | 'watch' | 'alert'
+  // 'ok' | 'watch' | 'alert' — 오브/카드 색상 연동
+  const STATUS = 'ok';
   const sui = STATUS_UI[STATUS];
-
-  // 1시간 단위 — 최근 12시간 데이터
-  const spo2 = [95, 96, 97, 96, 97, 97, 98, 97, 97, 98, 97, 98];
-  const rr   = [29, 28, 29, 30, 28, 27, 28, 28, 27, 28, 28, 28];
 
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 120, background: C.bg }}>
@@ -371,91 +311,157 @@ function Home() {
         </div>
       </div>
 
-      {/* Pressure waveform */}
-      <div style={{ padding: '14px 16px 0' }}>
-        <div style={{
-          background: C.card, borderRadius: 20, padding: '16px 18px 14px',
-          boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div>
-              <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500 }}>압력 파형 · 1시간 평균</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: C.ink, marginTop: 2, letterSpacing: -0.3 }}>
-                PIP 18 · PEEP 5 <span style={{ color: C.mute2, fontSize: 12, fontWeight: 500 }}>cmH₂O</span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: C.ok, fontWeight: 600 }}>
-              <span style={{
-                width: 6, height: 6, borderRadius: '50%', background: C.ok,
-                animation: 'pulseDot 1.6s ease-in-out infinite',
-              }}/>
-              실시간
-            </div>
-          </div>
-          <VentWave w={326} h={50}/>
+      {/* V-PEP 실시간 환기 지표 */}
+      <div style={{ padding: '20px 22px 10px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>
+          V-PEP 실시간 환기 지표
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: C.ok, fontWeight: 600 }}>
+          <span style={{
+            width: 5, height: 5, borderRadius: '50%', background: C.ok,
+            animation: 'pulseDot 1.6s ease-in-out infinite',
+          }}/>
+          실시간
         </div>
       </div>
 
-      {/* Metrics grid — 1시간 단위 */}
-      <div style={{ padding: '12px 16px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Stat label="SpO₂ · 시간 평균"   value="97.4" unit="%"     sub="목표 ≥ 95 · 최저 95"   chart={<Spark data={spo2}/>}/>
-        <Stat label="호흡수 · 시간 평균" value="28"   unit="/min"  sub="범위 24–32 · 최고 30"  chart={<Spark data={rr}/>}/>
-        <Stat label="분당환기량"          value="3.2"  unit="L/min" sub="1시간 평균 · PC-SIMV"/>
-        <Stat label="누설량"              value="6.4"  unit="L/min" sub="1시간 최고 · 허용 ≤ 10"/>
+      <div style={{ padding: '0 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <MetricCard label="PIP"  value="18"  unit="cmH₂O" tone="ok"   trend="up"     statusText="기준 ±2"               bars={[3,4,3,5,4,3,5,7]}/>
+        <MetricCard label="VTE"  value="142" unit="mL"    tone="ok"   trend="steady" statusText="정상 범위"             bars={[4,5,4,5,4,5,4,6]}/>
+        <MetricCard label="RR"   value="28"  unit="bpm"   tone="warn" trend="up"     statusText="+18% 상승"             bars={[3,4,5,4,5,6,7,8]}/>
+        <MetricCard label="LEAK" value="19"  unit="L/min" tone="ok"   trend="steady" statusText="허용 범위"             bars={[4,3,4,5,4,5,4,6]}/>
       </div>
 
-      {/* Device row */}
-      <div style={{ padding: '12px 16px 0' }}>
+      {/* MINVENT — wide card */}
+      <div style={{ padding: '10px 16px 0' }}>
         <div style={{
-          background: C.card, borderRadius: 20, padding: '14px 18px',
-          display: 'flex', alignItems: 'center', gap: 12,
+          background: C.card, borderRadius: 18, padding: '16px 18px 14px',
           boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+          position: 'relative', overflow: 'hidden',
+          display: 'flex', alignItems: 'center', gap: 14,
         }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500 }}>Trilogy EV300</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, marginTop: 1, letterSpacing: -0.2 }}>
-              배터리 82% · AC 전원
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 600, letterSpacing: 0.4 }}>
+              MINVENT <span style={{ color: C.mute2, fontWeight: 500 }}>(분당환기량)</span>
+            </div>
+            <div style={{ marginTop: 4, display: 'flex', alignItems: 'baseline', gap: 4 }}>
+              <span style={{ fontSize: 28, fontWeight: 700, color: C.warn, letterSpacing: -0.7, lineHeight: 1 }}>3.97</span>
+              <span style={{ fontSize: 13, color: C.mute, fontWeight: 500 }}>L/min</span>
+            </div>
+            <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, color: C.warn, fontWeight: 600 }}>
+              <TrendIcon dir="up" color={C.warn}/>
+              설정치 -12% · 추세 확인 필요
             </div>
           </div>
-          <div style={{ fontSize: 11.5, color: C.mute, textAlign: 'right' }}>
-            소모 <span style={{ color: C.ink, fontWeight: 600 }}>1%/h</span>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 10.5, color: C.mute, fontWeight: 500, marginBottom: 4 }}>오늘 추세</div>
+            <BarChart bars={[3,4,3,5,4,6,7,8]} highlightLast accentTone="warn" w={86} h={28}/>
           </div>
+          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: C.warn, opacity: 0.85 }}/>
         </div>
       </div>
 
-      {/* 1시간 단위 기록 */}
-      <div style={{ padding: '22px 22px 8px', fontSize: 11.5, fontWeight: 600, color: C.mute, letterSpacing: 0.8, textTransform: 'uppercase' }}>
-        시간별 기록
+      {/* AI 인사이트 — prose */}
+      <div style={{ padding: '24px 22px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{
+          width: 16, height: 16, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #6c5aff 0%, #a89bff 100%)',
+          boxShadow: '0 0 8px rgba(108,90,255,0.45)',
+        }}/>
+        <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>
+          AI 인사이트
+        </div>
       </div>
-      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 1, background: C.card, margin: '0 16px', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)' }}>
-        <InsightRow time="21:00" title="SpO₂ 98% · 호흡수 27" desc="안정 구간 — 무호흡 없음"/>
-        <InsightRow time="20:00" title="누설량 일시 증가 8.8 L/min" desc="20분간 지속 후 정상 회복" tone="warn"/>
-        <InsightRow time="19:00" title="체위 변경 후 SpO₂ +0.8%" desc="SpO₂ 96→97% 개선 관찰"/>
-        <InsightRow time="18:00" title="SpO₂ 95% · 호흡수 30" desc="하한 접근 — 체위 조정 권장" tone="warn"/>
-        <InsightRow time="17:00" title="외래 진료까지 12일" desc="이비인후과 이진환 교수 · 5/24 10:30" last/>
+      <div style={{ padding: '0 16px' }}>
+        <div style={{
+          background: C.card, borderRadius: 18, padding: '16px 18px 18px',
+          boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+        }}>
+          <p style={{
+            margin: 0, fontSize: 13.5, lineHeight: 1.7, letterSpacing: -0.2, color: C.ink2,
+          }}>
+            민준이는 <b style={{ color: C.ink }}>지난 1시간 동안 비교적 안정적인 호흡 상태</b>를 유지하고 있어요.
+            SpO₂는 평균 97.4%로 목표치를 안정적으로 충족하고 있고, 야간 무호흡 에피소드도
+            관찰되지 않았어요. 다만 호흡수가 평소보다 <b style={{ color: C.warn }}>약 18% 상승</b>해 있어
+            일시적인 활동 증가나 컨디션 변화가 있는지 살펴봐 주시면 좋겠어요.
+            누설량(LEAK 19 L/min)은 허용 범위 안에서 잘 유지되고 있고, 분당환기량은
+            설정치보다 다소 낮은 편이라 향후 1~2시간 추세를 함께 확인해 보시기를 권해요.
+          </p>
+          <div style={{
+            marginTop: 14, padding: '10px 12px', borderRadius: 12,
+            background: 'rgba(224,136,58,0.08)',
+            display: 'flex', alignItems: 'flex-start', gap: 8,
+          }}>
+            <span style={{ marginTop: 1, fontSize: 13, color: C.warn, fontWeight: 700 }}>!</span>
+            <div style={{ fontSize: 12, color: C.ink2, lineHeight: 1.5, letterSpacing: -0.1 }}>
+              호흡수가 30분 이상 32회/min을 넘으면 진료팀에 자동 알림이 전송돼요.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function InsightRow({ time, title, desc, last, tone = 'ok' }) {
-  const dotColor = tone === 'warn' ? C.warn : C.ok;
+// ─── Small bar chart for metric cards ──────────────────────────
+function BarChart({ bars, highlightLast = true, accentTone = 'ok', w = 96, h = 26 }) {
+  const max = Math.max(...bars);
+  const gap = 2;
+  const barW = (w - gap * (bars.length - 1)) / bars.length;
+  const accent = accentTone === 'warn' ? C.warn : C.ok;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
+      {bars.map((v, i) => {
+        const bh = Math.max(2, (v / max) * (h - 2));
+        const x = i * (barW + gap);
+        const y = h - bh;
+        const isLast = i === bars.length - 1;
+        const fill = isLast && highlightLast ? accent : 'rgba(180,194,210,0.55)';
+        return <rect key={i} x={x} y={y} width={barW} height={bh} rx={1.2} fill={fill}/>;
+      })}
+    </svg>
+  );
+}
+
+function TrendIcon({ dir = 'up', color = C.ok, size = 10 }) {
+  if (dir === 'steady') {
+    return (
+      <svg width={size} height={size} viewBox="0 0 12 12" fill="none">
+        <path d="M2 6h8" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    );
+  }
+  return (
+    <svg width={size} height={size} viewBox="0 0 12 12" fill="none">
+      <path d="M2 8l4-4 4 4" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusText, bars }) {
+  const accent = tone === 'warn' ? C.warn : C.ok;
   return (
     <div style={{
-      padding: '13px 18px', display: 'flex', alignItems: 'center', gap: 12,
-      borderBottom: last ? 'none' : `0.5px solid ${C.line}`,
+      background: C.card, borderRadius: 18, padding: '14px 14px 12px',
+      boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', flexDirection: 'column', gap: 6, minHeight: 132,
     }}>
-      <div style={{ width: 38, flexShrink: 0, textAlign: 'right' }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: C.mute2, letterSpacing: -0.1 }}>{time}</div>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, margin: '4px auto 0' }}/>
+      <div style={{
+        fontSize: 10.5, fontWeight: 700, color: C.mute, letterSpacing: 1.4, textTransform: 'uppercase',
+      }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: -2 }}>
+        <span style={{ fontSize: 26, fontWeight: 700, color: accent, letterSpacing: -0.7, lineHeight: 1 }}>{value}</span>
+        <span style={{ fontSize: 12, color: C.mute, fontWeight: 500 }}>{unit}</span>
       </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 600, color: C.ink, letterSpacing: -0.2 }}>{title}</div>
-        <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>{desc}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, color: accent, fontWeight: 600 }}>
+        <TrendIcon dir={trend} color={accent}/>
+        {statusText}
       </div>
-      <svg width="7" height="12" viewBox="0 0 8 14">
-        <path d="M1 1l6 6-6 6" stroke={C.mute2} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
+      <div style={{ marginTop: 'auto', paddingTop: 6 }}>
+        <BarChart bars={bars} accentTone={tone} w={120} h={26}/>
+      </div>
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: accent, opacity: 0.85 }}/>
     </div>
   );
 }
