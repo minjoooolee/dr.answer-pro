@@ -268,7 +268,7 @@ function SyncIndicator() {
 
 function Home() {
   // 'ok' | 'watch' | 'alert' — 오브/카드 색상 연동
-  const STATUS = 'ok';
+  const STATUS = 'watch';
   const sui = STATUS_UI[STATUS];
 
   return (
@@ -509,7 +509,7 @@ function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusT
   );
 }
 
-// ─── Tab bar — calm, single accent ──────────────────────────────
+// ─── Tab bar ────────────────────────────────────────────────────
 function TabBar() {
   const Ico = {
     home: (
@@ -517,14 +517,15 @@ function TabBar() {
         <path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6h-6v6H4a1 1 0 01-1-1v-9z" stroke={C.ink} strokeWidth="1.6" strokeLinejoin="round"/>
       </svg>
     ),
-    chart: (
+    record: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M4 19V5M4 19h16M8 14l3-4 3 3 4-6" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+        <rect x="4" y="4" width="16" height="16" rx="2" stroke={C.ink} strokeWidth="1.6"/>
+        <path d="M8 9h8M8 13h6M8 17h4" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round"/>
       </svg>
     ),
-    bell: (
+    report: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M6 17V11a6 6 0 1112 0v6l1.5 2h-15L6 17zM10 21a2 2 0 004 0" stroke={C.ink} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round"/>
+        <path d="M4 19V5M4 19h16M8 14l3-4 3 3 4-6" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     ),
     user: (
@@ -553,20 +554,25 @@ function TabBar() {
       display: 'flex', alignItems: 'center', gap: 4, zIndex: 40,
     }}>
       {item(Ico.home, '홈', true)}
-      {item(Ico.chart, '추세', false)}
+      {item(Ico.record, '기록', false)}
       <div style={{ flex: 1.1, display: 'flex', justifyContent: 'center' }}>
-        <button style={{
-          height: 46, width: 46, borderRadius: '50%', border: 0,
-          background: C.ink, color: '#fff', display: 'flex',
-          alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 6px 16px rgba(14,17,22,0.30)', cursor: 'pointer',
-        }}>
+        <button
+          onClick={() => alert('119 또는 담당 의료진에게 즉시 연락하세요.\n신촌세브란스병원 호흡기내과 이진환 교수팀\nTEL: 02-2228-0000')}
+          style={{
+            height: 50, width: 50, borderRadius: '50%', border: 0,
+            background: 'linear-gradient(145deg, #e8273a 0%, #b81a2c 100%)',
+            color: '#fff', display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center', gap: 1,
+            boxShadow: '0 4px 14px rgba(209,40,58,0.55), 0 0 0 3px rgba(209,40,58,0.18)',
+            cursor: 'pointer',
+          }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" fill="#fff"/>
+            <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" fill="#fff"/>
           </svg>
+          <span style={{ fontSize: 7.5, fontWeight: 700, letterSpacing: -0.2, lineHeight: 1 }}>응급연락</span>
         </button>
       </div>
-      {item(Ico.bell, '알림', false)}
+      {item(Ico.report, '리포트', false)}
       {item(Ico.user, '내정보', false)}
     </div>
   );
