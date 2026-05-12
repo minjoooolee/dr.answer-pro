@@ -1892,6 +1892,19 @@ function PROScreen({ tweaks, setTweak }) {
           <input
             value={text}
             onChange={e => setText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && text.trim()) {
+                const SYMPTOM_KEYWORDS = ['아파','아프','아픈','아픔','이상해','이상한','이상하','불편','힘들','힘들어','못자','못 자','두통','머리','열','기침','토','구토','어지','어지럽','메스','구역','통증','쑤시','쑤셔','따갑','따가워','쓰려','쓰려워','저려','저린','답답','숨','기운','피곤','피로','식은땀','오한','설사','변비','소화','복통','가슴','두근','심장'];
+                if (SYMPTOM_KEYWORDS.some(k => text.includes(k))) {
+                  setText('');
+                  setActiveTag('문진');
+                  if (!elderMode) setSurveyMode('list');
+                } else {
+                  setText('');
+                  setSubmitted(true);
+                }
+              }
+            }}
             placeholder="오늘은 좀 어떠세요?에 대한 답변을 해주세요"
             style={{
               flex: 1, border: 'none', outline: 'none', background: 'transparent',
@@ -1900,7 +1913,17 @@ function PROScreen({ tweaks, setTweak }) {
             }}
           />
           {text.length > 0 && (
-            <button onClick={() => setText('')} style={{
+            <button onClick={() => {
+              const SYMPTOM_KEYWORDS = ['아파','아프','아픈','아픔','이상해','이상한','이상하','불편','힘들','힘들어','못자','못 자','두통','머리','열','기침','토','구토','어지','어지럽','메스','구역','통증','쑤시','쑤셔','따갑','따가워','쓰려','쓰려워','저려','저린','답답','숨','기운','피곤','피로','식은땀','오한','설사','변비','소화','복통','가슴','두근','심장'];
+              if (SYMPTOM_KEYWORDS.some(k => text.includes(k))) {
+                setText('');
+                setActiveTag('문진');
+                if (!elderMode) setSurveyMode('list');
+              } else {
+                setText('');
+                setSubmitted(true);
+              }
+            }} style={{
               width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: 'pointer',
               background: C.main, display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(65,210,180,0.4)',
