@@ -476,10 +476,10 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
       </div>
 
       <div style={{ padding: '0 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <MetricCard label="PIP"  value="18"  unit="cmH₂O" tone="ok"   trend="up"     statusText="기준 ±2"               bars={[3,4,3,5,4,3,5,7]}/>
-        <MetricCard label="VTE"  value="142" unit="mL"    tone="ok"   trend="steady" statusText="정상 범위"             bars={[4,5,4,5,4,5,4,6]}/>
-        <MetricCard label="RR"   value="28"  unit="bpm"   tone="warn" trend="up"     statusText="+18% 상승"             bars={[3,4,5,4,5,6,7,8]}/>
-        <MetricCard label="LEAK" value="19"  unit="L/min" tone="ok"   trend="steady" statusText="허용 범위"             bars={[4,3,4,5,4,5,4,6]}/>
+        <MetricCard label="PIP"  value="18"  unit="cmH₂O" tone="ok"   trend="up"     statusText="기준 ±2"               bars={[3,4,3,5,4,3,5,7]} animate={!showAgent}/>
+        <MetricCard label="VTE"  value="142" unit="mL"    tone="ok"   trend="steady" statusText="정상 범위"             bars={[4,5,4,5,4,5,4,6]} animate={!showAgent}/>
+        <MetricCard label="RR"   value="28"  unit="bpm"   tone="warn" trend="up"     statusText="+18% 상승"             bars={[3,4,5,4,5,6,7,8]} animate={!showAgent}/>
+        <MetricCard label="LEAK" value="19"  unit="L/min" tone="ok"   trend="steady" statusText="허용 범위"             bars={[4,3,4,5,4,5,4,6]} animate={!showAgent}/>
       </div>
 
       {/* MINVENT — wide card */}
@@ -505,7 +505,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 10.5, color: C.mute, fontWeight: 500, marginBottom: 4 }}>오늘 추세</div>
-            <BarChart bars={[3,4,3,5,4,6,7,8]} highlightLast accentTone="warn" w={86} h={28} animate/>
+            <BarChart bars={[3,4,3,5,4,6,7,8]} highlightLast accentTone="warn" w={86} h={28} animate={!showAgent}/>
           </div>
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: C.warn, opacity: 0.85 }}/>
         </div>
@@ -610,7 +610,7 @@ function TrendIcon({ dir = 'up', color = C.ok, size = 10 }) {
   );
 }
 
-function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusText, bars }) {
+function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusText, bars, animate = false }) {
   const accent = tone === 'warn' ? C.warn : C.ok;
   return (
     <div style={{
@@ -631,7 +631,7 @@ function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusT
         {statusText}
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 6 }}>
-        <BarChart bars={bars} accentTone={tone} w={120} h={26} animate/>
+        <BarChart bars={bars} accentTone={tone} w={120} h={26} animate={animate}/>
       </div>
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: accent, opacity: 0.85 }}/>
     </div>
