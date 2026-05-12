@@ -117,15 +117,22 @@ const C = {
 };
 
 // ─── 3D Mesh AI Orb (Three.js) ──────────────────────────────────
-function MeshOrb({ size = 138 }) {
+// Status → Three.js color palette
+const ORB_PALETTE = {
+  ok:    { base: 0x052e14, emissive: 0x0a4a22, specular: 0x66ffaa, ambientHex: 0x116622, rimHex: 0x22dd66, wire: 0x33ee77, pts: 0xaaffcc, glow: 0x22cc55, shadow: 'rgba(30,190,80,0.70)'  },
+  watch: { base: 0x2e1800, emissive: 0x4a2800, specular: 0xffcc66, ambientHex: 0x663300, rimHex: 0xff8822, wire: 0xff9933, pts: 0xffddaa, glow: 0xee7722, shadow: 'rgba(220,120,30,0.70)'  },
+  alert: { base: 0x2e0606, emissive: 0x4a0e0e, specular: 0xff9999, ambientHex: 0x661111, rimHex: 0xff3333, wire: 0xff4444, pts: 0xffbbbb, glow: 0xee2222, shadow: 'rgba(220,40,40,0.75)'   },
+};
+
+function MeshOrb({ size = 96, status = 'ok' }) {
   const containerRef = React.useRef(null);
 
   React.useEffect(() => {
     const el = containerRef.current;
     if (!el || !window.THREE) return;
     const THREE = window.THREE;
+    const pal = ORB_PALETTE[status] || ORB_PALETTE.ok;
 
-    // Renderer — transparent background so card bg shows through
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(size, size);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -136,59 +143,42 @@ function MeshOrb({ size = 138 }) {
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
     camera.position.z = 3.0;
 
-    // ── Lighting ────────────────────────────────────────────────
-    scene.add(new THREE.AmbientLight(0x5533cc, 1.0));
+    // Lighting — tinted to match status color
+    scene.add(new THREE.AmbientLight(pal.ambientHex, 1.0));
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
     keyLight.position.set(2, 2, 3);
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0x8866ff, 0.8);
+    const rimLight = new THREE.DirectionalLight(pal.rimHex, 0.9);
     rimLight.position.set(-3, -1, -2);
     scene.add(rimLight);
 
-    // ── Base sphere — dark indigo with phong shading ─────────────
-    const baseGeo = new THREE.SphereGeometry(1, 64, 48);
-    const baseMat = new THREE.MeshPhongMaterial({
-      color: 0x12085e,
-      emissive: 0x200e6a,
-      specular: 0xaa88ff,
-      shininess: 80,
-    });
-    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+    // Base sphere
+    const baseMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 64, 48),
+      new THREE.MeshPhongMaterial({ color: pal.base, emissive: pal.emissive, specular: pal.specular, shininess: 80 })
+    );
     scene.add(baseMesh);
 
-    // ── Wireframe mesh ────────────────────────────────────────────
-    const wireGeo = new THREE.SphereGeometry(1.012, 20, 14);
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: 0x9977ff,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.38,
-    });
-    const wireMesh = new THREE.Mesh(wireGeo, wireMat);
+    // Wireframe
+    const wireMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1.012, 20, 14),
+      new THREE.MeshBasicMaterial({ color: pal.wire, wireframe: true, transparent: true, opacity: 0.38 })
+    );
     scene.add(wireMesh);
 
-    // ── Surface particle cloud ────────────────────────────────────
-    const ptGeo = new THREE.SphereGeometry(1.018, 36, 24);
-    const ptMat = new THREE.PointsMaterial({
-      color: 0xddd0ff,
-      size: 0.030,
-      transparent: true,
-      opacity: 0.95,
-    });
-    const points = new THREE.Points(ptGeo, ptMat);
+    // Particle cloud
+    const points = new THREE.Points(
+      new THREE.SphereGeometry(1.018, 36, 24),
+      new THREE.PointsMaterial({ color: pal.pts, size: 0.030, transparent: true, opacity: 0.95 })
+    );
     scene.add(points);
 
-    // ── Thin outer glow shell (additive) ─────────────────────────
-    const glowGeo = new THREE.SphereGeometry(1.18, 20, 14);
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0x7755ff,
-      transparent: true,
-      opacity: 0.08,
-      side: THREE.BackSide,
-    });
-    scene.add(new THREE.Mesh(glowGeo, glowMat));
+    // Outer glow shell
+    scene.add(new THREE.Mesh(
+      new THREE.SphereGeometry(1.18, 20, 14),
+      new THREE.MeshBasicMaterial({ color: pal.glow, transparent: true, opacity: 0.09, side: THREE.BackSide })
+    ));
 
-    // ── Animation loop ────────────────────────────────────────────
     let animId;
     const t0 = Date.now();
     const animate = () => {
@@ -198,7 +188,6 @@ function MeshOrb({ size = 138 }) {
       wireMesh.rotation.x = t * 0.09;
       points.rotation.y  = t * 0.28;
       points.rotation.x  = t * 0.09;
-      // Subtle breathing
       const s = 1 + Math.sin(t * 0.75) * 0.022;
       baseMesh.scale.setScalar(s);
       wireMesh.scale.setScalar(s);
@@ -212,17 +201,15 @@ function MeshOrb({ size = 138 }) {
       renderer.dispose();
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
     };
-  }, [size]);
+  }, [size, status]);
 
+  const pal = ORB_PALETTE[status] || ORB_PALETTE.ok;
   return (
     <div style={{ animation: 'orbFloat 4.5s ease-in-out infinite' }}>
-      <div
-        ref={containerRef}
-        style={{
-          width: size, height: size, borderRadius: '50%', overflow: 'hidden',
-          filter: 'drop-shadow(0 0 28px rgba(120,90,255,0.65))',
-        }}
-      />
+      <div ref={containerRef} style={{
+        width: size, height: size, borderRadius: '50%', overflow: 'hidden',
+        filter: `drop-shadow(0 0 26px ${pal.shadow})`,
+      }}/>
     </div>
   );
 }
@@ -283,9 +270,21 @@ function Stat({ label, value, unit, sub, chart }) {
 }
 
 // ─── HOME ───────────────────────────────────────────────────────
+// Status-aware UI palette for the card / badge
+const STATUS_UI = {
+  ok:    { label: '정상',     labelColor: '#5dffa0', gradColor: 'rgba(30,200,90,0.28)'  },
+  watch: { label: '관찰 필요', labelColor: '#ffcc55', gradColor: 'rgba(220,130,30,0.28)' },
+  alert: { label: '응급 상황', labelColor: '#ff7777', gradColor: 'rgba(220,40,40,0.30)'  },
+};
+
 function Home() {
-  const spo2 = [96, 97, 97, 96, 98, 97, 98, 97, 98];
-  const rr   = [26, 28, 27, 29, 28, 28, 27, 28, 28];
+  // ← 여기서 상태를 변경하면 오브 + 카드 색상이 연동됩니다
+  const STATUS = 'ok'; // 'ok' | 'watch' | 'alert'
+  const sui = STATUS_UI[STATUS];
+
+  // 1시간 단위 — 최근 12시간 데이터
+  const spo2 = [95, 96, 97, 96, 97, 97, 98, 97, 97, 98, 97, 98];
+  const rr   = [29, 28, 29, 30, 28, 27, 28, 28, 27, 28, 28, 28];
 
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 120, background: C.bg }}>
@@ -320,54 +319,59 @@ function Home() {
           안녕하세요, 어머님.
         </div>
         <div style={{ fontSize: 14, color: C.mute, marginTop: 10, letterSpacing: -0.2, lineHeight: 1.55 }}>
-          민준이는 지난 6시간 동안 안정적이에요.<br/>무호흡 에피소드는 없었어요.
+          민준이는 지난 1시간 동안 안정적이에요. 무호흡 에피소드는 없었어요.
         </div>
       </div>
 
-      {/* AI summary card — mesh orb */}
+      {/* AI summary card — status-aware mesh orb */}
       <div style={{ padding: '22px 16px 0' }}>
         <div style={{
-          background: '#0F1019',
-          color: '#fff', borderRadius: 24, padding: '18px 20px 16px',
+          background: '#0D0F14',
+          color: '#fff', borderRadius: 24, padding: '18px 20px 20px',
           position: 'relative', overflow: 'hidden',
         }}>
-          {/* subtle bg gradient */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'radial-gradient(120% 80% at 110% -10%, rgba(108,90,255,0.35) 0%, transparent 55%)',
+            background: `radial-gradient(130% 90% at 110% -10%, ${sui.gradColor} 0%, transparent 55%)`,
             pointerEvents: 'none',
           }}/>
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-            <MeshOrb size={96}/>
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+            <MeshOrb size={96} status={STATUS}/>
           </div>
           <div style={{ position: 'relative', textAlign: 'center' }}>
             <div style={{
-              fontSize: 10.5, fontWeight: 600, letterSpacing: 2,
-              color: 'rgba(189,180,255,0.85)', textTransform: 'uppercase', marginBottom: 6,
-            }}>오늘의 요약</div>
-            <div style={{
-              fontSize: 16, fontWeight: 600, letterSpacing: -0.3, lineHeight: 1.45,
-              padding: '0 6px',
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '4px 10px', borderRadius: 100, marginBottom: 8,
+              background: 'rgba(255,255,255,0.06)',
+              border: `1px solid ${sui.labelColor}44`,
             }}>
-              오늘 새벽 호흡 패턴이<br/>평소보다 안정적이에요.
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%', background: sui.labelColor,
+                animation: STATUS !== 'ok' ? 'pulseDot 1.2s ease-in-out infinite' : 'none',
+              }}/>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, color: sui.labelColor }}>
+                {sui.label}
+              </span>
             </div>
             <div style={{
-              fontSize: 12.5, color: 'rgba(255,255,255,0.55)', marginTop: 8, letterSpacing: -0.1, lineHeight: 1.55,
+              fontSize: 10, fontWeight: 600, letterSpacing: 2,
+              color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 8,
+            }}>지난 1시간 요약</div>
+            <div style={{
+              fontSize: 16, fontWeight: 600, letterSpacing: -0.3, lineHeight: 1.5, padding: '0 4px',
             }}>
-              SpO₂ 평균 97.4% · 야간 알람 0건
+              호흡 패턴이 안정적으로<br/>유지되고 있어요.
+            </div>
+            <div style={{
+              fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 8, lineHeight: 1.6,
+            }}>
+              SpO₂ 평균 97.4% · 호흡수 평균 28/min · 알람 0건
             </div>
           </div>
-          <button style={{
-            position: 'relative', marginTop: 14,
-            width: '100%', height: 40, borderRadius: 100, border: 0,
-            background: 'rgba(255,255,255,0.10)', color: '#fff',
-            fontFamily: 'inherit', fontWeight: 600, fontSize: 13, letterSpacing: -0.2,
-            cursor: 'pointer',
-          }}>전체 리포트 보기</button>
         </div>
       </div>
 
-      {/* Pressure waveform — minimal */}
+      {/* Pressure waveform */}
       <div style={{ padding: '14px 16px 0' }}>
         <div style={{
           background: C.card, borderRadius: 20, padding: '16px 18px 14px',
@@ -375,7 +379,7 @@ function Home() {
         }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
             <div>
-              <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500 }}>압력 파형</div>
+              <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500 }}>압력 파형 · 1시간 평균</div>
               <div style={{ fontSize: 15, fontWeight: 600, color: C.ink, marginTop: 2, letterSpacing: -0.3 }}>
                 PIP 18 · PEEP 5 <span style={{ color: C.mute2, fontSize: 12, fontWeight: 500 }}>cmH₂O</span>
               </div>
@@ -392,12 +396,12 @@ function Home() {
         </div>
       </div>
 
-      {/* Metrics grid — calm */}
+      {/* Metrics grid — 1시간 단위 */}
       <div style={{ padding: '12px 16px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Stat label="SpO₂"      value="98"  unit="%"      sub="목표 ≥ 95"      chart={<Spark data={spo2}/>}/>
-        <Stat label="호흡수"     value="28"  unit="/min"   sub="범위 24–32"      chart={<Spark data={rr}/>}/>
-        <Stat label="분당환기량" value="3.2" unit="L/min"  sub="PC-SIMV"/>
-        <Stat label="누설량"     value="6.4" unit="L/min"  sub="허용 ≤ 10"/>
+        <Stat label="SpO₂ · 시간 평균"   value="97.4" unit="%"     sub="목표 ≥ 95 · 최저 95"   chart={<Spark data={spo2}/>}/>
+        <Stat label="호흡수 · 시간 평균" value="28"   unit="/min"  sub="범위 24–32 · 최고 30"  chart={<Spark data={rr}/>}/>
+        <Stat label="분당환기량"          value="3.2"  unit="L/min" sub="1시간 평균 · PC-SIMV"/>
+        <Stat label="누설량"              value="6.4"  unit="L/min" sub="1시간 최고 · 허용 ≤ 10"/>
       </div>
 
       {/* Device row */}
@@ -414,32 +418,39 @@ function Home() {
             </div>
           </div>
           <div style={{ fontSize: 11.5, color: C.mute, textAlign: 'right' }}>
-            백업 <span style={{ color: C.ink, fontWeight: 600 }}>4시간 20분</span>
+            소모 <span style={{ color: C.ink, fontWeight: 600 }}>1%/h</span>
           </div>
         </div>
       </div>
 
-      {/* AI insights — single column, restrained */}
-      <div style={{ padding: '22px 22px 8px', fontSize: 13, fontWeight: 600, color: C.mute, letterSpacing: 0.3, textTransform: 'uppercase' }}>
-        이번 주 인사이트
+      {/* 1시간 단위 기록 */}
+      <div style={{ padding: '22px 22px 8px', fontSize: 11.5, fontWeight: 600, color: C.mute, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+        시간별 기록
       </div>
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 1, background: C.card, margin: '0 16px', borderRadius: 20, overflow: 'hidden', boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)' }}>
-        <InsightRow title="야간 무호흡 –42%"     desc="측위 조정 효과로 분석돼요"/>
-        <InsightRow title="오후 누설량 증가"      desc="14–18시 평균 8.1 L/min · 마스크 점검"/>
-        <InsightRow title="외래 진료까지 12일"   desc="이비인후과 김민서 교수 · 5/24 10:30" last/>
+        <InsightRow time="21:00" title="SpO₂ 98% · 호흡수 27" desc="안정 구간 — 무호흡 없음"/>
+        <InsightRow time="20:00" title="누설량 일시 증가 8.8 L/min" desc="20분간 지속 후 정상 회복" tone="warn"/>
+        <InsightRow time="19:00" title="체위 변경 후 SpO₂ +0.8%" desc="SpO₂ 96→97% 개선 관찰"/>
+        <InsightRow time="18:00" title="SpO₂ 95% · 호흡수 30" desc="하한 접근 — 체위 조정 권장" tone="warn"/>
+        <InsightRow time="17:00" title="외래 진료까지 12일" desc="이비인후과 이진환 교수 · 5/24 10:30" last/>
       </div>
     </div>
   );
 }
 
-function InsightRow({ title, desc, last }) {
+function InsightRow({ time, title, desc, last, tone = 'ok' }) {
+  const dotColor = tone === 'warn' ? C.warn : C.ok;
   return (
     <div style={{
-      padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12,
+      padding: '13px 18px', display: 'flex', alignItems: 'center', gap: 12,
       borderBottom: last ? 'none' : `0.5px solid ${C.line}`,
     }}>
+      <div style={{ width: 38, flexShrink: 0, textAlign: 'right' }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: C.mute2, letterSpacing: -0.1 }}>{time}</div>
+        <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, margin: '4px auto 0' }}/>
+      </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, letterSpacing: -0.2 }}>{title}</div>
+        <div style={{ fontSize: 13.5, fontWeight: 600, color: C.ink, letterSpacing: -0.2 }}>{title}</div>
         <div style={{ fontSize: 12, color: C.mute, marginTop: 2 }}>{desc}</div>
       </div>
       <svg width="7" height="12" viewBox="0 0 8 14">
