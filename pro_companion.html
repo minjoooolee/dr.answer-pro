@@ -3102,19 +3102,11 @@ function PROScreen({ tweaks, setTweak }) {
                 {exerciseDone === true && exerciseMode === 'walk' && (
                   <div style={{ display:'flex', flexDirection:'column', gap:14, marginTop:-6 }}>
                     {/* header */}
-                    <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-                      <div style={{ width:42, height:42, borderRadius:13, background:`linear-gradient(135deg, ${C.main}, #2dbfa0)`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, boxShadow:'0 6px 16px rgba(65,210,180,0.3)' }}>👟</div>
-                      <div>
-                        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>자율 걷기</div>
-                          <div style={{ padding:'2px 7px', borderRadius:6, background: dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.14)', fontFamily:'Pretendard', fontWeight:700, fontSize:9.5, color:C.main, letterSpacing:'-0.01em' }}>가져옴</div>
-                        </div>
-                        <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:3 }}>
-                          <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>2026.05.05 (화) 18:56</span>
-                          <span style={{ width:3, height:3, borderRadius:'50%', background: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)' }} />
-                          <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>한강공원</span>
-                        </div>
-                      </div>
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>2026.05.05 (화) 18:56</span>
+                      <span style={{ width:3, height:3, borderRadius:'50%', background: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)' }} />
+                      <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>한강공원</span>
+                      <div style={{ marginLeft:'auto', padding:'2px 8px', borderRadius:6, background: dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.14)', fontFamily:'Pretendard', fontWeight:700, fontSize:9.5, color:C.main, letterSpacing:'-0.01em' }}>가져옴</div>
                     </div>
 
                     {/* GPS map */}
