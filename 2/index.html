@@ -144,7 +144,7 @@ function MeshOrb({ size = 96, status = 'ok' }) {
     if (!el || !window.THREE) return;
     const THREE = window.THREE;
     const pal = ORB_PALETTE[status] || ORB_PALETTE.ok;
-    const S = size + 60; // canvas larger than visible orb so rings have room
+    const S = size + 28; // canvas larger than visible orb so rings have room
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(S, S);
@@ -322,9 +322,9 @@ function MeshOrb({ size = 96, status = 'ok' }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
       <div ref={containerRef} style={{
-        width: size + 60, height: size + 60,
-        filter: `drop-shadow(0 0 28px ${pal.shadow}) drop-shadow(0 0 10px ${pal.shadow})`,
-        marginTop: -16, marginBottom: -16,
+        width: size + 28, height: size + 28,
+        filter: `drop-shadow(0 0 18px ${pal.shadow}) drop-shadow(0 0 7px ${pal.shadow})`,
+        marginTop: -8, marginBottom: -8,
       }}/>
     </div>
   );
@@ -530,7 +530,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
             pointerEvents: 'none',
           }}/>
           <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-            <MeshOrb size={72} status={STATUS}/>
+            <MeshOrb size={42} status={STATUS}/>
           </div>
           <div style={{ position: 'relative', textAlign: 'center' }}>
             <div style={{
