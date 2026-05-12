@@ -1166,6 +1166,174 @@ function Report() {
   );
 }
 
+// ─── My Info screen ─────────────────────────────────────────────
+function MyInfo() {
+  const Section = ({ title, children }) => (
+    <div style={{ padding: '22px 22px 4px' }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.mute, letterSpacing: 1.4, textTransform: 'uppercase', marginBottom: 10 }}>
+        {title}
+      </div>
+      <div style={{
+        background: C.card, borderRadius: 18,
+        boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+        overflow: 'hidden',
+      }}>{children}</div>
+    </div>
+  );
+
+  const Row = ({ icon, label, value, last = false, badge }) => (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 14,
+      padding: '14px 18px',
+      borderBottom: last ? 'none' : `1px solid ${C.line}`,
+    }}>
+      <div style={{
+        width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+        background: 'rgba(14,17,22,0.05)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>{icon}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>{label}</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: C.ink, letterSpacing: -0.3, marginTop: 1 }}>{value}</div>
+      </div>
+      {badge && (
+        <span style={{
+          fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 100,
+          background: badge.bg, color: badge.fg, letterSpacing: -0.1, flexShrink: 0,
+        }}>{badge.label}</span>
+      )}
+    </div>
+  );
+
+  const icons = {
+    child: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="7" r="4" stroke={C.ink} strokeWidth="1.6"/>
+        <path d="M5 21c1.5-5 5.5-7 7-7s5.5 2 7 7" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+    hospital: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="6" width="18" height="15" rx="1" stroke={C.ink} strokeWidth="1.6"/>
+        <path d="M9 21v-6h6v6M12 3v6M9 6h6" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    doctor: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="7" r="4" stroke={C.ink} strokeWidth="1.6"/>
+        <path d="M5 21c1.5-5 5.5-7 7-7s5.5 2 7 7" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round"/>
+        <path d="M16 17v2m0 0v2m0-2h2m-2 0h-2" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+    device: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="2" y="7" width="20" height="13" rx="2" stroke={C.ink} strokeWidth="1.6"/>
+        <path d="M6 4h12M5 11l2 3 2-4 2 4 2-3" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    status: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2l2 5h5l-4 3 1.5 5L12 12l-4.5 3L9 10 5 7h5L12 2z" stroke={C.ink} strokeWidth="1.6" strokeLinejoin="round"/>
+      </svg>
+    ),
+    mode: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+    calendar: (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="4" width="18" height="18" rx="2" stroke={C.ink} strokeWidth="1.6"/>
+        <path d="M16 2v4M8 2v4M3 10h18" stroke={C.ink} strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    ),
+  };
+
+  return (
+    <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 130, background: C.bg }}>
+      {/* 헤더 */}
+      <div style={{ padding: '18px 22px 0' }}>
+        <div style={{ fontSize: 24, fontWeight: 800, color: C.ink, letterSpacing: -0.8, lineHeight: 1.18 }}>
+          내 정보
+        </div>
+      </div>
+
+      {/* 프로필 요약 */}
+      <div style={{ padding: '18px 22px 0', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 18, flexShrink: 0,
+          background: `linear-gradient(140deg, rgba(75,59,224,0.15) 0%, rgba(75,59,224,0.06) 100%)`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 26,
+        }}>👦</div>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: C.ink, letterSpacing: -0.5 }}>김민준</div>
+          <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, marginTop: 2, letterSpacing: -0.1 }}>5세 · 만성호흡부전</div>
+        </div>
+        <div style={{ flex: 1 }}/>
+        <div style={{
+          padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 700,
+          background: 'rgba(224,136,58,0.12)', color: C.warn, letterSpacing: -0.2,
+          display: 'flex', alignItems: 'center', gap: 5,
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.warn, display: 'inline-block' }}/>
+          관찰 중
+        </div>
+      </div>
+
+      <Section title="환아 정보">
+        <Row icon={icons.child}    label="이름 · 나이"  value="김민준 · 5세"/>
+        <Row icon={icons.hospital} label="진료 병원"    value="신촌세브란스병원"/>
+        <Row icon={icons.doctor}   label="주치의"       value="호흡기내과 이진환 교수" last/>
+      </Section>
+
+      <Section title="인공호흡기 정보">
+        <Row icon={icons.device} label="기기명"     value="ResMed Astral 150"/>
+        <Row icon={icons.mode}   label="환기 모드"  value="AVAPS-AE (BiPAP)"/>
+        <Row icon={icons.status} label="현재 상태"  value="정상 작동 중"
+          badge={{ label: '연결됨', bg: 'rgba(43,182,115,0.10)', fg: C.ok }}/>
+        <Row icon={icons.calendar} label="마지막 설정 변경" value="2025년 4월 22일" last/>
+      </Section>
+
+      <Section title="처방 파라미터">
+        {[
+          { label: 'IPAP',    value: '18 cmH₂O' },
+          { label: 'EPAP',    value: '6 cmH₂O' },
+          { label: 'BPM',     value: '16 회/min' },
+          { label: 'Ti',      value: '0.9 s' },
+          { label: 'FiO₂',    value: '21 %' },
+        ].map((p, i, arr) => (
+          <div key={p.label} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 18px',
+            borderBottom: i === arr.length - 1 ? 'none' : `1px solid ${C.line}`,
+          }}>
+            <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 500, letterSpacing: -0.2 }}>{p.label}</span>
+            <span style={{ fontSize: 13.5, color: C.ink, fontWeight: 700, letterSpacing: -0.3 }}>{p.value}</span>
+          </div>
+        ))}
+      </Section>
+
+      <Section title="앱 설정">
+        {[
+          { label: '알림 수신',      value: '켜짐' },
+          { label: '응급 연락처',    value: '02-2228-0000' },
+          { label: '동기화 주기',    value: '10분마다' },
+        ].map((p, i, arr) => (
+          <div key={p.label} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 18px',
+            borderBottom: i === arr.length - 1 ? 'none' : `1px solid ${C.line}`,
+          }}>
+            <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 500, letterSpacing: -0.2 }}>{p.label}</span>
+            <span style={{ fontSize: 13.5, color: C.ink, fontWeight: 600, letterSpacing: -0.3 }}>{p.value}</span>
+          </div>
+        ))}
+      </Section>
+    </div>
+  );
+}
+
 function App() {
   const [screen, setScreen] = React.useState('home');
   const [agentSeen, setAgentSeen] = React.useState(false);
@@ -1190,9 +1358,7 @@ function App() {
       )}
       {screen === 'record' && <Survey onBack={() => setScreen('home')} onSubmit={handleSubmit}/>}
       {screen === 'report' && <Report/>}
-      {screen === 'user' && (
-        <div style={{ flex: 1, padding: 60, color: C.mute, textAlign: 'center', background: C.bg }}>내정보 화면 준비중</div>
-      )}
+      {screen === 'user' && <MyInfo/>}
       <TabBar active={screen === 'home' ? 'home' : screen} onChange={setScreen}/>
       {submitting && <SubmitToast/>}
     </IOSDevice>
