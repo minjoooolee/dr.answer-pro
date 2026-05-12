@@ -25,6 +25,10 @@
     0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(-5px); }
   }
+  @keyframes syncRing {
+    0%   { transform: scale(0.8); opacity: 0.7; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
 </style>
 </head>
 <body>
@@ -221,6 +225,47 @@ const STATUS_UI = {
   alert: { label: '응급 상황', labelColor: '#ff7777', gradColor: 'rgba(220,40,40,0.30)'  },
 };
 
+function SyncIndicator() {
+  const TOTAL = 600; // 10분
+  const [seconds, setSeconds] = React.useState(TOTAL);
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      setSeconds(s => (s <= 1 ? TOTAL : s - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  const fmt = `${m}:${String(s).padStart(2, '0')}`;
+  return (
+    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 7,
+        padding: '5px 11px 5px 9px', borderRadius: 100,
+        background: 'rgba(43,182,115,0.10)',
+        border: '1px solid rgba(43,182,115,0.22)',
+      }}>
+        <span style={{ position: 'relative', width: 8, height: 8 }}>
+          <span style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            background: C.ok,
+            animation: 'syncRing 1.6s ease-out infinite',
+          }}/>
+          <span style={{
+            position: 'absolute', inset: 0, borderRadius: '50%', background: C.ok,
+          }}/>
+        </span>
+        <span style={{ fontSize: 11.5, fontWeight: 700, color: C.ok, letterSpacing: -0.1 }}>
+          Ventilator 동기화중
+        </span>
+      </div>
+      <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>
+        마지막 동기화 · <span style={{ color: C.ink, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{fmt}</span>
+      </div>
+    </div>
+  );
+}
+
 function Home() {
   // 'ok' | 'watch' | 'alert' — 오브/카드 색상 연동
   const STATUS = 'ok';
@@ -258,9 +303,7 @@ function Home() {
         <div style={{ fontSize: 28, fontWeight: 700, color: C.ink, letterSpacing: -1.0, lineHeight: 1.18 }}>
           안녕하세요, 어머님.
         </div>
-        <div style={{ fontSize: 14, color: C.mute, marginTop: 10, letterSpacing: -0.2, lineHeight: 1.55 }}>
-          민준이는 지난 1시간 동안 안정적이에요. 무호흡 에피소드는 없었어요.
-        </div>
+        <SyncIndicator/>
       </div>
 
       {/* AI summary card — status-aware mesh orb */}
@@ -276,7 +319,7 @@ function Home() {
             pointerEvents: 'none',
           }}/>
           <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-            <MeshOrb size={96} status={STATUS}/>
+            <MeshOrb size={72} status={STATUS}/>
           </div>
           <div style={{ position: 'relative', textAlign: 'center' }}>
             <div style={{
