@@ -266,12 +266,16 @@ function SyncIndicator() {
   );
 }
 
-function AgentPopup({ onClose }) {
+function AgentPopup({ onClose, onWorry }) {
   const [answered, setAnswered] = React.useState(null);
 
   const handleAnswer = (v) => {
     setAnswered(v);
-    setTimeout(onClose, 900);
+    if (v === 'warn') {
+      setTimeout(() => { onWorry && onWorry(); }, 280);
+    } else {
+      setTimeout(onClose, 1400);
+    }
   };
 
   return (
@@ -281,7 +285,20 @@ function AgentPopup({ onClose }) {
       WebkitBackdropFilter: 'blur(6px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '0 24px',
-    }} onClick={onClose}>
+    }} onClick={answered ? undefined : onClose}>
+      {answered === 'ok' ? (
+        <div style={{
+          background: '#fff', borderRadius: 20, padding: '28px 24px',
+          width: '100%', textAlign: 'center',
+          boxShadow: '0 12px 40px rgba(14,17,22,0.18)',
+        }}>
+          <div style={{ fontSize: 36, marginBottom: 10 }}>🙂</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: C.ink, letterSpacing: -0.4 }}>다행이에요</div>
+          <div style={{ fontSize: 12.5, color: C.mute, marginTop: 6, lineHeight: 1.5, letterSpacing: -0.1 }}>
+            계속 모니터링할게요.
+          </div>
+        </div>
+      ) : (
       <div style={{
         width: '100%', background: '#fff', borderRadius: 20,
         padding: '22px 22px 20px',
@@ -339,11 +356,12 @@ function AgentPopup({ onClose }) {
           ))}
         </div>
       </div>
+      )}
     </div>
   );
 }
 
-function Home() {
+function Home({ onWorry }) {
   // 'ok' | 'watch' | 'alert' — 오브/카드 색상 연동
   const STATUS = 'watch';
   const sui = STATUS_UI[STATUS];
@@ -351,7 +369,10 @@ function Home() {
 
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 120, background: C.bg, position: 'relative' }}>
-      {showAgent && <AgentPopup onClose={() => setShowAgent(false)}/>}
+      {showAgent && <AgentPopup
+        onClose={() => setShowAgent(false)}
+        onWorry={() => { setShowAgent(false); onWorry && onWorry(); }}
+      />}
 
       {/* Minimal header */}
       <div style={{
@@ -589,7 +610,7 @@ function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusT
 }
 
 // ─── Tab bar ────────────────────────────────────────────────────
-function TabBar() {
+function TabBar({ active = 'home', onChange }) {
   const Ico = {
     home: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -615,12 +636,18 @@ function TabBar() {
     ),
   };
 
-  const item = (ic, label, active) => (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, opacity: active ? 1 : 0.45 }}>
-      {ic}
-      <div style={{ fontSize: 10, fontWeight: 500, color: C.ink }}>{label}</div>
-    </div>
-  );
+  const item = (key, ic, label) => {
+    const isActive = active === key;
+    return (
+      <div onClick={() => onChange && onChange(key)} style={{
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+        opacity: isActive ? 1 : 0.45, cursor: 'pointer',
+      }}>
+        {ic}
+        <div style={{ fontSize: 10, fontWeight: 500, color: C.ink }}>{label}</div>
+      </div>
+    );
+  };
 
   return (
     <div style={{
@@ -632,19 +659,214 @@ function TabBar() {
       boxShadow: '0 8px 24px rgba(14,17,22,0.08), 0 0 0 0.5px rgba(0,0,0,0.04)',
       display: 'flex', alignItems: 'center', gap: 4, zIndex: 40,
     }}>
-      {item(Ico.home, '홈', true)}
-      {item(Ico.record, '기록', false)}
-      {item(Ico.report, '리포트', false)}
-      {item(Ico.user, '내정보', false)}
+      {item('home', Ico.home, '홈')}
+      {item('record', Ico.record, '기록')}
+      {item('report', Ico.report, '리포트')}
+      {item('user', Ico.user, '내정보')}
+    </div>
+  );
+}
+
+// ─── Status check survey (questionnaire) ────────────────────────
+function Survey({ onBack }) {
+  const BLUE = '#3D6BE6';
+  const [q1, setQ1] = React.useState('same');
+  const [q2, setQ2] = React.useState('checked');
+  const [spo2, setSpo2] = React.useState('96');
+  const [q3, setQ3] = React.useState('great');
+  const [q4, setQ4] = React.useState(null);
+
+  const Chip = ({ active, onClick, children }) => (
+    <button onClick={onClick} style={{
+      padding: '9px 16px', borderRadius: 100, cursor: 'pointer',
+      background: active ? 'rgba(61,107,230,0.12)' : '#fff',
+      border: `1px solid ${active ? BLUE : 'rgba(14,17,22,0.14)'}`,
+      color: active ? BLUE : C.ink,
+      fontSize: 13, fontWeight: active ? 700 : 500, letterSpacing: -0.2,
+      transition: 'all 0.15s',
+    }}>{children}</button>
+  );
+
+  const NumBadge = ({ n }) => (
+    <div style={{
+      width: 22, height: 22, borderRadius: '50%',
+      background: 'rgba(61,107,230,0.12)', color: BLUE,
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: 12, fontWeight: 700, marginRight: 8,
+    }}>{n}</div>
+  );
+
+  const Card = ({ children }) => (
+    <div style={{
+      background: '#fff', borderRadius: 18, padding: '18px 18px 16px',
+      boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+    }}>{children}</div>
+  );
+
+  const QTitle = ({ n, children }) => (
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
+      <NumBadge n={n}/>
+      <span style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>{children}</span>
+    </div>
+  );
+
+  const emoji3 = [
+    { v: 'great', e: '😊', l: '매우 좋음' },
+    { v: 'ok',    e: '🙂', l: '보통' },
+    { v: 'bad',   e: '😕', l: '좋지않음' },
+    { v: 'worst', e: '😣', l: '매우안좋음' },
+  ];
+
+  return (
+    <div style={{ flex: 1, overflow: 'auto', paddingTop: 50, paddingBottom: 130, background: C.bg }}>
+      {/* 헤더 */}
+      <div style={{
+        background: `linear-gradient(160deg, #5B89FF 0%, ${BLUE} 100%)`,
+        color: '#fff', padding: '18px 22px 24px',
+      }}>
+        <button onClick={onBack} style={{
+          background: 'none', border: 'none', color: '#fff', cursor: 'pointer',
+          padding: 0, display: 'inline-flex', alignItems: 'center', gap: 4,
+          fontSize: 13, fontWeight: 600, opacity: 0.95,
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M15 6l-6 6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          홈으로
+        </button>
+        <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.6, marginTop: 8 }}>
+          상태 확인 문진
+        </div>
+        <div style={{ fontSize: 12.5, opacity: 0.85, marginTop: 4, letterSpacing: -0.1 }}>
+          AI가 현재 상태를 더 자세히 파악합니다
+        </div>
+      </div>
+
+      {/* 컨텍스트 배너 */}
+      <div style={{
+        margin: '14px 16px 0', padding: '11px 14px',
+        background: 'rgba(255,205,80,0.18)', borderRadius: 14,
+        display: 'flex', alignItems: 'center', gap: 8,
+      }}>
+        <span style={{ fontSize: 14 }}>🟡</span>
+        <span style={{ fontSize: 12.5, color: C.ink, fontWeight: 600, letterSpacing: -0.2 }}>
+          RR · MinVent 변화 감지됨 · 09:23 분석
+        </span>
+      </div>
+
+      {/* Q1 */}
+      <div style={{ padding: '14px 16px 0' }}>
+        <Card>
+          <QTitle n="1">지금 아이의 숨쉬기 상태는?</QTitle>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <Chip active={q1==='same'}  onClick={() => setQ1('same')}>평소와 같아요</Chip>
+            <Chip active={q1==='mild'}  onClick={() => setQ1('mild')}>좀 힘들어 보여요</Chip>
+            <Chip active={q1==='hard'}  onClick={() => setQ1('hard')}>매우 힘들어해요</Chip>
+          </div>
+        </Card>
+      </div>
+
+      {/* Q2 */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <Card>
+          <QTitle n="2">SpO₂ 수치를 확인했나요?</QTitle>
+          <div style={{ display: 'flex', gap: 8, marginBottom: q2==='checked' ? 14 : 0 }}>
+            <Chip active={q2==='notyet'}  onClick={() => setQ2('notyet')}>아직 안 봤어요</Chip>
+            <Chip active={q2==='checked'} onClick={() => setQ2('checked')}>확인했어요</Chip>
+          </div>
+          {q2 === 'checked' && (
+            <div style={{
+              border: '1px solid rgba(14,17,22,0.10)', borderRadius: 14,
+              padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C8 7 6 10 6 13a6 6 0 0012 0c0-3-2-6-6-11z" stroke={C.alert} strokeWidth="1.6" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontSize: 12.5, color: C.ink2, fontWeight: 500, flex: 1, letterSpacing: -0.2 }}>
+                SpO₂ 직접 입력
+              </span>
+              <input
+                value={spo2}
+                onChange={e => setSpo2(e.target.value.replace(/[^0-9]/g,'').slice(0,3))}
+                inputMode="numeric"
+                style={{
+                  width: 48, textAlign: 'center', fontSize: 18, fontWeight: 700,
+                  border: 'none', outline: 'none', color: C.ink, background: 'transparent',
+                  letterSpacing: -0.5,
+                }}
+              />
+              <span style={{ fontSize: 13, color: C.mute, fontWeight: 500 }}>%</span>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Q3 */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <Card>
+          <QTitle n="3">아이 컨디션은 어때 보이나요?</QTitle>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            {emoji3.map(o => {
+              const isActive = q3 === o.v;
+              return (
+                <button key={o.v} onClick={() => setQ3(o.v)} style={{
+                  padding: '10px 4px 8px', borderRadius: 12, cursor: 'pointer',
+                  background: isActive ? 'rgba(255,180,60,0.12)' : '#fff',
+                  border: `1px solid ${isActive ? '#FFB13C' : 'rgba(14,17,22,0.10)'}`,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                  transition: 'all 0.15s',
+                }}>
+                  <span style={{ fontSize: 22, lineHeight: 1 }}>{o.e}</span>
+                  <span style={{ fontSize: 10.5, color: C.ink2, fontWeight: 500, letterSpacing: -0.2 }}>{o.l}</span>
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
+
+      {/* Q4 */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <Card>
+          <QTitle n="4">최근 기침이나 분비물이 늘었나요?</QTitle>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <Chip active={q4==='no'}     onClick={() => setQ4('no')}>아니요</Chip>
+            <Chip active={q4==='little'} onClick={() => setQ4('little')}>조금 늘었어요</Chip>
+            <Chip active={q4==='lot'}    onClick={() => setQ4('lot')}>많이 늘었어요</Chip>
+          </div>
+        </Card>
+      </div>
+
+      {/* 제출 버튼 */}
+      <div style={{ padding: '22px 16px 0' }}>
+        <button
+          onClick={onBack}
+          style={{
+            width: '100%', padding: '16px 0', borderRadius: 16, border: 0, cursor: 'pointer',
+            background: C.ink, color: '#fff',
+            fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
+            boxShadow: '0 6px 18px rgba(14,17,22,0.18)',
+          }}>
+          ✓ 입력 완료 · AI에게 전달하기
+        </button>
+      </div>
     </div>
   );
 }
 
 function App() {
+  const [screen, setScreen] = React.useState('home');
   return (
     <IOSDevice>
-      <Home/>
-      <TabBar/>
+      {screen === 'home' && <Home onWorry={() => setScreen('record')}/>}
+      {screen === 'record' && <Survey onBack={() => setScreen('home')}/>}
+      {screen === 'report' && (
+        <div style={{ flex: 1, padding: 60, color: C.mute, textAlign: 'center', background: C.bg }}>리포트 화면 준비중</div>
+      )}
+      {screen === 'user' && (
+        <div style={{ flex: 1, padding: 60, color: C.mute, textAlign: 'center', background: C.bg }}>내정보 화면 준비중</div>
+      )}
+      <TabBar active={screen === 'home' ? 'home' : screen} onChange={setScreen}/>
     </IOSDevice>
   );
 }
