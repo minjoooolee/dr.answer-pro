@@ -3033,6 +3033,7 @@ function PROScreen({ tweaks, setTweak }) {
                     {[
                       { icon:'⌨️', label:'텍스트로 간단 입력하기', sub:'AI가 입력한 운동의 칼로리를 계산해요', mode:'text', color:C.purple },
                       { icon:'🎙️', label:'음성으로 간단 입력하기', sub:'말로 편하게 입력할 수 있어요', mode:'voice', color:C.red },
+                      { icon:'👟', label:'걷기 기록 불러오기', sub:'오늘 걸음 수·거리·칼로리를 자동으로 가져와요', mode:'walk', color:C.main },
                     ].map(({ icon, label, sub, mode, color }) => (
                       <button key={mode} onClick={() => setExerciseMode(mode)} style={{
                         width:'100%', border:'none', cursor:'pointer', borderRadius:18,
@@ -3095,6 +3096,45 @@ function PROScreen({ tweaks, setTweak }) {
                         <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.red, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(238,63,96,0.35)' }}>등록하기</button>
                       </>
                     )}
+                  </div>
+                )}
+
+                {exerciseDone === true && exerciseMode === 'walk' && (
+                  <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+                    <div style={{ padding:'14px 16px', borderRadius:16, background: dark?'rgba(65,210,180,0.08)':'rgba(65,210,180,0.07)', border:`1px solid ${dark?'rgba(65,210,180,0.22)':'rgba(65,210,180,0.18)'}` }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color:C.main, marginBottom:10, letterSpacing:'-0.01em' }}>오늘의 걷기 기록</div>
+                      <div style={{ display:'flex', gap:0 }}>
+                        {[
+                          { label:'걸음 수', val:'8,342', unit:'steps' },
+                          { label:'이동 거리', val:'5.8', unit:'km' },
+                          { label:'소모 칼로리', val:'312', unit:'kcal' },
+                        ].map((item, i) => (
+                          <div key={i} style={{ flex:1, textAlign:'center', borderRight: i<2 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none', padding:'6px 0' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color:C.main, letterSpacing:'-0.02em' }}>{item.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:10, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', marginTop:2 }}>{item.unit}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.5)', marginTop:1 }}>{item.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ display:'flex', gap:8 }}>
+                      {[
+                        { label:'걷기', time:'42분', pct:70 },
+                        { label:'빠르게 걷기', time:'15분', pct:25 },
+                        { label:'뛰기', time:'3분', pct:5 },
+                      ].map((act, i) => (
+                        <div key={i} style={{ flex:1, padding:'10px 12px', borderRadius:12, background: dark?'rgba(255,255,255,0.05)':'#f7f9f8', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11.5, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', marginBottom:4 }}>{act.label}</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:13, color:C.main }}>{act.time}</div>
+                          <div style={{ marginTop:6, height:4, borderRadius:99, background: dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)' }}>
+                            <div style={{ width: act.pct+'%', height:'100%', borderRadius:99, background:C.main }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.main, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(65,210,180,0.35)' }}>등록하기</button>
                   </div>
                 )}
               </>
