@@ -995,8 +995,41 @@ function Report() {
         </div>
       </div>
 
+      {/* 안내 카드 */}
+      <div style={{ padding: '16px 16px 0' }}>
+        <div style={{
+          background: C.card, borderRadius: 16,
+          padding: '14px 16px',
+          boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+          display: 'flex', gap: 12, alignItems: 'flex-start',
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+            background: 'rgba(75,59,224,0.08)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M3 13l3 3 5-5M3 18l3 3 5-5M13 7h8M13 12h8M13 17h5" stroke={C.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: C.ink, letterSpacing: -0.2, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+              누적 분석 리포트
+              <span style={{
+                fontSize: 10, fontWeight: 700, color: C.accent,
+                background: 'rgba(75,59,224,0.10)', padding: '2px 7px', borderRadius: 100,
+                letterSpacing: 0.2,
+              }}>Hourly → Daily → Weekly</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: C.ink2, lineHeight: 1.55, letterSpacing: -0.1 }}>
+              매시간 분석 결과가 일별·주간 단위로 누적 저장돼요. 주간 Triage 분포와 파라미터별 히스토그램은 외래 복진 시 의료진 레퍼런스로 활용되며, 주간 AI 추론 요약도 자동 생성·저장됩니다.
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 주간 통계 */}
-      <div style={{ padding: '18px 16px 0', display: 'flex', gap: 10 }}>
+      <div style={{ padding: '16px 16px 0', display: 'flex', gap: 10 }}>
         <StatTile tone="ok"    label="안정" count="5"/>
         <StatTile tone="warn"  label="관찰" count="2"/>
         <StatTile tone="alert" label="위험" count="0"/>
