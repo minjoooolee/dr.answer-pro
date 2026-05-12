@@ -995,8 +995,35 @@ function Report() {
         </div>
       </div>
 
+      {/* 누적 파이프라인 표시 */}
+      <div style={{ padding: '16px 16px 0' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
+          background: C.card, borderRadius: 14,
+          boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+        }}>
+          {['Hourly', 'Daily', 'Weekly'].map((s, i, arr) => (
+            <React.Fragment key={s}>
+              <div style={{
+                fontSize: 11.5, fontWeight: 700, letterSpacing: 0.2,
+                color: i === arr.length - 1 ? C.accent : C.ink2,
+                padding: '4px 10px', borderRadius: 100,
+                background: i === arr.length - 1 ? 'rgba(75,59,224,0.10)' : 'rgba(14,17,22,0.04)',
+              }}>{s}</div>
+              {i < arr.length - 1 && (
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                  <path d="M3 2l4 4-4 4" stroke={C.mute2} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+            </React.Fragment>
+          ))}
+          <div style={{ flex: 1 }}/>
+          <div style={{ fontSize: 10.5, color: C.mute, fontWeight: 600, letterSpacing: -0.1 }}>누적 저장</div>
+        </div>
+      </div>
+
       {/* 주간 통계 */}
-      <div style={{ padding: '18px 16px 0', display: 'flex', gap: 10 }}>
+      <div style={{ padding: '14px 16px 0', display: 'flex', gap: 10 }}>
         <StatTile tone="ok"    label="안정" count="5"/>
         <StatTile tone="warn"  label="관찰" count="2"/>
         <StatTile tone="alert" label="위험" count="0"/>
@@ -1032,6 +1059,68 @@ function Report() {
           <Row label="PIP"     pct={42} tone="ok" value="17 cmH₂O"/>
           <Row label="RR"      pct={58} tone="ok" value="23 bpm"/>
           <Row label="MinVent" pct={62} tone="ok" value="4.52"/>
+        </Card>
+      </div>
+
+      {/* 파라미터별 히스토그램 */}
+      <div style={{ padding: '24px 22px 10px', fontSize: 11.5, fontWeight: 700, color: C.mute, letterSpacing: 1.2, textTransform: 'uppercase' }}>
+        파라미터별 분포 (주간)
+      </div>
+      <div style={{ padding: '0 16px' }}>
+        <Card>
+          {[
+            { label: 'PIP',     unit: 'cmH₂O', avg: '17.4', min: '15', max: '20', tone: 'ok',
+              bins: [1,2,4,6,9,12,10,7,4,2,1], mark: 7 },
+            { label: 'VTe',     unit: 'mL',    avg: '139',  min: '128', max: '152', tone: 'ok',
+              bins: [1,2,3,5,8,11,12,9,6,3,1], mark: 6 },
+            { label: 'RR',      unit: 'bpm',   avg: '24.6', min: '21',  max: '30',  tone: 'warn',
+              bins: [2,3,5,8,11,10,9,8,7,5,3], mark: 9 },
+            { label: 'Leak',    unit: 'L/m',   avg: '17.8', min: '12',  max: '24',  tone: 'ok',
+              bins: [2,5,9,12,10,8,6,4,3,2,1], mark: 5 },
+            { label: 'MinVent', unit: 'L/min', avg: '4.31', min: '3.6', max: '5.0', tone: 'warn',
+              bins: [1,2,4,5,7,10,11,9,7,5,3], mark: 4 },
+          ].map((p, idx, arr) => {
+            const max = Math.max(...p.bins);
+            const accent = p.tone === 'warn' ? C.warn : C.ok;
+            return (
+              <div key={p.label} style={{
+                paddingTop: idx === 0 ? 0 : 14, paddingBottom: idx === arr.length - 1 ? 0 : 14,
+                borderBottom: idx === arr.length - 1 ? 'none' : `1px solid ${C.line}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                    <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink, letterSpacing: -0.2 }}>{p.label}</span>
+                    <span style={{ fontSize: 10.5, color: C.mute, fontWeight: 500 }}>{p.unit}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>
+                    평균 <b style={{ color: accent, fontWeight: 700 }}>{p.avg}</b> · 범위 {p.min}–{p.max}
+                  </div>
+                </div>
+                <div style={{
+                  display: 'flex', alignItems: 'flex-end', gap: 2, height: 36,
+                }}>
+                  {p.bins.map((v, i) => {
+                    const bh = Math.max(2, (v / max) * 34);
+                    const isMark = i === p.mark;
+                    return (
+                      <div key={i} style={{
+                        flex: 1, height: bh, borderRadius: 1.5,
+                        background: isMark ? accent : 'rgba(180,194,210,0.45)',
+                      }}/>
+                    );
+                  })}
+                </div>
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between',
+                  fontSize: 9.5, color: C.mute2, fontWeight: 500, marginTop: 4, letterSpacing: 0.2,
+                }}>
+                  <span>{p.min}</span>
+                  <span>중앙값</span>
+                  <span>{p.max}</span>
+                </div>
+              </div>
+            );
+          })}
         </Card>
       </div>
 
