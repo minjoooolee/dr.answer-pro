@@ -131,9 +131,9 @@ const C = {
 // ─── 3D Mesh AI Orb (Three.js) ──────────────────────────────────
 // Status → Three.js color palette
 const ORB_PALETTE = {
-  ok:    { base: 0x052e14, emissive: 0x0a4a22, specular: 0x66ffaa, ambientHex: 0x116622, rimHex: 0x22dd66, wire: 0x33ee77, pts: 0xaaffcc, glow: 0x22cc55, shadow: 'rgba(30,190,80,0.70)'  },
-  watch: { base: 0x2e1800, emissive: 0x4a2800, specular: 0xffcc66, ambientHex: 0x663300, rimHex: 0xff8822, wire: 0xff9933, pts: 0xffddaa, glow: 0xee7722, shadow: 'rgba(220,120,30,0.70)'  },
-  alert: { base: 0x2e0606, emissive: 0x4a0e0e, specular: 0xff9999, ambientHex: 0x661111, rimHex: 0xff3333, wire: 0xff4444, pts: 0xffbbbb, glow: 0xee2222, shadow: 'rgba(220,40,40,0.75)'   },
+  ok:    { core: 0x00ff88, base: 0x031a0d, emissive: 0x05401a, specular: 0x88ffcc, ambientHex: 0x0d4422, rimHex: 0x00ff77, wire: 0x22ee66, pts: 0xaaffd0, ring1: 0x33ff88, ring2: 0x00dd55, glow: 0x11ee55, shadow: 'rgba(0,220,100,0.75)'  },
+  watch: { core: 0xff9900, base: 0x1e0e00, emissive: 0x4a2600, specular: 0xffcc44, ambientHex: 0x552200, rimHex: 0xff8800, wire: 0xff9922, pts: 0xffd088, ring1: 0xffaa33, ring2: 0xff7700, glow: 0xee7700, shadow: 'rgba(230,120,0,0.75)'   },
+  alert: { core: 0xff3355, base: 0x1e0404, emissive: 0x4a0c0c, specular: 0xff8888, ambientHex: 0x551111, rimHex: 0xff2244, wire: 0xff3344, pts: 0xffaaaa, ring1: 0xff4455, ring2: 0xdd1133, glow: 0xee1133, shadow: 'rgba(230,30,60,0.80)'    },
 };
 
 function MeshOrb({ size = 96, status = 'ok' }) {
@@ -144,66 +144,166 @@ function MeshOrb({ size = 96, status = 'ok' }) {
     if (!el || !window.THREE) return;
     const THREE = window.THREE;
     const pal = ORB_PALETTE[status] || ORB_PALETTE.ok;
+    const S = size + 60; // canvas larger than visible orb so rings have room
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(size, size);
+    renderer.setSize(S, S);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
     el.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
-    camera.position.z = 3.0;
+    const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 50);
+    camera.position.z = 3.6;
 
-    // Lighting — tinted to match status color
-    scene.add(new THREE.AmbientLight(pal.ambientHex, 1.0));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
-    keyLight.position.set(2, 2, 3);
-    scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(pal.rimHex, 0.9);
-    rimLight.position.set(-3, -1, -2);
-    scene.add(rimLight);
+    // Lighting
+    scene.add(new THREE.AmbientLight(pal.ambientHex, 0.9));
+    const key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(2, 2.5, 3); scene.add(key);
+    const rim = new THREE.DirectionalLight(pal.rimHex, 1.1);
+    rim.position.set(-3, -1, -2); scene.add(rim);
+    const fill = new THREE.DirectionalLight(pal.core, 0.5);
+    fill.position.set(0, -3, 1); scene.add(fill);
 
-    // Base sphere
-    const baseMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 64, 48),
-      new THREE.MeshPhongMaterial({ color: pal.base, emissive: pal.emissive, specular: pal.specular, shininess: 80 })
+    // ── Inner glowing core ──────────────────────────────
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(0.42, 32, 24),
+      new THREE.MeshBasicMaterial({ color: pal.core, transparent: true, opacity: 0.92 })
     );
-    scene.add(baseMesh);
+    scene.add(core);
 
-    // Wireframe
-    const wireMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1.012, 20, 14),
-      new THREE.MeshBasicMaterial({ color: pal.wire, wireframe: true, transparent: true, opacity: 0.38 })
+    // ── Mid energy layer ────────────────────────────────
+    const mid = new THREE.Mesh(
+      new THREE.SphereGeometry(0.68, 32, 24),
+      new THREE.MeshBasicMaterial({ color: pal.glow, transparent: true, opacity: 0.28 })
     );
-    scene.add(wireMesh);
+    scene.add(mid);
 
-    // Particle cloud
-    const points = new THREE.Points(
-      new THREE.SphereGeometry(1.018, 36, 24),
-      new THREE.PointsMaterial({ color: pal.pts, size: 0.030, transparent: true, opacity: 0.95 })
+    // ── Outer glass sphere ──────────────────────────────
+    const base = new THREE.Mesh(
+      new THREE.SphereGeometry(1.0, 64, 48),
+      new THREE.MeshPhongMaterial({
+        color: pal.base, emissive: pal.emissive, specular: pal.specular,
+        shininess: 140, transparent: true, opacity: 0.82,
+      })
     );
-    scene.add(points);
+    scene.add(base);
 
-    // Outer glow shell
+    // ── Wireframe hex mesh ──────────────────────────────
+    const wire = new THREE.Mesh(
+      new THREE.SphereGeometry(1.018, 22, 14),
+      new THREE.MeshBasicMaterial({ color: pal.wire, wireframe: true, transparent: true, opacity: 0.28 })
+    );
+    scene.add(wire);
+
+    // ── Neural surface nodes (random points on sphere) ──
+    const nodeCount = 120;
+    const nodePos = new Float32Array(nodeCount * 3);
+    for (let i = 0; i < nodeCount; i++) {
+      const th = Math.random() * Math.PI * 2;
+      const ph = Math.acos(2 * Math.random() - 1);
+      const r = 1.022 + Math.random() * 0.02;
+      nodePos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+      nodePos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
+      nodePos[i*3+2] = r * Math.cos(ph);
+    }
+    const nodeGeo = new THREE.BufferGeometry();
+    nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodePos, 3));
+    const nodes = new THREE.Points(nodeGeo,
+      new THREE.PointsMaterial({ color: pal.pts, size: 0.044, transparent: true, opacity: 0.95 })
+    );
+    scene.add(nodes);
+
+    // ── Outer glow shell ────────────────────────────────
     scene.add(new THREE.Mesh(
-      new THREE.SphereGeometry(1.18, 20, 14),
-      new THREE.MeshBasicMaterial({ color: pal.glow, transparent: true, opacity: 0.09, side: THREE.BackSide })
+      new THREE.SphereGeometry(1.22, 20, 14),
+      new THREE.MeshBasicMaterial({ color: pal.glow, transparent: true, opacity: 0.07, side: THREE.BackSide })
     ));
+
+    // ── Orbital ring 1 (equatorial tilt) ────────────────
+    const ring1 = new THREE.Mesh(
+      new THREE.TorusGeometry(1.38, 0.013, 16, 120),
+      new THREE.MeshBasicMaterial({ color: pal.ring1, transparent: true, opacity: 0.70 })
+    );
+    ring1.rotation.x = Math.PI * 0.28;
+    scene.add(ring1);
+
+    // ── Orbital ring 2 (perpendicular tilt) ─────────────
+    const ring2 = new THREE.Mesh(
+      new THREE.TorusGeometry(1.52, 0.008, 16, 120),
+      new THREE.MeshBasicMaterial({ color: pal.ring2, transparent: true, opacity: 0.45 })
+    );
+    ring2.rotation.x = -Math.PI * 0.15;
+    ring2.rotation.z =  Math.PI * 0.22;
+    scene.add(ring2);
+
+    // ── Floating outer particles (scattered around sphere) ──
+    const floatCount = 55;
+    const floatPos = new Float32Array(floatCount * 3);
+    for (let i = 0; i < floatCount; i++) {
+      const th = Math.random() * Math.PI * 2;
+      const ph = Math.acos(2 * Math.random() - 1);
+      const r = 1.55 + Math.random() * 0.55;
+      floatPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+      floatPos[i*3+1] = r * Math.sin(ph) * Math.sin(th);
+      floatPos[i*3+2] = r * Math.cos(ph);
+    }
+    const floatGeo = new THREE.BufferGeometry();
+    floatGeo.setAttribute('position', new THREE.BufferAttribute(floatPos, 3));
+    const floats = new THREE.Points(floatGeo,
+      new THREE.PointsMaterial({ color: pal.core, size: 0.022, transparent: true, opacity: 0.55 })
+    );
+    scene.add(floats);
+
+    // ── Data-pulse dots travelling along ring1 path ──────
+    const pulseCount = 8;
+    const pulsePos = new Float32Array(pulseCount * 3);
+    const pulseDots = new THREE.Points(
+      (() => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pulsePos, 3)); return g; })(),
+      new THREE.PointsMaterial({ color: 0xffffff, size: 0.05, transparent: true, opacity: 0.9 })
+    );
+    scene.add(pulseDots);
 
     let animId;
     const t0 = Date.now();
     const animate = () => {
       animId = requestAnimationFrame(animate);
       const t = (Date.now() - t0) / 1000;
-      wireMesh.rotation.y = t * 0.28;
-      wireMesh.rotation.x = t * 0.09;
-      points.rotation.y  = t * 0.28;
-      points.rotation.x  = t * 0.09;
-      const s = 1 + Math.sin(t * 0.75) * 0.022;
-      baseMesh.scale.setScalar(s);
-      wireMesh.scale.setScalar(s);
-      points.scale.setScalar(s);
+
+      // Breathing
+      const s = 1 + Math.sin(t * 0.80) * 0.020;
+      base.scale.setScalar(s); wire.scale.setScalar(s); nodes.scale.setScalar(s);
+
+      // Core pulse (faster, more dramatic)
+      const cs = 1 + Math.sin(t * 1.6) * 0.14;
+      core.scale.setScalar(cs);
+      mid.scale.setScalar(1 + Math.sin(t * 1.6 + 0.5) * 0.09);
+
+      // Rotations
+      wire.rotation.y   =  t * 0.22;
+      wire.rotation.x   =  t * 0.09;
+      nodes.rotation.y  = -t * 0.28;
+      nodes.rotation.z  =  t * 0.06;
+
+      // Rings orbit
+      ring1.rotation.y  =  t * 0.55;
+      ring2.rotation.y  = -t * 0.38;
+
+      // Float drift
+      floats.rotation.y =  t * 0.10;
+      floats.rotation.x =  t * 0.07;
+
+      // Pulse dots travel along ring1 circle (world-space: tilted by ring1.rotation.x)
+      const R = 1.38;
+      const rx = Math.PI * 0.28 + ring1.rotation.y; // approximate world pos
+      for (let i = 0; i < pulseCount; i++) {
+        const ang = t * 1.4 + (i / pulseCount) * Math.PI * 2;
+        pulsePos[i*3]   =  R * Math.cos(ang);
+        pulsePos[i*3+1] =  R * Math.sin(ang) * Math.cos(Math.PI * 0.28);
+        pulsePos[i*3+2] =  R * Math.sin(ang) * Math.sin(Math.PI * 0.28);
+      }
+      pulseDots.geometry.attributes.position.needsUpdate = true;
+
       renderer.render(scene, camera);
     };
     animate();
@@ -217,10 +317,14 @@ function MeshOrb({ size = 96, status = 'ok' }) {
 
   const pal = ORB_PALETTE[status] || ORB_PALETTE.ok;
   return (
-    <div style={{ animation: 'orbFloat 4.5s ease-in-out infinite' }}>
+    <div style={{
+      animation: 'orbFloat 4.5s ease-in-out infinite',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
       <div ref={containerRef} style={{
-        width: size, height: size, borderRadius: '50%', overflow: 'hidden',
-        filter: `drop-shadow(0 0 26px ${pal.shadow})`,
+        width: size + 60, height: size + 60,
+        filter: `drop-shadow(0 0 28px ${pal.shadow}) drop-shadow(0 0 10px ${pal.shadow})`,
+        marginTop: -16, marginBottom: -16,
       }}/>
     </div>
   );
