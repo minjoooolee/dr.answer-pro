@@ -875,6 +875,178 @@ function SubmitToast() {
   );
 }
 
+// ─── Weekly report screen ───────────────────────────────────────
+function Report() {
+  const TONE = { ok: C.ok, warn: C.warn, alert: C.alert };
+
+  const Bar = ({ pct, tone = 'ok' }) => (
+    <div style={{
+      flex: 1, height: 6, borderRadius: 4, background: 'rgba(14,17,22,0.06)',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        width: `${Math.max(4, Math.min(100, pct))}%`, height: '100%',
+        background: TONE[tone], borderRadius: 4,
+      }}/>
+    </div>
+  );
+
+  const Row = ({ label, pct, tone = 'ok', value, trend }) => (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '46px 1fr auto', alignItems: 'center', gap: 12,
+      padding: '5px 0',
+    }}>
+      <div style={{ fontSize: 12.5, color: C.ink2, fontWeight: 500, letterSpacing: -0.2 }}>{label}</div>
+      <Bar pct={pct} tone={tone}/>
+      <div style={{ fontSize: 12.5, color: C.ink, fontWeight: 600, letterSpacing: -0.2, display: 'flex', alignItems: 'center', gap: 2 }}>
+        {value}
+        {trend && (
+          <span style={{ color: TONE[tone], fontSize: 11, fontWeight: 700 }}>{trend}</span>
+        )}
+      </div>
+    </div>
+  );
+
+  const Badge = ({ tone = 'ok', dot, children }) => {
+    const palette = {
+      ok:    { bg: 'rgba(43,182,115,0.10)',  fg: C.ok },
+      warn:  { bg: 'rgba(224,136,58,0.12)',  fg: C.warn },
+      alert: { bg: 'rgba(209,75,92,0.10)',   fg: C.alert },
+    }[tone];
+    return (
+      <span style={{
+        display: 'inline-flex', alignItems: 'center', gap: 5,
+        padding: '4px 10px', borderRadius: 100,
+        background: palette.bg, color: palette.fg,
+        fontSize: 11.5, fontWeight: 700, letterSpacing: -0.2,
+      }}>
+        <span>{dot}</span>{children}
+      </span>
+    );
+  };
+
+  const StatTile = ({ tone, label, count }) => {
+    const palette = {
+      ok:    { bg: 'rgba(43,182,115,0.08)',  fg: C.ok },
+      warn:  { bg: 'rgba(224,136,58,0.10)',  fg: C.warn },
+      alert: { bg: 'rgba(209,75,92,0.08)',   fg: C.alert },
+    }[tone];
+    return (
+      <div style={{
+        flex: 1, background: palette.bg, borderRadius: 14,
+        padding: '12px 10px 10px', textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 11.5, color: palette.fg, fontWeight: 700, letterSpacing: -0.2 }}>{label}</div>
+        <div style={{ fontSize: 26, color: palette.fg, fontWeight: 800, marginTop: 4, lineHeight: 1, letterSpacing: -0.8 }}>{count}</div>
+        <div style={{ fontSize: 10.5, color: C.mute, marginTop: 4, fontWeight: 500 }}>일</div>
+      </div>
+    );
+  };
+
+  const Card = ({ children, style }) => (
+    <div style={{
+      background: C.card, borderRadius: 18, padding: '16px 18px',
+      boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)', ...style,
+    }}>{children}</div>
+  );
+
+  return (
+    <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 130, background: C.bg }}>
+      {/* 헤더 */}
+      <div style={{ padding: '18px 22px 4px' }}>
+        <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>
+          김민준 (5세) · 주간 기록
+        </div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: C.ink, letterSpacing: -0.8, lineHeight: 1.18, marginTop: 4 }}>
+          Ventilator 추세 기록
+        </div>
+        <div style={{ fontSize: 12, color: C.mute, fontWeight: 500, marginTop: 4, letterSpacing: -0.1 }}>
+          5월 1일 ~ 5월 8일 · 자동 저장됨
+        </div>
+      </div>
+
+      {/* 주간 통계 */}
+      <div style={{ padding: '18px 16px 0', display: 'flex', gap: 10 }}>
+        <StatTile tone="ok"    label="안정" count="5"/>
+        <StatTile tone="warn"  label="관찰" count="2"/>
+        <StatTile tone="alert" label="위험" count="0"/>
+      </div>
+
+      {/* 섹션 타이틀 */}
+      <div style={{ padding: '24px 22px 10px', fontSize: 11.5, fontWeight: 700, color: C.mute, letterSpacing: 1.2, textTransform: 'uppercase' }}>
+        일별 TRIAGE 기록
+      </div>
+
+      {/* 5월 8일 */}
+      <div style={{ padding: '0 16px' }}>
+        <Card>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>5월 8일 (오늘)</div>
+            <Badge tone="warn" dot="🟡">관찰 중</Badge>
+          </div>
+          <Row label="PIP"     pct={45} tone="ok"   value="18 cmH₂O"/>
+          <Row label="VTe"     pct={55} tone="ok"   value="142 mL"/>
+          <Row label="RR"      pct={78} tone="warn" value="28 bpm" trend="↑"/>
+          <Row label="Leak"    pct={32} tone="ok"   value="19 L/m"/>
+          <Row label="MinVent" pct={48} tone="warn" value="3.97" trend="↓"/>
+        </Card>
+      </div>
+
+      {/* 5월 7일 */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <Card>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>5월 7일</div>
+            <Badge tone="ok" dot="🟢">안정</Badge>
+          </div>
+          <Row label="PIP"     pct={42} tone="ok" value="17 cmH₂O"/>
+          <Row label="RR"      pct={58} tone="ok" value="23 bpm"/>
+          <Row label="MinVent" pct={62} tone="ok" value="4.52"/>
+        </Card>
+      </div>
+
+      {/* 주간 AI 추론 요약 */}
+      <div style={{ padding: '18px 16px 0' }}>
+        <Card>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>주간 AI 추론 요약</div>
+            <span style={{
+              fontSize: 10.5, color: C.mute, fontWeight: 600,
+              background: 'rgba(14,17,22,0.05)', padding: '4px 9px', borderRadius: 100,
+              letterSpacing: -0.1,
+            }}>의료진 공유 예정</span>
+          </div>
+          <div style={{
+            borderLeft: `3px solid ${C.accent}`, paddingLeft: 12,
+          }}>
+            <p style={{
+              margin: 0, fontSize: 13, lineHeight: 1.65, color: C.ink2, letterSpacing: -0.2,
+            }}>
+              이번 주 전반적으로 안정적이었습니다. 오늘(5/8) RR이 다소 상승 추세를 보이고 있어 추적이 필요합니다. PIP · VTe · Leak은 기준 범위를 유지하고 있습니다.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+            <div style={{
+              flex: 1, background: 'rgba(75,59,224,0.06)', borderRadius: 12,
+              padding: '10px 12px', textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 11, color: C.mute, fontWeight: 600, letterSpacing: -0.1 }}>다음 외래</div>
+              <div style={{ fontSize: 14.5, color: C.ink, fontWeight: 800, marginTop: 3, letterSpacing: -0.3 }}>5월 15일</div>
+            </div>
+            <div style={{
+              flex: 1, background: 'rgba(43,182,115,0.08)', borderRadius: 12,
+              padding: '10px 12px', textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 11, color: C.mute, fontWeight: 600, letterSpacing: -0.1 }}>PRO 응답률</div>
+              <div style={{ fontSize: 14.5, color: C.ok, fontWeight: 800, marginTop: 3, letterSpacing: -0.3 }}>87%</div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [screen, setScreen] = React.useState('home');
   const [agentSeen, setAgentSeen] = React.useState(false);
@@ -898,9 +1070,7 @@ function App() {
         />
       )}
       {screen === 'record' && <Survey onBack={() => setScreen('home')} onSubmit={handleSubmit}/>}
-      {screen === 'report' && (
-        <div style={{ flex: 1, padding: 60, color: C.mute, textAlign: 'center', background: C.bg }}>리포트 화면 준비중</div>
-      )}
+      {screen === 'report' && <Report/>}
       {screen === 'user' && (
         <div style={{ flex: 1, padding: 60, color: C.mute, textAlign: 'center', background: C.bg }}>내정보 화면 준비중</div>
       )}
