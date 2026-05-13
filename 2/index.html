@@ -34,6 +34,14 @@
     60%  { opacity: 1;   transform: scaleY(1.08); }
     100% { opacity: 1;   transform: scaleY(1); }
   }
+  @keyframes radarPulse {
+    0%   { transform: scale(0.6); opacity: 0.55; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  @keyframes fadeUp {
+    0%   { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
     0%   { transform: scale(0.8); opacity: 0.7; }
     100% { transform: scale(2.4); opacity: 0; }
   }
@@ -1526,7 +1534,495 @@ function MyInfo() {
   );
 }
 
+// ─── Onboarding / Auth flow ─────────────────────────────────────
+function Auth({ onComplete }) {
+  // welcome, login, phone, verify, patient-code, hospital, guardian, pairing, done
+  const [step, setStep] = React.useState('welcome');
+  const [mode, setMode] = React.useState('signup');
+  const [phone, setPhone] = React.useState('');
+  const [otp,   setOtp]   = React.useState('');
+  const [patientCode, setPatientCode] = React.useState('');
+  const [guardian, setGuardian] = React.useState({ name: '', relation: '어머니', tel: '' });
+  const [pair, setPair] = React.useState({ phase: 'searching', pct: 0 });
+
+  const Wrap = ({ children, dark = false, top }) => (
+    <div style={{
+      flex: 1, display: 'flex', flexDirection: 'column',
+      background: dark ? '#0D0F14' : C.bg, color: dark ? '#fff' : C.ink,
+      paddingTop: 64, paddingBottom: 28,
+    }}>
+      {top}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 22px' }}>
+        {children}
+      </div>
+    </div>
+  );
+
+  const StepHeader = ({ progress, onBack }) => (
+    <div style={{ padding: '4px 22px 14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        {onBack && (
+          <button onClick={onBack} style={{
+            background: 'none', border: 'none', cursor: 'pointer', padding: 2,
+            display: 'inline-flex',
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 6l-6 6 6 6" stroke={C.ink} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
+        <div style={{ flex: 1, height: 4, background: 'rgba(14,17,22,0.08)', borderRadius: 4, overflow: 'hidden' }}>
+          <div style={{
+            width: `${progress * 100}%`, height: '100%', background: C.ink,
+            borderRadius: 4, transition: 'width 0.35s ease',
+          }}/>
+        </div>
+      </div>
+    </div>
+  );
+
+  const Title = ({ children, sub }) => (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, letterSpacing: -0.6, lineHeight: 1.25 }}>
+        {children}
+      </div>
+      {sub && (
+        <div style={{ fontSize: 13, color: C.mute, fontWeight: 500, marginTop: 6, letterSpacing: -0.1, lineHeight: 1.5 }}>
+          {sub}
+        </div>
+      )}
+    </div>
+  );
+
+  const Field = ({ label, children, hint }) => (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 700, color: C.mute, letterSpacing: 0.8, marginBottom: 8, textTransform: 'uppercase' }}>
+        {label}
+      </div>
+      {children}
+      {hint && (
+        <div style={{ fontSize: 11.5, color: C.mute, marginTop: 6, letterSpacing: -0.1 }}>{hint}</div>
+      )}
+    </div>
+  );
+
+  const inputBox = {
+    width: '100%', padding: '14px 16px', fontSize: 15, fontWeight: 600,
+    color: C.ink, letterSpacing: -0.3,
+    background: '#fff', border: '1px solid rgba(14,17,22,0.10)',
+    borderRadius: 14, outline: 'none', fontFamily: 'inherit',
+  };
+
+  const CTA = ({ onClick, disabled, children, variant = 'primary' }) => {
+    const styles = {
+      primary:   { bg: C.ink,  fg: '#fff' },
+      secondary: { bg: 'rgba(14,17,22,0.04)', fg: C.ink, border: '1px solid rgba(14,17,22,0.10)' },
+    }[variant];
+    return (
+      <button onClick={onClick} disabled={disabled} style={{
+        width: '100%', padding: '16px 0', borderRadius: 16,
+        border: styles.border || 0, cursor: disabled ? 'not-allowed' : 'pointer',
+        background: styles.bg, color: styles.fg, opacity: disabled ? 0.35 : 1,
+        fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
+        boxShadow: variant === 'primary' && !disabled ? '0 6px 18px rgba(14,17,22,0.18)' : 'none',
+      }}>{children}</button>
+    );
+  };
+
+  // ── WELCOME ───────────────────────────────────────────────────
+  if (step === 'welcome') {
+    return (
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        background: '#0D0F14', color: '#fff',
+        padding: '90px 28px 32px',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+          <MeshOrb size={68} status="ok"/>
+        </div>
+        <div style={{ textAlign: 'center', marginBottom: 'auto' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>
+            Dr.Answer PRO Companion
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.8, lineHeight: 1.25 }}>
+            소아 만성호흡부전 환아<br/>보호자를 위한 AI 동반자
+          </div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 14, lineHeight: 1.55, letterSpacing: -0.1 }}>
+            인공호흡기 상태를 실시간 모니터링하고<br/>이상 신호를 의료진과 함께 추적해요.
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 32 }}>
+          <button onClick={() => { setMode('signup'); setStep('phone'); }} style={{
+            width: '100%', padding: '16px 0', borderRadius: 16, border: 0, cursor: 'pointer',
+            background: '#fff', color: C.ink, fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
+          }}>새로 시작하기</button>
+          <button onClick={() => { setMode('login'); setStep('phone'); }} style={{
+            width: '100%', padding: '14px 0', background: 'transparent', border: 0, cursor: 'pointer',
+            color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 600, letterSpacing: -0.2,
+          }}>이미 계정이 있어요</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── PHONE ─────────────────────────────────────────────────────
+  if (step === 'phone') {
+    const formatted = phone.replace(/[^0-9]/g, '').slice(0, 11);
+    const disp = formatted.replace(/^(\d{3})(\d{0,4})(\d{0,4}).*/, (m,a,b,c) => [a,b,c].filter(Boolean).join('-'));
+    const valid = formatted.length >= 10;
+    return (
+      <Wrap top={<StepHeader progress={mode === 'login' ? 0.5 : 0.14} onBack={() => setStep('welcome')}/>}>
+        <Title sub={mode === 'login' ? '로그인을 위해 번호를 입력해 주세요.' : '본인 인증을 위해 사용해요. 개인정보는 암호화 저장됩니다.'}>
+          {mode === 'login' ? '로그인' : '휴대폰 번호로\n시작하기'}
+        </Title>
+        <Field label="휴대폰 번호">
+          <input
+            value={disp}
+            onChange={e => setPhone(e.target.value)}
+            placeholder="010-0000-0000"
+            inputMode="numeric"
+            style={inputBox}
+          />
+        </Field>
+        <div style={{ flex: 1 }}/>
+        <CTA disabled={!valid} onClick={() => setStep('verify')}>인증번호 받기</CTA>
+      </Wrap>
+    );
+  }
+
+  // ── VERIFY ────────────────────────────────────────────────────
+  if (step === 'verify') {
+    const valid = otp.length === 6;
+    return (
+      <Wrap top={<StepHeader progress={mode === 'login' ? 0.85 : 0.28} onBack={() => setStep('phone')}/>}>
+        <Title sub={`${phone.replace(/[^0-9]/g,'').replace(/^(\d{3})(\d{4})(\d{4}).*/, '$1-$2-$3')}로 전송한 6자리 코드를 입력해 주세요.`}>
+          인증번호를 입력해 주세요
+        </Title>
+        <Field label="인증번호" hint="문자가 오지 않으면 1분 후 재요청할 수 있어요.">
+          <input
+            value={otp}
+            onChange={e => setOtp(e.target.value.replace(/[^0-9]/g,'').slice(0,6))}
+            placeholder="123456"
+            inputMode="numeric"
+            style={{ ...inputBox, letterSpacing: 8, textAlign: 'center', fontWeight: 800, fontSize: 22 }}
+          />
+        </Field>
+        <div style={{ flex: 1 }}/>
+        <CTA disabled={!valid} onClick={() => {
+          if (mode === 'login') { onComplete(); }
+          else { setStep('patient-code'); }
+        }}>{mode === 'login' ? '로그인' : '인증 완료 · 계속'}</CTA>
+      </Wrap>
+    );
+  }
+
+  // ── PATIENT CODE ──────────────────────────────────────────────
+  if (step === 'patient-code') {
+    const cleaned = patientCode.replace(/[^A-Za-z0-9]/g,'').slice(0,8).toUpperCase();
+    const valid = cleaned.length >= 6;
+    return (
+      <Wrap top={<StepHeader progress={0.42} onBack={() => setStep('verify')}/>}>
+        <Title sub="병원에서 받으신 환아 등록 코드를 입력하면 처방 정보가 자동으로 불러와져요.">
+          환아 코드를 입력해 주세요
+        </Title>
+        <Field label="환아 코드" hint="외래 진료 시 발급된 카드에서 확인할 수 있어요.">
+          <input
+            value={cleaned}
+            onChange={e => setPatientCode(e.target.value)}
+            placeholder="예: MJ5K28"
+            style={{ ...inputBox, letterSpacing: 6, textAlign: 'center', fontWeight: 800, fontSize: 20, textTransform: 'uppercase' }}
+          />
+        </Field>
+        <div style={{
+          background: 'rgba(75,59,224,0.06)', borderRadius: 14, padding: '12px 14px',
+          display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 4,
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ marginTop: 1, flexShrink: 0 }}>
+            <circle cx="12" cy="12" r="9" stroke={C.accent} strokeWidth="1.6"/>
+            <path d="M12 8v5M12 16v.5" stroke={C.accent} strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
+          <div style={{ fontSize: 12, color: C.ink2, lineHeight: 1.55, letterSpacing: -0.1 }}>
+            코드가 없으신가요? 담당 의료진에게 문의하시면 발급받으실 수 있어요.
+          </div>
+        </div>
+        <div style={{ flex: 1 }}/>
+        <CTA disabled={!valid} onClick={() => setStep('hospital')}>병원 정보 불러오기</CTA>
+      </Wrap>
+    );
+  }
+
+  // ── HOSPITAL PREFILLED ────────────────────────────────────────
+  if (step === 'hospital') {
+    const Row = ({ label, value, mono = false }) => (
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '11px 0', borderBottom: `1px solid ${C.line}`,
+      }}>
+        <span style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>{label}</span>
+        <span style={{
+          fontSize: 13.5, color: C.ink, fontWeight: 700, letterSpacing: -0.3,
+          fontFamily: mono ? 'ui-monospace, SFMono-Regular, monospace' : 'inherit',
+        }}>{value}</span>
+      </div>
+    );
+    return (
+      <Wrap top={<StepHeader progress={0.56} onBack={() => setStep('patient-code')}/>}>
+        <Title sub="병원 시스템에서 자동으로 등록된 정보입니다. 변경이 필요하면 외래에서 의료진에게 요청해 주세요.">
+          이 정보가 맞나요?
+        </Title>
+        <div style={{
+          background: C.card, borderRadius: 18, padding: '14px 18px',
+          boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+          animation: 'fadeUp 0.45s ease both',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '3px 10px', borderRadius: 100,
+              background: 'rgba(75,59,224,0.10)', color: C.accent,
+              fontSize: 10.5, fontWeight: 700, letterSpacing: 0.4,
+            }}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                <path d="M5 13l4 4L19 7" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              HOSPITAL VERIFIED
+            </span>
+          </div>
+          <Row label="환아"          value="김민준 · 5세 (남)"/>
+          <Row label="진단명"        value="만성호흡부전 (소아)"/>
+          <Row label="진료 병원"     value="신촌세브란스병원"/>
+          <Row label="주치의"        value="호흡기내과 이진환 교수"/>
+          <Row label="처방 환기기"   value="ResMed Astral 150"/>
+          <Row label="환기 모드"     value="AVAPS-AE (BiPAP)"/>
+          <Row label="IPAP / EPAP"   value="18 / 6 cmH₂O" mono/>
+          <Row label="BPM · Ti · FiO₂" value="16 · 0.9s · 21%" mono/>
+        </div>
+        <div style={{ flex: 1, minHeight: 12 }}/>
+        <CTA onClick={() => setStep('guardian')}>네, 맞아요 · 계속</CTA>
+        <div style={{ height: 8 }}/>
+        <CTA variant="secondary" onClick={() => setStep('patient-code')}>정보가 달라요</CTA>
+      </Wrap>
+    );
+  }
+
+  // ── GUARDIAN ──────────────────────────────────────────────────
+  if (step === 'guardian') {
+    const valid = guardian.name.trim().length >= 1 && guardian.tel.replace(/[^0-9]/g,'').length >= 10;
+    const relations = ['어머니','아버지','조부모','기타'];
+    return (
+      <Wrap top={<StepHeader progress={0.72} onBack={() => setStep('hospital')}/>}>
+        <Title sub="민준이의 보호자 정보를 알려주세요. 응급 시 의료진이 연락할 수 있어요.">
+          보호자 정보를{'\n'}입력해 주세요
+        </Title>
+        <Field label="이름">
+          <input
+            value={guardian.name}
+            onChange={e => setGuardian({ ...guardian, name: e.target.value })}
+            placeholder="예: 김지영"
+            style={inputBox}
+          />
+        </Field>
+        <Field label="관계">
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {relations.map(r => {
+              const active = guardian.relation === r;
+              return (
+                <button key={r} onClick={() => setGuardian({ ...guardian, relation: r })} style={{
+                  padding: '10px 16px', borderRadius: 100, cursor: 'pointer',
+                  background: active ? C.ink : '#fff',
+                  border: `1px solid ${active ? C.ink : 'rgba(14,17,22,0.12)'}`,
+                  color: active ? '#fff' : C.ink,
+                  fontSize: 13, fontWeight: 600, letterSpacing: -0.2,
+                }}>{r}</button>
+              );
+            })}
+          </div>
+        </Field>
+        <Field label="응급 연락처" hint="기본 인증 번호와 같다면 비워두셔도 돼요.">
+          <input
+            value={guardian.tel}
+            onChange={e => setGuardian({ ...guardian, tel: e.target.value })}
+            placeholder="010-0000-0000"
+            inputMode="numeric"
+            style={inputBox}
+          />
+        </Field>
+        <div style={{ flex: 1 }}/>
+        <CTA disabled={!valid} onClick={() => { setPair({ phase: 'searching', pct: 0 }); setStep('pairing'); }}>
+          다음 · 인공호흡기 연결
+        </CTA>
+      </Wrap>
+    );
+  }
+
+  // ── PAIRING ───────────────────────────────────────────────────
+  if (step === 'pairing') {
+    return <Pairing pair={pair} setPair={setPair} onDone={() => setStep('done')} onBack={() => setStep('guardian')} StepHeader={StepHeader} Title={Title} CTA={CTA}/>;
+  }
+
+  // ── DONE ──────────────────────────────────────────────────────
+  if (step === 'done') {
+    return (
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        background: C.bg, paddingTop: 90, paddingBottom: 28, padding: '90px 28px 28px',
+      }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+          <div style={{ marginBottom: 26, animation: 'fadeUp 0.5s ease both' }}>
+            <MeshOrb size={56} status="ok"/>
+          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, letterSpacing: -0.6, lineHeight: 1.3, animation: 'fadeUp 0.5s 0.1s both' }}>
+            준비가 끝났어요 🎉
+          </div>
+          <div style={{ fontSize: 13.5, color: C.mute, marginTop: 10, lineHeight: 1.6, letterSpacing: -0.1, animation: 'fadeUp 0.5s 0.18s both' }}>
+            {guardian.name || '민준이'} {guardian.relation || '어머니'}, 환영합니다.<br/>
+            지금부터 민준이의 인공호흡기 상태를<br/>실시간으로 함께 살펴드릴게요.
+          </div>
+        </div>
+        <CTA onClick={onComplete}>홈으로 이동</CTA>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function Pairing({ pair, setPair, onDone, onBack, StepHeader, Title, CTA }) {
+  React.useEffect(() => {
+    let phaseTimer, pctTimer;
+    if (pair.phase === 'searching') {
+      phaseTimer = setTimeout(() => setPair({ phase: 'found', pct: 0 }), 1800);
+    } else if (pair.phase === 'found') {
+      phaseTimer = setTimeout(() => setPair({ phase: 'connecting', pct: 0 }), 900);
+    } else if (pair.phase === 'connecting') {
+      pctTimer = setInterval(() => {
+        setPair(p => {
+          if (p.phase !== 'connecting') return p;
+          const np = Math.min(100, p.pct + 7);
+          if (np >= 100) {
+            clearInterval(pctTimer);
+            setTimeout(() => setPair({ phase: 'synced', pct: 100 }), 350);
+          }
+          return { ...p, pct: np };
+        });
+      }, 120);
+    }
+    return () => { clearTimeout(phaseTimer); clearInterval(pctTimer); };
+  }, [pair.phase]);
+
+  const phaseText = {
+    searching:  { title: '인공호흡기를 찾고 있어요', sub: 'ResMed Astral 150을 켜고 휴대폰 가까이에 두세요.' },
+    found:      { title: '기기를 발견했어요',         sub: '연결을 시작할게요.' },
+    connecting: { title: '연결 중',                  sub: '안전한 채널로 동기화 중이에요.' },
+    synced:     { title: '연결이 완료됐어요',         sub: '첫 동기화가 끝났어요. 곧 데이터가 표시돼요.' },
+  }[pair.phase];
+
+  return (
+    <div style={{
+      flex: 1, display: 'flex', flexDirection: 'column',
+      background: C.bg, paddingTop: 64, paddingBottom: 28,
+    }}>
+      <StepHeader progress={pair.phase === 'synced' ? 1 : 0.86} onBack={pair.phase === 'searching' ? onBack : undefined}/>
+      <div style={{ padding: '0 22px' }}>
+        <Title sub={phaseText.sub}>{phaseText.title}</Title>
+      </div>
+
+      {/* Radar */}
+      <div style={{
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', minHeight: 220,
+      }}>
+        {pair.phase === 'searching' && (
+          <>
+            {[0, 0.6, 1.2].map(d => (
+              <div key={d} style={{
+                position: 'absolute', width: 120, height: 120, borderRadius: '50%',
+                border: `2px solid ${C.accent}`,
+                animation: `radarPulse 1.8s ease-out ${d}s infinite`,
+              }}/>
+            ))}
+            <div style={{
+              width: 80, height: 80, borderRadius: '50%',
+              background: 'rgba(75,59,224,0.10)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                <path d="M2 8c4-4 16-4 20 0M5 11c3-3 11-3 14 0M8 14c2-2 6-2 8 0" stroke={C.accent} strokeWidth="1.8" strokeLinecap="round"/>
+                <circle cx="12" cy="18" r="1.5" fill={C.accent}/>
+              </svg>
+            </div>
+          </>
+        )}
+        {pair.phase !== 'searching' && (
+          <div style={{
+            background: C.card, borderRadius: 20, padding: '18px 22px',
+            boxShadow: '0 6px 24px rgba(14,17,22,0.10)', width: 'calc(100% - 44px)',
+            animation: 'fadeUp 0.4s ease both',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 12,
+                background: pair.phase === 'synced' ? 'rgba(43,182,115,0.12)' : 'rgba(75,59,224,0.10)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              }}>
+                {pair.phase === 'synced' ? (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 13l4 4L19 7" stroke={C.ok} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="6" width="18" height="14" rx="2" stroke={C.accent} strokeWidth="1.8"/>
+                    <path d="M7 4h10M6 11l2 3 2-4 2 4 2-3" stroke={C.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>ResMed Astral 150</div>
+                <div style={{ fontSize: 11.5, color: C.mute, marginTop: 2, letterSpacing: -0.1 }}>
+                  S/N: AS-{Math.floor(Math.random()*900+100)}KR · BLE
+                </div>
+              </div>
+            </div>
+            {pair.phase === 'connecting' && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ height: 6, borderRadius: 6, background: 'rgba(14,17,22,0.06)', overflow: 'hidden' }}>
+                  <div style={{
+                    width: `${pair.pct}%`, height: '100%', background: C.accent,
+                    borderRadius: 6, transition: 'width 0.18s ease',
+                  }}/>
+                </div>
+                <div style={{ fontSize: 11, color: C.mute, marginTop: 6, fontWeight: 600, letterSpacing: -0.1 }}>
+                  {pair.pct}% · 보안 핸드셰이크 중
+                </div>
+              </div>
+            )}
+            {pair.phase === 'synced' && (
+              <div style={{
+                marginTop: 12, padding: '10px 12px',
+                background: 'rgba(43,182,115,0.08)', borderRadius: 12,
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: C.ok, animation: 'pulseDot 1.4s ease-in-out infinite' }}/>
+                <span style={{ fontSize: 11.5, color: C.ok, fontWeight: 700, letterSpacing: -0.1 }}>
+                  동기화 활성 · 10분 주기
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: '0 22px' }}>
+        <CTA disabled={pair.phase !== 'synced'} onClick={onDone}>
+          {pair.phase === 'synced' ? '완료' : '연결 중...'}
+        </CTA>
+      </div>
+    </div>
+  );
+}
+
 function App() {
+  const [authed, setAuthed] = React.useState(false);
   const [screen, setScreen] = React.useState('home');
   const [agentSeen, setAgentSeen] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
@@ -1538,6 +2034,14 @@ function App() {
       setScreen('home');
     }, 1100);
   };
+
+  if (!authed) {
+    return (
+      <IOSDevice>
+        <Auth onComplete={() => setAuthed(true)}/>
+      </IOSDevice>
+    );
+  }
 
   return (
     <IOSDevice>
