@@ -1000,7 +1000,7 @@ function NutritionCard({ dark, accent = '#41d2b4' }) {
 }
 
 const VITALS = [
-  { key:'bp',   label:'혈압',       unit:'mmHg',  icon:'🩸', normal:'90–130 / 60–80', normalLow:90, normalHigh:130, yMin:80,  yMax:150, accent:'#ee3f60' },
+  { key:'bp',   label:'혈압',       unit:'mmHg',  icon:'🩸', normal:'90–130 / 60–80', normalLow:90, normalHigh:130, diaNormalLow:60, diaNormalHigh:80, yMin:55,  yMax:150, accent:'#ee3f60' },
   { key:'hr',   label:'맥박',       unit:'bpm',   icon:'❤️', normal:'60–100',          normalLow:60, normalHigh:100, yMin:50,  yMax:110, accent:'#7d50f0' },
   { key:'spo2', label:'산소포화도', unit:'%',     icon:'🫁', normal:'≥95',             normalLow:95, normalHigh:100, yMin:90,  yMax:100, accent:'#41d2b4' },
   { key:'temp', label:'체온',       unit:'°C',    icon:'🌡️', normal:'36.0–37.4',       normalLow:36, normalHigh:37.4, yMin:35.5, yMax:38, accent:'#f59e0b' },
@@ -1057,11 +1057,13 @@ const VITAL_MONTHLY_NOTES = [
   '특별한 기립성 저혈압 또는 빈맥 패턴은 관찰되지 않음',
 ];
 
-function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHigh, selectedIdx, times }) {
+function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHigh, selectedIdx, times, secondary }) {
   const W = 280, H = 78, P = 8, BOT = 12, LBL = 30;
   const pts = values.map(v => (v === null || v === undefined ? null : v));
-  const min = yMin !== undefined ? yMin : Math.min(...pts.filter(v => v != null));
-  const max = yMax !== undefined ? yMax : Math.max(...pts.filter(v => v != null));
+  const secPts = (secondary && secondary.values) ? secondary.values.map(v => (v === null || v === undefined ? null : v)) : null;
+  const allPts = secPts ? [...pts, ...secPts] : pts;
+  const min = yMin !== undefined ? yMin : Math.min(...allPts.filter(v => v != null));
+  const max = yMax !== undefined ? yMax : Math.max(...allPts.filter(v => v != null));
   const span = max - min || 1;
   const chartLeft = LBL;
   const chartRight = W - P;
@@ -1070,7 +1072,9 @@ function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHig
   const yOf = v => chartBottom - ((v - min) / span) * (chartBottom - chartTop);
   const xs = pts.map((_, i) => chartLeft + (i * (chartRight - chartLeft)) / (pts.length - 1));
   const ys = pts.map(v => v == null ? null : yOf(v));
+  const ys2 = secPts ? secPts.map(v => v == null ? null : yOf(v)) : null;
   const linePath = pts.map((v, i) => v == null ? null : `${ys[i-1]==null||i===0?'M':'L'} ${xs[i]} ${ys[i]}`).filter(Boolean).join(' ');
+  const linePath2 = ys2 ? secPts.map((v, i) => v == null ? null : `${ys2[i-1]==null||i===0?'M':'L'} ${xs[i]} ${ys2[i]}`).filter(Boolean).join(' ') : null;
   const areaPath = (() => {
     const segs = [];
     let started = false;
@@ -1087,7 +1091,12 @@ function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHig
   })();
   const bandTopY = normalHigh != null ? yOf(Math.min(normalHigh, max)) : null;
   const bandBottomY = normalLow != null ? yOf(Math.max(normalLow, min)) : null;
+  const secBandTopY = secondary && secondary.normalHigh != null ? yOf(Math.min(secondary.normalHigh, max)) : null;
+  const secBandBottomY = secondary && secondary.normalLow != null ? yOf(Math.max(secondary.normalLow, min)) : null;
   const formatTick = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
+  const bandFill = dark?'rgba(65,210,180,0.10)':'rgba(65,210,180,0.13)';
+  const bandStroke = dark?'rgba(65,210,180,0.55)':'rgba(45,180,150,0.6)';
+  const bandLabelFill = dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)';
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', display:'block' }}>
       <defs>
@@ -1096,25 +1105,36 @@ function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHig
           <stop offset="100%" stopColor={accent} stopOpacity="0" />
         </linearGradient>
       </defs>
-      {/* Normal range band */}
+      {/* Primary normal range band */}
       {bandTopY != null && bandBottomY != null && (
         <>
-          <rect x={chartLeft} y={bandTopY} width={chartRight - chartLeft} height={Math.max(0, bandBottomY - bandTopY)}
-                fill={dark?'rgba(65,210,180,0.10)':'rgba(65,210,180,0.13)'} />
-          <line x1={chartLeft} y1={bandTopY} x2={chartRight} y2={bandTopY}
-                stroke={dark?'rgba(65,210,180,0.55)':'rgba(45,180,150,0.6)'} strokeWidth="1" strokeDasharray="3 3" />
-          <line x1={chartLeft} y1={bandBottomY} x2={chartRight} y2={bandBottomY}
-                stroke={dark?'rgba(65,210,180,0.55)':'rgba(45,180,150,0.6)'} strokeWidth="1" strokeDasharray="3 3" />
-          <text x={chartLeft - 4} y={bandTopY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700"
-                fill={dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)'}>{formatTick(normalHigh)}</text>
-          <text x={chartLeft - 4} y={bandBottomY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700"
-                fill={dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)'}>{formatTick(normalLow)}</text>
-          <text x={chartRight} y={bandTopY - 3} textAnchor="end" fontFamily="Pretendard" fontSize="8" fontWeight="700"
-                fill={dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)'}>정상 범위</text>
+          <rect x={chartLeft} y={bandTopY} width={chartRight - chartLeft} height={Math.max(0, bandBottomY - bandTopY)} fill={bandFill} />
+          <line x1={chartLeft} y1={bandTopY} x2={chartRight} y2={bandTopY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <line x1={chartLeft} y1={bandBottomY} x2={chartRight} y2={bandBottomY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <text x={chartLeft - 4} y={bandTopY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(normalHigh)}</text>
+          <text x={chartLeft - 4} y={bandBottomY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(normalLow)}</text>
+          <text x={chartRight} y={bandTopY - 3} textAnchor="end" fontFamily="Pretendard" fontSize="8" fontWeight="700" fill={bandLabelFill}>정상 범위</text>
+        </>
+      )}
+      {/* Secondary normal range band */}
+      {secBandTopY != null && secBandBottomY != null && (
+        <>
+          <rect x={chartLeft} y={secBandTopY} width={chartRight - chartLeft} height={Math.max(0, secBandBottomY - secBandTopY)} fill={bandFill} />
+          <line x1={chartLeft} y1={secBandTopY} x2={chartRight} y2={secBandTopY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <line x1={chartLeft} y1={secBandBottomY} x2={chartRight} y2={secBandBottomY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <text x={chartLeft - 4} y={secBandTopY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(secondary.normalHigh)}</text>
+          <text x={chartLeft - 4} y={secBandBottomY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(secondary.normalLow)}</text>
         </>
       )}
       <path d={areaPath} fill={`url(#vsfill-${accent.replace('#','')})`} />
       <path d={linePath} fill="none" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      {linePath2 && (
+        <path d={linePath2} fill="none" stroke={accent} strokeOpacity="0.65" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" strokeLinejoin="round" />
+      )}
+      {secPts && secPts.map((v, i) => v == null ? null : (
+        <circle key={`s${i}`} cx={xs[i]} cy={ys2[i]} r={selectedIdx === i ? 3.4 : 2.8}
+                fill={dark?'#1a2c28':'#fff'} stroke={accent} strokeWidth={selectedIdx === i ? 2 : 1.6} />
+      ))}
       {pts.map((v, i) => v == null ? null : (
         <g key={i}>
           {selectedIdx === i && (
@@ -3263,6 +3283,7 @@ function PROScreen({ tweaks, setTweak }) {
                       if (v.key === 'bp') return r.bpSys;
                       return r[v.key];
                     });
+                    const diaSeries = v.key === 'bp' ? combinedReadings.map(r => r.recorded ? r.bpDia : null) : null;
                     const times = combinedReadings.map(r => r.time);
                     const selReading = combinedReadings.find(r => r.time === selectedReadingTime);
                     const fallback = [...VITAL_READINGS_TODAY].reverse().find(r => r.recorded) || VITAL_READINGS_TODAY[0];
@@ -3291,10 +3312,23 @@ function PROScreen({ tweaks, setTweak }) {
                             {reading.recorded ? `${reading.time} 측정` : `오늘 ${recordedCount}회 측정`}
                           </span>
                         </div>
+                        {v.key === 'bp' && (
+                          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:6 }}>
+                            <span style={{ display:'flex', alignItems:'center', gap:5, fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>
+                              <span style={{ display:'inline-block', width:14, height:2, borderRadius:1, background:v.accent }} />
+                              수축기
+                            </span>
+                            <span style={{ display:'flex', alignItems:'center', gap:5, fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>
+                              <svg width="14" height="2"><line x1="0" y1="1" x2="14" y2="1" stroke={v.accent} strokeOpacity="0.65" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" /></svg>
+                              이완기
+                            </span>
+                          </div>
+                        )}
                         <VitalSparkline values={series} accent={v.accent} dark={dark}
                           yMin={v.yMin} yMax={v.yMax} times={times}
                           normalLow={v.normalLow} normalHigh={v.normalHigh}
-                          selectedIdx={selReading && selReading.recorded ? selectedIdxInCombined : null} />
+                          selectedIdx={selReading && selReading.recorded ? selectedIdxInCombined : null}
+                          secondary={diaSeries ? { values: diaSeries, normalLow: v.diaNormalLow, normalHigh: v.diaNormalHigh } : null} />
                       </div>
                     );
                   })}
