@@ -1279,7 +1279,7 @@ function Report() {
 }
 
 // ─── My Info screen ─────────────────────────────────────────────
-function MyInfo() {
+function MyInfo({ onLogout }) {
   const initial = {
     childName: '김민준', age: '5', condition: '만성호흡부전',
     hospital: '신촌세브란스병원', doctor: '호흡기내과 이진환 교수',
@@ -1519,6 +1519,26 @@ function MyInfo() {
         <KVRow label="응급 연락처" field="emergency"/>
         <KVRow label="동기화 주기" field="sync" last/>
       </Section>
+
+      {/* 로그아웃 */}
+      <div style={{ padding: '28px 22px 8px' }}>
+        <button onClick={onLogout} disabled={editing} style={{
+          width: '100%', padding: '14px 0', borderRadius: 14,
+          background: '#fff', border: '1px solid rgba(14,17,22,0.10)',
+          cursor: editing ? 'not-allowed' : 'pointer',
+          color: C.alert, fontSize: 13.5, fontWeight: 700, letterSpacing: -0.2,
+          opacity: editing ? 0.4 : 1,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M10 4H6a2 2 0 00-2 2v12a2 2 0 002 2h4M16 16l4-4-4-4M20 12H10" stroke={C.alert} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          로그아웃
+        </button>
+        <div style={{ fontSize: 11, color: C.mute2, textAlign: 'center', marginTop: 12, letterSpacing: -0.1 }}>
+          Dr.Answer PRO Companion · v1.0.0
+        </div>
+      </div>
 
       {savedFlash && (
         <div style={{
@@ -2054,7 +2074,11 @@ function App() {
       )}
       {screen === 'record' && <Survey onBack={() => setScreen('home')} onSubmit={handleSubmit}/>}
       {screen === 'report' && <Report/>}
-      {screen === 'user' && <MyInfo/>}
+      {screen === 'user' && <MyInfo onLogout={() => {
+        setAuthed(false);
+        setScreen('home');
+        setAgentSeen(false);
+      }}/>}
       <TabBar active={screen === 'home' ? 'home' : screen} onChange={setScreen}/>
       {submitting && <SubmitToast/>}
     </IOSDevice>
