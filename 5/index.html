@@ -1258,40 +1258,40 @@ const CONSULTATIONS = [
     department: '종양내과',
     doctor: '김정훈 교수',
     color: '#7d50f0',
-    summary: 'FOLFOX 6차 항암 치료 진행 상황을 점검했습니다. 말초신경병증(손발 저림) 증상에 대해 논의했으며, 다음 주기 용량을 80%로 조정하기로 했습니다. 영양 상태 양호, 체중 감소 적정 범위 내로 평가되었습니다.',
+    summary: 'SOX 6차 항암 치료 진행 상황을 점검했습니다. 말초신경병증(손발 저림) 증상에 대해 논의했으며, 다음 주기 옥살리플라틴 용량을 80%로 조정하기로 했습니다. 영양 상태 양호, 체중 감소 적정 범위 내로 평가되었습니다.',
     keypoints: ['항암 6차 진행', '용량 80% 조정', '신경병증 모니터링'],
   },
   {
     date: '2026.04.23',
-    department: '대장암 센터',
+    department: '위암 센터',
     doctor: '이수진 교수',
     color: '#ee3f60',
-    summary: '수술 후 6개월 추적 검사 결과를 공유했습니다. CEA 수치가 정상 범위로 안정적이며, 복부 CT상 재발 소견 없습니다. 일상 생활 복귀가 가능하며, 다음 추적 검사는 3개월 후로 예정되었습니다.',
-    keypoints: ['CEA 정상 범위', '재발 소견 없음', '3개월 후 추적'],
+    summary: '위 절제술 후 6개월 추적 검사 결과를 공유했습니다. CEA·CA72-4 수치가 정상 범위로 안정적이며, 복부 CT상 문합부 및 복강 내 재발 소견 없습니다. 일상 생활 복귀가 가능하며, 다음 추적 검사는 3개월 후로 예정되었습니다.',
+    keypoints: ['CEA·CA72-4 정상', '재발 소견 없음', '3개월 후 추적'],
   },
   {
     date: '2026.04.10',
     department: '종양내과',
     doctor: '김정훈 교수',
     color: '#7d50f0',
-    summary: 'FOLFOX 5차 항암 치료 후 부작용 면담을 진행했습니다. 메스꺼움은 호전되었으나 피로감 지속됩니다. 항구토제 처방 변경, 충분한 수분 섭취와 휴식 권고하였습니다.',
-    keypoints: ['5차 항암 완료', '항구토제 변경', '피로 관리'],
+    summary: 'SOX 5차 항암 치료 후 부작용 면담을 진행했습니다. 메스꺼움과 식욕 부진은 호전되었으나 피로감과 손발 저림이 지속됩니다. 항구토제 처방 변경, 충분한 수분 섭취와 휴식 권고하였습니다.',
+    keypoints: ['5차 항암 완료', '항구토제 변경', '피로·신경병증 관리'],
   },
   {
     date: '2026.03.28',
     department: '영양 클리닉',
     doctor: '박지영 영양사',
     color: '#41d2b4',
-    summary: '항암 치료 중 영양 관리 상담을 진행했습니다. 단백질 섭취 부족 우려가 있어, 일일 단백질 1.2g/kg 목표 설정했습니다. 식단 일지 작성을 통해 패턴을 점검하기로 했습니다.',
-    keypoints: ['단백질 목표 설정', '식단 일지 시작', '소량 다회 식사'],
+    summary: '위 절제 후 영양 관리 상담을 진행했습니다. 위 용적 감소로 단백질·철분 섭취 부족이 우려되어, 일일 단백질 1.2g/kg 목표와 소량씩 6회 분식(分食) 식사 패턴을 설정했습니다. 덤핑 증후군 예방을 위한 식사 요령도 안내드렸습니다.',
+    keypoints: ['단백질 목표 설정', '소량 6회 분식', '덤핑 증후군 예방'],
   },
   {
     date: '2026.03.15',
-    department: '대장암 센터',
+    department: '위암 센터',
     doctor: '이수진 교수',
     color: '#ee3f60',
-    summary: '수술 부위 회복 상태를 점검했습니다. 절개 부위 정상 회복, 장 기능 회복 양호합니다. 가벼운 운동(걷기, 요가) 시작 가능하며, 무거운 물건 들기는 4주간 제한입니다.',
-    keypoints: ['수술 부위 정상', '가벼운 운동 가능', '무거운 물건 제한'],
+    summary: '위아전절제술(distal subtotal gastrectomy) 부위 회복 상태를 점검했습니다. 절개 부위 정상 회복, 문합부 통과 양호합니다. 가벼운 운동(걷기, 요가) 시작 가능하며, 무거운 물건 들기는 4주간 제한입니다.',
+    keypoints: ['문합부 통과 양호', '가벼운 운동 가능', '무거운 물건 제한'],
   },
 ];
 
@@ -1307,9 +1307,9 @@ const TEST_RESULTS = [
       { label:'Hb',      value:'11.2', unit:'g/dL',    range:'12.0–16.0', status:'low' },
       { label:'PLT',     value:'185',  unit:'×10³/μL', range:'150–400',   status:'normal' },
       { label:'CEA',     value:'2.8',  unit:'ng/mL',   range:'<5.0',      status:'normal' },
-      { label:'CA19-9',  value:'18.4', unit:'U/mL',    range:'<37.0',     status:'normal' },
+      { label:'CA72-4',  value:'3.6',  unit:'U/mL',    range:'<6.9',      status:'normal' },
     ],
-    ai: '전반적으로 종양 표지자(CEA, CA19-9)는 정상 범위 내로 안정적입니다. 다만 RBC와 Hb 수치가 정상 하한보다 낮아 경증 빈혈이 관찰되며, 이는 항암 치료의 일반적 부작용입니다. 철분 함유 식품(붉은 살코기, 시금치, 콩류) 섭취를 권장하며, 다음 검사에서 추적 관찰이 필요합니다.',
+    ai: '전반적으로 위암 관련 종양 표지자(CEA, CA72-4)는 정상 범위 내로 안정적입니다. 다만 RBC와 Hb 수치가 정상 하한보다 낮아 경증 빈혈이 관찰되며, 이는 위 절제 후 철분·B12 흡수 저하 및 항암 치료의 일반적 부작용으로 보입니다. 철분 함유 식품(붉은 살코기, 시금치, 콩류) 섭취와 비타민 B12 보충을 권장하며, 다음 검사에서 추적 관찰이 필요합니다.',
   },
   {
     name: 'PET-CT 결과지',
@@ -1319,40 +1319,42 @@ const TEST_RESULTS = [
     items: [
       { label:'원발 병소', value:'관해', unit:'', range:'-',    status:'normal' },
       { label:'간 전이',   value:'없음', unit:'', range:'-',    status:'normal' },
-      { label:'폐 전이',   value:'없음', unit:'', range:'-',    status:'normal' },
+      { label:'복막 전이', value:'없음', unit:'', range:'-',    status:'normal' },
       { label:'림프절',    value:'정상', unit:'', range:'-',    status:'normal' },
       { label:'SUVmax',    value:'2.1',  unit:'',  range:'<2.5', status:'normal' },
     ],
-    ai: '전신 PET-CT 소견상 원발 부위와 주요 전이 호발 부위(간, 폐, 림프절)에서 새로운 병변이 관찰되지 않습니다. SUVmax 2.1로 대사 활성도가 낮아 잔존 종양 가능성이 낮습니다. 현재 치료 반응이 매우 양호한 상태로 평가되며, 3개월 후 추적 영상 검사를 권장합니다.',
+    ai: '전신 PET-CT 소견상 원발 부위와 위암 주요 전이 호발 부위(간, 복막, 림프절)에서 새로운 병변이 관찰되지 않습니다. SUVmax 2.1로 대사 활성도가 낮아 잔존 종양 가능성이 낮습니다. 현재 치료 반응이 매우 양호한 상태로 평가되며, 3개월 후 추적 영상 검사를 권장합니다.',
   },
   {
-    name: '조직검사 결과지',
+    name: '위 내시경 & 조직검사 결과지',
     date: '2026.03.04',
     hospital: '서울대학교병원 병리과',
     icon: '🔬',
     items: [
-      { label:'조직 종류',   value:'대장 선암', unit:'', range:'-',     status:'caution' },
-      { label:'분화도',      value:'중등도',    unit:'', range:'-',     status:'caution' },
-      { label:'TNM 병기',    value:'T3N1M0',    unit:'', range:'-',     status:'caution' },
-      { label:'절제 경계',   value:'음성',      unit:'', range:'음성',  status:'normal' },
-      { label:'KRAS 변이',   value:'야생형',    unit:'', range:'-',     status:'normal' },
-      { label:'MSI 상태',    value:'MSS',       unit:'', range:'-',     status:'normal' },
+      { label:'조직 종류',     value:'위 선암',   unit:'', range:'-',     status:'caution' },
+      { label:'Lauren 분류',   value:'장형',      unit:'', range:'-',     status:'caution' },
+      { label:'분화도',        value:'중등도',    unit:'', range:'-',     status:'caution' },
+      { label:'TNM 병기',      value:'T3N1M0',    unit:'', range:'-',     status:'caution' },
+      { label:'절제 경계',     value:'음성',      unit:'', range:'음성',  status:'normal' },
+      { label:'HER2',          value:'음성',      unit:'', range:'-',     status:'normal' },
+      { label:'MSI 상태',      value:'MSS',       unit:'', range:'-',     status:'normal' },
+      { label:'Claudin 18.2',  value:'양성',      unit:'', range:'-',     status:'caution' },
     ],
-    ai: '대장 선암(중등도 분화)이 확인되었으며 TNM 병기는 IIIB(T3N1M0)에 해당합니다. 절제 경계가 음성으로 완전 절제가 이루어졌습니다. KRAS 야생형, MSS 결과로 표적 치료제(EGFR 억제제) 적용 가능성이 있어 종양내과 상담을 권장합니다.',
+    ai: '위 선암(Lauren 장형, 중등도 분화)이 확인되었으며 TNM 병기는 IIIB(T3N1M0)에 해당합니다. 절제 경계가 음성으로 완전 절제가 이루어졌습니다. HER2 음성·MSS이나 Claudin 18.2 양성으로 졸베툭시맙 병용요법 적용 가능성이 있어 종양내과 상담을 권장합니다.',
   },
   {
-    name: 'MRI 결과지',
+    name: '간 MRI 결과지',
     date: '2026.04.18',
     hospital: '서울대학교병원 영상의학과',
     icon: '🧲',
     items: [
-      { label:'골반강 내',     value:'정상',  unit:'', range:'-', status:'normal' },
-      { label:'직장 주변 조직', value:'정상',  unit:'', range:'-', status:'normal' },
-      { label:'림프절',        value:'경미',  unit:'', range:'-', status:'caution' },
+      { label:'간 실질',       value:'정상',  unit:'', range:'-', status:'normal' },
+      { label:'간문맥 림프절', value:'경미',  unit:'', range:'-', status:'caution' },
       { label:'복수',          value:'없음',  unit:'', range:'-', status:'normal' },
+      { label:'담관·담낭',     value:'정상',  unit:'', range:'-', status:'normal' },
       { label:'골 전이',       value:'없음',  unit:'', range:'-', status:'normal' },
     ],
-    ai: '골반 MRI 소견상 직장 주변 조직과 골반강 내 명확한 잔존 병변은 관찰되지 않습니다. 일부 림프절이 경미하게 관찰되나 반응성 변화로 판단되며 임상적 의미는 낮습니다. 골 전이 소견 없으며, 다음 추적 영상은 3개월 후 권장됩니다.',
+    ai: '간 MRI 소견상 간 실질과 담관계에 명확한 잔존 병변은 관찰되지 않습니다. 간문맥 주변 림프절이 경미하게 관찰되나 반응성 변화로 판단되며 임상적 의미는 낮습니다. 복수·골 전이 소견 없으며, 다음 추적 영상은 3개월 후 권장됩니다.',
   },
   {
     name: '복부 CT 결과지',
@@ -1360,12 +1362,12 @@ const TEST_RESULTS = [
     hospital: '서울대학교병원 영상의학과',
     icon: '🖼️',
     items: [
+      { label:'위·문합부',   value:'정상', unit:'', range:'-', status:'normal' },
       { label:'간',          value:'정상', unit:'', range:'-', status:'normal' },
-      { label:'췌장',        value:'정상', unit:'', range:'-', status:'normal' },
-      { label:'신장',        value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'복막',        value:'정상', unit:'', range:'-', status:'normal' },
       { label:'복강 림프절', value:'경미', unit:'', range:'-', status:'caution' },
     ],
-    ai: '복부 장기에 새로운 병변 소견은 없습니다. 복강 내 일부 림프절이 경미하게 관찰되나 임상적 의미는 낮은 것으로 판단됩니다. 다음 추적 영상 검사에서 변화 여부를 모니터링할 예정이며, 현재 시점에서는 정상 범위로 평가됩니다.',
+    ai: '위 문합부와 복부 장기에 새로운 병변 소견은 없습니다. 복강 내 일부 림프절이 경미하게 관찰되나 임상적 의미는 낮은 것으로 판단됩니다. 복막 전이 소견 없으며, 다음 추적 영상 검사에서 변화 여부를 모니터링할 예정입니다.',
   },
   {
     name: '간기능 검사 결과지',
@@ -1419,79 +1421,84 @@ function ExerciseCard({ dark, accent = '#ee3f60' }) {
 const CURRENT_CHEMO = {
   name: '옥살리플라틴',
   brand: 'Eloxatin (엘록사틴)',
-  cycle: '2주 1회',
-  round: '6차 / 총 12차',
-  regimen: 'FOLFOX 복합 요법',
-  function: '백금 계열 알킬화제로, DNA 이중 가닥에 교차 결합을 형성해 암세포의 복제와 분열을 억제합니다. 대장암 표준 1차 항암 치료에 5-FU·류코보린과 병용 사용합니다.',
+  cycle: '3주 1회',
+  round: '6차 / 총 8차',
+  regimen: 'SOX 복합 요법',
+  function: '백금 계열 알킬화제로, DNA 이중 가닥에 교차 결합을 형성해 암세포의 복제와 분열을 억제합니다. 위암 표준 1차 항암 치료에 경구 S-1(테가푸르·기메라실·오테라실)과 병용 사용하는 SOX 요법의 핵심 약제입니다.',
   sideEffects: ['말초신경병증 (손발 저림·냉감)', '오심·구토', '피로감', '구내염', '탈모(경미)', '호중구 감소증', '냉각 과민반응'],
 };
 const COVERED_DRUGS = [
   {
+    name: 'S-1 (티에스원)', received: true,
+    desc: '경구용 5-FU 전구약물 복합제. 위암 SOX·단독 요법의 근간입니다.',
+    sideEffects: '구내염, 설사, 색소침착, 골수 억제, 눈물 분비',
+  },
+  {
     name: '5-FU (플루오로우라실)', received: true,
-    desc: '피리미딘 계열 항대사제. DNA 합성을 차단해 암세포 증식을 억제합니다.',
+    desc: '피리미딘 계열 항대사제. DNA 합성을 차단해 위암 세포 증식을 억제합니다.',
     sideEffects: '구내염, 설사, 손발바닥 발적·통증(HFS), 골수 억제',
   },
   {
-    name: '카페시타빈 (젤로다)', received: true,
-    desc: '경구용 5-FU 전구약물. 체내에서 5-FU로 변환되어 작용합니다.',
+    name: '카페시타빈 (젤로다)', received: false, color: '#41d2b4',
+    desc: '경구용 5-FU 전구약물. XELOX(CAPOX) 요법에서 옥살리플라틴과 병용됩니다.',
     sideEffects: '손발바닥증후군(HFS), 오심, 설사, 피로',
   },
   {
+    name: '시스플라틴', received: false, color: '#7d50f0',
+    desc: '백금 계열 항암제. FP(5-FU+시스플라틴) 요법으로 위암에 사용됩니다.',
+    sideEffects: '신독성, 청력 저하, 오심·구토, 골수 억제',
+  },
+  {
+    name: '도세탁셀 (탁소텔)', received: false, color: '#ee3f60',
+    desc: '탁산계 항암제. 진행성 위암 FLOT 요법 또는 2차 치료에 사용됩니다.',
+    sideEffects: '호중구 감소, 탈모, 부종, 손발톱 변화, 신경병증',
+  },
+  {
+    name: '파클리탁셀 (탁솔)', received: false, color: '#f59e0b',
+    desc: '탁산계 항암제. 라무시루맙과 병용해 위암 2차 표준 치료에 사용됩니다.',
+    sideEffects: '말초신경병증, 호중구 감소, 탈모, 근육통, 과민반응',
+  },
+  {
     name: '이리노테칸', received: false, color: '#41d2b4',
-    desc: '토포이소머라제 I 억제제. DNA 복제 과정을 방해해 암세포를 사멸시킵니다.',
+    desc: '토포이소머라제 I 억제제. 위암 2·3차 치료에서 단독 또는 병용됩니다.',
     sideEffects: '지연성 설사(주의), 골수 억제, 탈모, 오심',
   },
   {
-    name: '베바시주맙 (아바스틴)', received: false, color: '#7d50f0',
-    desc: 'VEGF 표적 항체. 종양 혈관 신생을 차단해 암세포 영양 공급을 억제합니다.',
-    sideEffects: '고혈압, 단백뇨, 출혈 위험, 상처 회복 지연',
+    name: '라무시루맙 (사이람자)', received: false, color: '#7d50f0',
+    desc: 'VEGFR-2 표적 단클론항체. 진행성 위암 2차에서 파클리탁셀과 병용 급여입니다.',
+    sideEffects: '고혈압, 단백뇨, 출혈·혈전 위험, 상처 회복 지연',
   },
   {
-    name: '세툭시맙 (얼비툭스)', received: false, color: '#ee3f60',
-    desc: 'EGFR 표적 단클론항체. KRAS 야생형 대장암에 효과적입니다.',
-    sideEffects: '여드름성 피부 발진(효과 지표), 저마그네슘혈증, 주입 반응',
+    name: '트라스투주맙 (허셉틴)', received: false, color: '#ee3f60',
+    desc: 'HER2 표적 단클론항체. HER2 양성(IHC 3+ 또는 ISH 양성) 진행성 위암 1차 치료에 화학요법과 병용됩니다.',
+    sideEffects: '심장 독성(좌심실 기능 모니터링), 주입 반응, 설사, 발열',
   },
   {
-    name: '파니투무맙 (벡티빅스)', received: false, color: '#f59e0b',
-    desc: '완전 인간화 EGFR 단클론항체. 세툭시맙 대비 주입 반응 위험이 낮습니다.',
-    sideEffects: '피부 독성, 손발톱 주위염, 피로, 저마그네슘혈증',
-  },
-  {
-    name: '엔코라페닙 (비라토비)', received: false, color: '#41d2b4',
-    desc: 'BRAF V600E 억제제. 세툭시맙과 병용해 BRAF 변이 대장암에 사용합니다.',
-    sideEffects: '피로, 관절통, 오심, 광과민반응',
-  },
-  {
-    name: '펨브롤리주맙 (키트루다)', received: false, color: '#7d50f0',
-    desc: 'PD-1 면역관문억제제. MSI-H/MMR 결함 대장암에서 강한 효과를 보입니다.',
-    sideEffects: '면역 관련 폐렴·간염·내분비 이상, 피로, 피부 발진',
-  },
-  {
-    name: '론서프 (TAS-102)', received: false, color: '#ee3f60',
-    desc: '트리플루리딘+티피라실 경구 복합제. 다중 치료 실패 후 3·4차에 사용합니다.',
-    sideEffects: '골수 억제(호중구 감소), 오심, 피로, 식욕 감소',
-  },
-  {
-    name: '스티바가 (레고라페닙)', received: false, color: '#f59e0b',
-    desc: '다중 키나제 억제제(경구). 혈관·기질·종양 경로를 동시에 차단합니다.',
-    sideEffects: '수족구증후군, 피로, 고혈압, 간 독성(간수치 모니터링)',
+    name: '니볼루맙 (옵디보)', received: false, color: '#f59e0b',
+    desc: 'PD-1 면역관문억제제. CheckMate-649에 따라 PD-L1 CPS≥5 위암 1차 화학요법과 병용 급여입니다.',
+    sideEffects: '면역 관련 폐렴·간염·갑상선·대장염, 피로, 피부 발진',
   },
 ];
 const NONCOVERED_DRUGS = [
   {
-    name: '라무시루맙 (사이람자)', color: '#41d2b4',
-    desc: 'VEGFR-2 표적 단클론항체. 이리노테칸과 병용해 2차 치료에 사용됩니다.',
-    sideEffects: '고혈압, 단백뇨, 피로, 혈전·출혈 위험',
+    name: '트라스투주맙 데룩스테칸 (엔허투)', color: '#41d2b4',
+    desc: 'HER2 표적 항체-약물 접합체(ADC). HER2 양성 진행성 위암 2차 이상 치료에서 강한 반응을 보입니다.',
+    sideEffects: '간질성 폐질환(주의), 오심, 호중구 감소, 탈모, 피로',
   },
   {
-    name: '프루퀸티닙 (프루퀴티닙)', color: '#7d50f0',
-    desc: '고선택적 VEGFR 1/2/3 억제제(경구). 다중 치료 실패 후 단독 사용합니다.',
-    sideEffects: '고혈압, 단백뇨, 수족구증후군, 발성장애, 피로',
+    name: '졸베툭시맙 (zolbetuximab)', color: '#7d50f0',
+    desc: 'Claudin 18.2 표적 단클론항체. SPOTLIGHT·GLOW 결과로 CLDN18.2 양성 위암 1차 화학요법과 병용 사용됩니다.',
+    sideEffects: '오심·구토, 식욕 감소, 주입 반응, 피로',
   },
   {
-    name: '트라스투주맙 + 퍼투주맙', color: '#ee3f60',
-    desc: 'HER2 표적 이중 항체 병용 요법. HER2 양성 대장암 후기 치료에 사용됩니다.',
-    sideEffects: '심장 독성(좌심실 기능 모니터링), 주입 반응, 설사, 피로',
+    name: '펨브롤리주맙 (키트루다)', color: '#ee3f60',
+    desc: 'PD-1 면역관문억제제. KEYNOTE-811에서 HER2 양성·PD-L1 CPS≥1 위암 1차에 트라스투주맙·화학요법과 병용됩니다.',
+    sideEffects: '면역 관련 폐렴·간염·내분비 이상, 피로, 피부 발진',
+  },
+  {
+    name: '론서프 (TAS-102)', color: '#f59e0b',
+    desc: '트리플루리딘+티피라실 경구 복합제. 진행성 위암 3차 이상 치료에 사용됩니다.',
+    sideEffects: '골수 억제(호중구 감소), 오심, 피로, 식욕 감소',
   },
 ];
 
@@ -1502,21 +1509,21 @@ const RESEARCH_PAPERS = [
     impact: 'IF 158.5',
     date: '2026.04.18',
     type: 'Phase III RCT',
-    title: 'Pembrolizumab vs. FOLFOX in MSI-H Metastatic Colorectal Cancer: 5-Year Follow-up',
-    authors: 'André T, Shiu KK, et al.',
-    summary: 'KEYNOTE-177 5년 추적 결과, MSI-H/dMMR 전이성 대장암에서 펨브롤리주맙 단독 치료가 표준 화학요법 대비 무진행 생존기간을 유의미하게 연장(중앙값 16.5 vs 8.2개월)했으며, 장기 반응 지속률은 47%를 보였습니다.',
-    tags: ['면역항암제', 'MSI-H', '1차 치료'],
+    title: 'Pembrolizumab + Trastuzumab + Chemotherapy in HER2-Positive Advanced Gastric Cancer: KEYNOTE-811 5-Year Update',
+    authors: 'Janjigian YY, Kawazoe A, et al.',
+    summary: 'HER2 양성 진행성 위/위식도접합부 선암 1차 치료에서 펨브롤리주맙·트라스투주맙·화학요법 병용군이 표준 치료 대비 전체 생존기간(중앙값 20.5 vs 15.6개월)과 무진행 생존기간을 유의미하게 연장했으며, PD-L1 CPS≥1 환자에서 효과가 두드러졌습니다.',
+    tags: ['HER2 양성', '면역항암제', '1차 치료'],
     color: '#7d50f0',
   },
   {
     journal: 'Lancet Oncology',
     impact: 'IF 51.1',
     date: '2026.03.30',
-    type: 'Phase II',
-    title: 'Encorafenib + Cetuximab + Pembrolizumab in BRAF V600E mCRC',
-    authors: 'Kopetz S, Grothey A, et al.',
-    summary: 'BRAF V600E 변이 전이성 대장암 환자 79명을 대상으로 3제 병용요법의 객관적 반응률(ORR) 50.0%, 무진행 생존기간 7.4개월을 보고했습니다. BEACON 후속 연구로 면역치료 추가 효과가 확인되었습니다.',
-    tags: ['BRAF V600E', '표적치료', '면역항암제'],
+    type: 'Phase III',
+    title: 'Zolbetuximab + mFOLFOX6 in Claudin 18.2–Positive Advanced Gastric Cancer (SPOTLIGHT Follow-up)',
+    authors: 'Shitara K, Lordick F, et al.',
+    summary: 'CLDN18.2 양성·HER2 음성 진행성 위/위식도접합부 선암 565명을 대상으로 졸베툭시맙+mFOLFOX6 병용이 위약+화학요법 대비 무진행 생존기간(중앙값 10.6 vs 8.7개월)과 전체 생존기간을 유의미하게 연장했습니다. 새로운 표적 치료 시대를 여는 결과입니다.',
+    tags: ['Claudin 18.2', '표적치료', '1차 치료'],
     color: '#41d2b4',
   },
   {
@@ -1524,9 +1531,9 @@ const RESEARCH_PAPERS = [
     impact: 'IF 28.4',
     date: '2026.03.12',
     type: 'Meta-analysis',
-    title: 'Oxaliplatin-Induced Peripheral Neuropathy: Risk Factors and Prevention Strategies',
+    title: 'Oxaliplatin-Induced Peripheral Neuropathy in SOX/CAPOX Regimens: Risk Factors and Prevention',
     authors: 'Loprinzi CL, Lacouture ME, et al.',
-    summary: '14개 임상시험·4,832명 메타분석에서 옥살리플라틴 누적용량 850 mg/m² 이상에서 grade ≥2 신경병증 위험이 3.2배 증가했습니다. 듀록세틴이 통증 완화에 유의한 효과를 보였으며, 칼슘·마그네슘 주입은 효과를 입증하지 못했습니다.',
+    summary: '위암 환자를 포함한 14개 임상시험·4,832명 메타분석에서 옥살리플라틴 누적용량 850 mg/m² 이상에서 grade ≥2 신경병증 위험이 3.2배 증가했습니다. 듀록세틴이 통증 완화에 유의한 효과를 보였으며, 칼슘·마그네슘 주입은 효과를 입증하지 못했습니다.',
     tags: ['옥살리플라틴', '부작용 관리', '신경병증'],
     color: '#ee3f60',
   },
@@ -1535,10 +1542,10 @@ const RESEARCH_PAPERS = [
     impact: 'IF 50.5',
     date: '2026.02.24',
     type: 'Phase III',
-    title: 'Trifluridine/Tipiracil + Bevacizumab vs. TAS-102 alone in Refractory mCRC',
-    authors: 'Prager GW, Taieb J, et al.',
-    summary: 'SUNLIGHT 시험 후속 분석으로, 표준 치료 실패 후 론서프(TAS-102)에 베바시주맙 병용 시 전체 생존기간이 단독 투여 대비 3.3개월 연장(10.8 vs 7.5개월)되었습니다. 안전성 프로파일은 관리 가능한 수준이었습니다.',
-    tags: ['론서프', '3차 이상', '병용요법'],
+    title: 'Nivolumab + Chemotherapy vs. Chemotherapy Alone in Advanced Gastric Cancer: CheckMate-649 4-Year Update',
+    authors: 'Janjigian YY, Shitara K, et al.',
+    summary: 'CheckMate-649 후속 분석으로, PD-L1 CPS≥5 진행성 위/위식도접합부 선암에서 니볼루맙+화학요법 병용 시 전체 생존기간이 단독 대비 3.4개월 연장(14.4 vs 11.0개월)되었습니다. 안전성 프로파일은 관리 가능한 수준이었습니다.',
+    tags: ['면역항암제', 'PD-L1', '1차 치료'],
     color: '#f59e0b',
   },
   {
@@ -1546,9 +1553,9 @@ const RESEARCH_PAPERS = [
     impact: 'IF 87.2',
     date: '2026.02.05',
     type: 'Translational',
-    title: 'Circulating Tumor DNA Dynamics Predicts Treatment Response in Stage III CRC',
-    authors: 'Tie J, Cohen JD, et al.',
-    summary: '3기 대장암 수술 후 ctDNA 양성군의 재발률이 음성군 대비 7.1배 높았으며, 보조 항암 치료 중 ctDNA 음전 환자는 5년 무재발 생존율 92%를 보였습니다. ctDNA 기반 치료 강도 조정의 임상적 근거를 제시합니다.',
+    title: 'Circulating Tumor DNA Dynamics Predicts Recurrence in Stage III Gastric Cancer After Curative Gastrectomy',
+    authors: 'Kim ST, Park SH, et al.',
+    summary: '3기 위암 근치적 절제 후 ctDNA 양성군의 재발률이 음성군 대비 6.8배 높았으며, 보조 SOX 항암 치료 중 ctDNA 음전 환자는 3년 무재발 생존율 89%를 보였습니다. ctDNA 기반 보조요법 강도 조정의 임상적 근거를 제시합니다.',
     tags: ['ctDNA', '예후 예측', '보조요법'],
     color: '#7d50f0',
   },
@@ -1557,72 +1564,72 @@ const RESEARCH_PAPERS = [
 // ── Clinical trials (Korea) ──────────────────────────────────────
 const CLINICAL_TRIALS = [
   {
-    id: 'KCSG CO22-12',
+    id: 'KCSG GC22-12',
     phase: 'Phase III',
     status: '모집 중',
     statusColor: '#41d2b4',
-    title: 'KRAS G12C 변이 전이성 대장암 환자에서 소토라십+세툭시맙 병용요법',
+    title: 'Claudin 18.2 양성 진행성 위암에서 졸베툭시맙 + SOX 병용요법',
     sponsor: '대한항암요법연구회 (KCSG)',
     sites: ['서울대병원', '삼성서울병원', '서울아산병원', '세브란스병원'],
     enroll: '120명 모집 (현재 47명)',
-    eligibility: 'KRAS G12C 변이 확인, 1차 표준 항암 치료 실패, ECOG 0–1',
-    summary: 'KRAS G12C 표적 치료제 소토라십과 EGFR 항체 세툭시맙 병용의 안전성·유효성을 평가하는 다기관 무작위 3상 시험입니다.',
+    eligibility: 'CLDN18.2 IHC 2+/3+ (≥75% 세포 발현), HER2 음성, 1차 항암 치료 미실시, ECOG 0–1',
+    summary: 'CLDN18.2 표적 단클론항체 졸베툭시맙과 SOX(S-1+옥살리플라틴) 병용의 안전성·유효성을 평가하는 다기관 무작위 3상 시험입니다.',
     period: '2025.06 — 2027.12',
     color: '#7d50f0',
   },
   {
-    id: 'KFCS-MSI-2026',
+    id: 'KFCS-IO-2026',
     phase: 'Phase II',
     status: '모집 중',
     statusColor: '#41d2b4',
-    title: 'MSS 대장암에서 STING 작용제 + 펨브롤리주맙 병용요법 탐색',
+    title: 'MSS 진행성 위암에서 STING 작용제 + 펨브롤리주맙 병용요법 탐색',
     sponsor: '국립암센터',
     sites: ['국립암센터', '분당서울대병원', '아주대병원'],
     enroll: '60명 모집 (현재 18명)',
-    eligibility: 'MSS/MSI-L 전이성 대장암, 2차 이상 치료 실패, 측정 가능한 병변',
-    summary: '면역항암제 반응이 낮은 MSS 대장암에서 면역 활성화 STING 작용제를 병용해 반응률을 향상시키는 탐색 시험입니다.',
+    eligibility: 'MSS/MSI-L 전이성 위/위식도접합부 선암, 2차 이상 치료 실패, 측정 가능한 병변',
+    summary: '면역항암제 반응이 낮은 MSS 위암에서 STING 작용제를 병용해 반응률을 향상시키는 탐색 시험입니다.',
     period: '2026.01 — 2028.06',
     color: '#41d2b4',
   },
   {
-    id: 'CTONG-CRC-007',
+    id: 'CTONG-GC-007',
     phase: 'Phase II',
     status: '모집 예정',
     statusColor: '#f59e0b',
-    title: 'HER2 양성 대장암에서 트라스투주맙 데룩스테칸(T-DXd) 단독 요법',
+    title: 'HER2 양성 진행성 위암 2차에서 트라스투주맙 데룩스테칸(T-DXd) 단독 요법',
     sponsor: '서울아산병원',
     sites: ['서울아산병원', '서울대병원'],
     enroll: '40명 모집 예정',
-    eligibility: 'HER2 IHC 3+ 또는 ISH 양성, 표준 치료 실패, 측정 가능한 병변',
-    summary: 'HER2 양성 전이성 대장암에서 항체-약물 접합체 T-DXd의 단독 요법 효과를 평가하는 단일군 2상 시험입니다.',
+    eligibility: 'HER2 IHC 3+ 또는 ISH 양성 위/위식도접합부 선암, 트라스투주맙 함유 1차 치료 실패',
+    summary: 'HER2 양성 진행성 위암에서 항체-약물 접합체 T-DXd의 단독 요법 효과를 평가하는 단일군 2상 시험입니다 (DESTINY-Gastric04 한국 확장).',
     period: '2026.07 시작 예정',
     color: '#ee3f60',
   },
   {
-    id: 'KCSG-IO-2025',
+    id: 'KCSG-PERI-2025',
     phase: 'Phase Ib',
     status: '모집 중',
     statusColor: '#41d2b4',
-    title: '난치성 대장암에서 종양 내 면역세포 주입 치료(TIL) 1상 시험',
+    title: '복막 전이 위암에서 가압식 복강내 에어로졸 항암화학요법(PIPAC) 1상 시험',
     sponsor: '삼성서울병원',
     sites: ['삼성서울병원'],
     enroll: '24명 모집 (현재 8명)',
-    eligibility: '3차 이상 치료 실패, 절제 가능한 종양 조직 확보 가능, ECOG 0–1',
-    summary: '환자 자신의 종양 침윤 림프구(TIL)를 분리·증식 후 재투여하는 입양세포치료의 안전성과 초기 유효성을 평가합니다.',
+    eligibility: '복막 전이 동반 진행성 위암, 1·2차 전신 항암 치료 후 진행, ECOG 0–1',
+    summary: '복강경하 가압식 복강내 에어로졸 항암화학요법(PIPAC)의 안전성과 초기 유효성을 평가하는 연구자 주도 1상 시험입니다.',
     period: '2025.03 — 2027.03',
     color: '#7d50f0',
   },
   {
-    id: 'NCCK-CRC-008',
+    id: 'NCCK-GC-008',
     phase: 'Phase III',
     status: '추적 중',
     statusColor: 'rgba(0,0,0,0.4)',
-    title: '직장암 완전관해 후 비수술적 관찰(Watch-and-Wait) 전략 비교',
+    title: '국소 진행성 위암 술전(FLOT) vs 술후(SOX) 항암 치료 전략 비교',
     sponsor: '국립암센터·연세암병원',
     sites: ['국립암센터', '세브란스병원', '서울아산병원'],
     enroll: '모집 종료 (등록 218명)',
-    eligibility: '전방위 항암방사선 후 임상적 완전관해(cCR) 확인 환자',
-    summary: '국소 진행성 직장암에서 술전 항암방사선 치료 후 cCR 환자에 대한 수술 vs 관찰 전략의 장기 종양학적 결과를 비교합니다.',
+    eligibility: 'cT2-4 또는 N+ 절제 가능 위/위식도접합부 선암',
+    summary: '국소 진행성 위암에서 술전 FLOT 항암 후 수술(perioperative) 전략과 수술 후 SOX 보조 항암 전략의 장기 종양학적 결과를 비교합니다.',
     period: '2022.04 — 2027.12 추적',
     color: '#f59e0b',
   },
@@ -1635,7 +1642,7 @@ function PROScreen({ tweaks, setTweak }) {
   const [submitted, setSubmitted] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [sidebarEdit, setSidebarEdit] = React.useState(false);
-  const [chemoRegimen, setChemoRegimen] = React.useState('FOLFOX');
+  const [chemoRegimen, setChemoRegimen] = React.useState('SOX');
   const [chemoLine, setChemoLine] = React.useState('1');
   const [chemoCycle, setChemoCycle] = React.useState('1');
   const [chemoStartDate, setChemoStartDate] = React.useState('2026-04-01');
@@ -2297,7 +2304,7 @@ function PROScreen({ tweaks, setTweak }) {
               </div>
               <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em' }}>김성인</div>
               <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12.5, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em', marginTop:4 }}>
-                대장암 · {chemoRegimen} 치료 중
+                위암 · {chemoRegimen} 치료 중
               </div>
             </div>
 
@@ -2328,7 +2335,7 @@ function PROScreen({ tweaks, setTweak }) {
 
                 if (sidebarEdit) {
                   /* ─── EDIT MODE ─── */
-                  const REGIMENS = ['FOLFOX (mFOLFOX6)','FOLFIRI','CAPOX (XELOX)','FOLFOXIRI','XELIRI','5-FU/LV','Regorafenib','TAS-102 (Lonsurf)','Nivolumab + 화학요법','Pembrolizumab'];
+                  const REGIMENS = ['SOX (S-1 + 옥살리플라틴)','XELOX (CAPOX)','FOLFOX (mFOLFOX6)','FLOT','S-1 단독','5-FU/LV','Paclitaxel + Ramucirumab','TAS-102 (Lonsurf)','Nivolumab + 화학요법','Pembrolizumab + Trastuzumab + 화학요법'];
                   return (
                     <>
                       {/* 항암 치료 입력 */}
@@ -4165,7 +4172,7 @@ function PROScreen({ tweaks, setTweak }) {
                 {chemoTab === '최신 논문' && (
                   <>
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', letterSpacing:'-0.01em' }}>대장암 치료 큐레이션</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', letterSpacing:'-0.01em' }}>위암 치료 큐레이션</div>
                       <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>총 {RESEARCH_PAPERS.length}건</div>
                     </div>
                     <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
