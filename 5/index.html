@@ -1465,6 +1465,31 @@ const CONSULTATIONS = [
   },
 ];
 
+const SURGERY_RECORD = {
+  date: '2026.04.08',
+  hospital: '서울대학교병원 위장관외과',
+  surgeon: '이수진 교수',
+  procedure: '복강경 위아전절제술',
+  procedureEn: 'Laparoscopic Distal Subtotal Gastrectomy',
+  approach: '복강경 (Minimally Invasive)',
+  reconstruction: 'Billroth II 문합',
+  stage: { tnm:'T3N1M0', overall:'IIIB', desc:'장막하층 침범 · 국소 림프절 전이' },
+  lymph: { positive:3, harvested:32 },           // 3/32
+  duration: { min:215, avgMin:240 },             // surgery time vs average
+  bloodLoss: { mL:120, avgML:200 },              // estimated blood loss
+  drain: [                                       // POD 1–6 drain amount (mL/day)
+    { day:'POD 1', val:180 },
+    { day:'POD 2', val:140 },
+    { day:'POD 3', val:90  },
+    { day:'POD 4', val:50  },
+    { day:'POD 5', val:25  },
+    { day:'POD 6', val:10  },
+  ],
+  margins: '음성 (R0 완전절제)',
+  hospitalDays: 9,
+  ai: '복강경 위아전절제술이 안전하게 완료되었으며, 절제 경계 음성(R0)으로 완전 절제를 달성했어요. 절제된 림프절 32개 중 3개에서 전이가 확인되어 N1로 분류되고, 최종 병기는 IIIB (T3N1M0)입니다. 수술 시간 215분과 출혈량 120 mL는 동종 수술 평균 대비 양호한 수준이며, 수술 후 배액량은 POD 1 180 mL에서 POD 6 10 mL로 가파르게 감소해 정상 회복 패턴을 보입니다. 현재 받고 계신 보조 SOX 항암의 적응증에 부합하며, 1년 내 재발 위험 모니터링을 위해 3개월 간격 추적 영상·종양표지자(CEA·CA72-4) 검사를 권장해요.',
+};
+
 const TEST_RESULTS = [
   {
     name: '혈액검사 결과지',
@@ -3611,7 +3636,7 @@ function PROScreen({ tweaks, setTweak }) {
 
                     {/* tab bar */}
                     <div style={{ display:'flex', gap:4, marginBottom:20, padding:'3px', borderRadius:12, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)' }}>
-                      {[{key:'상담', label:'진료실 상담 기록'}, {key:'검사', label:'검사 결과 분석'}].map(t => (
+                      {[{key:'상담', label:'진료실 상담 기록'}, {key:'검사', label:'검사 결과 분석'}, {key:'수술', label:'나의 수술 기록'}].map(t => (
                         <button key={t.key} onClick={() => setRecordTab(t.key)} style={{
                           flex:1, padding:'9px 0', borderRadius:9, border:'none',
                           background: recordTab === t.key ? (dark?'rgba(255,255,255,0.18)':'#fff') : 'transparent',
@@ -3739,6 +3764,157 @@ function PROScreen({ tweaks, setTweak }) {
                         })()}
                       </>
                     )}
+
+                    {/* 나의 수술 기록 */}
+                    {recordTab === '수술' && (() => {
+                      const s = SURGERY_RECORD;
+                      const lnPct = Math.round((s.lymph.positive / s.lymph.harvested) * 100);
+                      const durRatio = Math.min(1, s.duration.min / (s.duration.avgMin * 1.5));
+                      const lossRatio = Math.min(1, s.bloodLoss.mL / (s.bloodLoss.avgML * 1.5));
+                      const drainMax = Math.max(...s.drain.map(d => d.val));
+                      return (
+                        <>
+                          {/* AI 인사이트 */}
+                          <div style={{
+                            borderRadius:16, padding:'14px 16px', marginBottom:18,
+                            background: dark?'rgba(125,80,240,0.12)':'rgba(125,80,240,0.07)',
+                            border:`1px solid ${dark?'rgba(125,80,240,0.25)':'rgba(125,80,240,0.18)'}`,
+                          }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:7 }}>
+                              <span style={{ fontSize:14 }}>✨</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:12, color:C.purple, letterSpacing:'-0.01em' }}>AI 인사이트</span>
+                            </div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.82)':'rgba(0,0,0,0.72)', lineHeight:1.7 }}>{s.ai}</div>
+                          </div>
+
+                          {/* 수술 개요 */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>🏥 {s.procedure}</div>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{s.date}</div>
+                            </div>
+                            <div style={{ fontFamily:'Poppins', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', marginBottom:10, letterSpacing:'-0.01em' }}>{s.procedureEn}</div>
+                            <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                              {[s.approach, s.reconstruction, s.margins].map((t, i) => (
+                                <span key={i} style={{ padding:'4px 10px', borderRadius:8, fontFamily:'Pretendard', fontWeight:600, fontSize:11, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)', color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', letterSpacing:'-0.01em' }}>{t}</span>
+                              ))}
+                            </div>
+                            <div style={{ marginTop:10, paddingTop:10, borderTop:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>{s.hospital}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>👨‍⚕️ {s.surgeon}</span>
+                            </div>
+                          </div>
+
+                          {/* 암 병기 */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:10, letterSpacing:'-0.01em' }}>암 병기 (TNM)</div>
+                            <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                              <div style={{ width:72, height:72, borderRadius:18, background: dark?'#1f2a28':'#0d1614', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                <div style={{ fontFamily:'Poppins', fontWeight:300, fontSize:9, color:'rgba(255,255,255,0.55)', letterSpacing:'0.18em' }}>STAGE</div>
+                                <div style={{ fontFamily:'Poppins', fontWeight:800, fontSize:24, color:'#fff', letterSpacing:'-0.04em', lineHeight:1 }}>{s.stage.overall}</div>
+                              </div>
+                              <div style={{ flex:1 }}>
+                                <div style={{ fontFamily:'Poppins', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:4 }}>{s.stage.tnm}</div>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', lineHeight:1.5 }}>{s.stage.desc}</div>
+                              </div>
+                            </div>
+                            <div style={{ display:'flex', gap:4, marginTop:14 }}>
+                              {['I','II','III','IV'].map(stg => {
+                                const active = s.stage.overall.startsWith(stg);
+                                return (
+                                  <div key={stg} style={{ flex:1, padding:'6px 0', borderRadius:8, textAlign:'center', background: active ? (dark?'#1f2a28':'#0d1614') : (dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'), fontFamily:'Poppins', fontWeight:800, fontSize:11, color: active ? '#fff' : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)'), letterSpacing:'-0.01em' }}>{stg}</div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* 림프절 전이 */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>림프절 전이 수</div>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>전이율 {lnPct}%</div>
+                            </div>
+                            <div style={{ display:'flex', alignItems:'baseline', gap:6, marginBottom:10 }}>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:30, color: dark?'#fff':'#000', letterSpacing:'-0.03em', lineHeight:1 }}>{s.lymph.positive}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:14, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)' }}>/ {s.lymph.harvested}개</span>
+                              <span style={{ marginLeft:'auto', padding:'3px 10px', borderRadius:8, fontFamily:'Pretendard', fontWeight:700, fontSize:11, background: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)', color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)', letterSpacing:'-0.01em' }}>N1</span>
+                            </div>
+                            <div style={{ display:'grid', gridTemplateColumns:'repeat(16, 1fr)', gap:3 }}>
+                              {Array.from({length:s.lymph.harvested}).map((_, i) => {
+                                const pos = i < s.lymph.positive;
+                                return (
+                                  <div key={i} style={{ aspectRatio:'1 / 1', borderRadius:3, background: pos ? (dark?'#fff':'#0d1614') : (dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)') }} />
+                                );
+                              })}
+                            </div>
+                            <div style={{ marginTop:10, display:'flex', alignItems:'center', gap:12, fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>
+                              <span style={{ display:'flex', alignItems:'center', gap:5 }}>
+                                <span style={{ width:9, height:9, borderRadius:2, background: dark?'#fff':'#0d1614' }} /> 전이 양성
+                              </span>
+                              <span style={{ display:'flex', alignItems:'center', gap:5 }}>
+                                <span style={{ width:9, height:9, borderRadius:2, background: dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)' }} /> 전이 음성
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* 수술 시간 / 출혈량 */}
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
+                            {[
+                              { label:'수술 시간', val:`${s.duration.min}`, unit:'분', sub:`평균 ${s.duration.avgMin}분`, ratio:durRatio, below:s.duration.min<s.duration.avgMin },
+                              { label:'예상 출혈량', val:`${s.bloodLoss.mL}`, unit:'mL', sub:`평균 ${s.bloodLoss.avgML} mL`, ratio:lossRatio, below:s.bloodLoss.mL<s.bloodLoss.avgML },
+                            ].map((m, i) => (
+                              <div key={i} style={{ borderRadius:16, padding:'14px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:8, letterSpacing:'-0.01em' }}>{m.label}</div>
+                                <div style={{ display:'flex', alignItems:'baseline', gap:4, marginBottom:8 }}>
+                                  <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:24, color: dark?'#fff':'#000', letterSpacing:'-0.03em', lineHeight:1 }}>{m.val}</span>
+                                  <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>{m.unit}</span>
+                                </div>
+                                <div style={{ height:6, borderRadius:3, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)', overflow:'hidden', marginBottom:5, position:'relative' }}>
+                                  <div style={{ height:'100%', width:`${m.ratio*100}%`, background: dark?'#fff':'#0d1614', borderRadius:3 }} />
+                                  <div style={{ position:'absolute', left:`${(1/1.5)*100}%`, top:-2, bottom:-2, width:1, background: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.3)' }} />
+                                </div>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>
+                                  {m.sub} · {m.below ? '평균 이하' : '평균 이상'}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* 수술 후 배액량 (POD chart) */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>수술 후 배액량 (POD 1–6)</div>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>총 {s.drain.reduce((a,b)=>a+b.val,0)} mL</div>
+                            </div>
+                            <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:120, marginBottom:6, padding:'0 4px' }}>
+                              {s.drain.map((d, i) => {
+                                const h = (d.val / drainMax) * 100;
+                                return (
+                                  <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:5 }}>
+                                    <div style={{ fontFamily:'Poppins', fontWeight:700, fontSize:10, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>{d.val}</div>
+                                    <div style={{ width:'100%', height:`${h}%`, minHeight:4, borderRadius:'6px 6px 2px 2px', background: dark?'linear-gradient(180deg, #fff, rgba(255,255,255,0.55))':'linear-gradient(180deg, #0d1614, rgba(13,22,20,0.55))' }} />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div style={{ display:'flex', gap:8, padding:'0 4px' }}>
+                              {s.drain.map((d, i) => (
+                                <div key={i} style={{ flex:1, textAlign:'center', fontFamily:'Poppins', fontWeight:600, fontSize:9, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>{d.day}</div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 입원일 · 요약 */}
+                          <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:24, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em' }}>총 입원 기간</div>
+                            <div>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>{s.hospitalDays}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', marginLeft:3 }}>일</span>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </>
                 )}
 
