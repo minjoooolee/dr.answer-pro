@@ -758,13 +758,28 @@ Object.assign(window, { AISymbol });
 <script type="text/babel">
 // PRO Conversational Companion — main screen
 
+const MEAL_GREETINGS = [
+  "오늘 식사는 잘 하셨어요?",
+  "소화는 잘 됐어요?",
+  "오늘 입맛은 좀 있으셨어요?",
+  "물은 충분히 드셨어요?",
+  "속은 좀 편안하셨어요?",
+  "아침은 잘 드셨어요?",
+  "오늘 약은 잘 챙겨 드셨어요?",
+  "식사하시는 데 불편한 점은 없으셨어요?",
+  "오늘은 무엇을 드셨어요?",
+  "메스꺼움 없이 식사하셨어요?",
+];
+const TODAY_GREETING = MEAL_GREETINGS[Math.floor(Math.random() * MEAL_GREETINGS.length)];
+
 const TWEAKS_DEFAULT = /*EDITMODE-BEGIN*/{
   "variant": "aurora",
   "state": "idle",
   "darkMode": false,
-  "greeting": "오늘은 좀 어떠세요?",
+  "greeting": "오늘 식사는 잘 하셨어요?",
   "subGreeting": "Let's begin your daily check-in"
 }/*EDITMODE-END*/;
+TWEAKS_DEFAULT.greeting = TODAY_GREETING;
 
 const C = {
   main: '#41d2b4',
@@ -1905,7 +1920,7 @@ function PROScreen({ tweaks, setTweak }) {
                 }
               }
             }}
-            placeholder="오늘은 좀 어떠세요?에 대한 답변을 해주세요"
+            placeholder={`${tweaks.greeting}에 대한 답변을 해주세요`}
             style={{
               flex: 1, border: 'none', outline: 'none', background: 'transparent',
               fontFamily: 'Pretendard, system-ui', fontWeight: 400, fontSize: 14,
