@@ -1034,6 +1034,28 @@ const VITAL_DAILY_NOTES = [
   '혈압 평균 127/81 mmHg로 정상 범위',
   '22:00 (취침 전) 측정 미시행 — 알림 재발송 예정',
 ];
+const VITAL_MONTHLY_SUMMARY = {
+  totalDays:    { label:'측정 일수',           val:'30 / 31일' },
+  totalReads:   { label:'총 측정 횟수',        val:'114회' },
+  avgBP:        { label:'평균 혈압',           val:'126 / 80', unit:'mmHg' },
+  avgHR:        { label:'평균 맥박',           val:'76',       unit:'bpm' },
+  avgSpO2:      { label:'평균 산소포화도',     val:'97.4',     unit:'%' },
+  avgTemp:      { label:'평균 체온',           val:'36.6',     unit:'°C' },
+  avgRR:        { label:'평균 호흡 수',        val:'17',       unit:'회/분' },
+  bpRange:      { label:'혈압 범위',           val:'112/72 – 138/88' },
+  hrRange:      { label:'맥박 범위',           val:'62 – 92 bpm' },
+  spo2Range:    { label:'산소포화도 범위',     val:'94 – 99 %' },
+  tempRange:    { label:'체온 범위',           val:'36.1 – 37.4 °C' },
+  rrRange:      { label:'호흡 수 범위',        val:'14 – 21 회/분' },
+};
+const VITAL_MONTHLY_NOTES = [
+  '미열(≥37.0°C) 4일 발생 — 5/9, 5/14, 5/18, 5/24 모두 18:00 측정 (항암 투약 D+5~7 구간과 일치)',
+  '맥박 100bpm 초과 일시 상승 2회 — 5/9 18:00 (102 bpm), 5/24 18:00 (101 bpm), 모두 30분 내 정상 회복',
+  '산소포화도 95% 미만 1회 — 5/14 22:00 (94 %), 다음 측정 시 97 %로 회복',
+  '혈압 130/85 mmHg 초과 일수 5일 — 항암 투약일 다음날 오후~저녁에 집중',
+  '하루 4회 측정률 78% (전월 64% 대비 +14%p 개선)',
+  '특별한 기립성 저혈압 또는 빈맥 패턴은 관찰되지 않음',
+];
 
 function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHigh, selectedIdx, times }) {
   const W = 280, H = 78, P = 8, BOT = 12, LBL = 30;
@@ -1367,7 +1389,7 @@ const MEDICAL_LLM_SECTIONS = [
   },
   {
     title: '활력징후 분석',
-    body: '하루 4회 측정 권장 중 평균 3.2회/일 시행. 평균 혈압 127/81 mmHg, 평균 맥박 78 bpm, 산소포화도 96–98%로 안정 범위입니다. 5월 9일·18일 18:00 측정에서 미열(37.0–37.2°C) 경향이 반복적으로 관찰되어 추적 관찰을 권장합니다.',
+    body: '5월 30일 동안 총 114회 측정(일평균 3.8회). 평균 혈압 126/80 mmHg, 맥박 76 bpm, SpO₂ 97.4%, 체온 36.6°C, 호흡 17회/분으로 모두 정상 범위 내에 있습니다. 다만 5/9·14·18·24 18:00 측정에서 미열(37.0–37.4°C)과 일시적 빈맥(101–102 bpm)이 반복되어 항암 투약 D+5~7 구간의 잠재적 발열 신호로 해석되며, 다음 사이클에서 동일 시간대 집중 모니터링을 권장합니다.',
   },
   {
     title: '소화 지표',
@@ -3884,36 +3906,40 @@ function PROScreen({ tweaks, setTweak }) {
                       </div>
                     </div>
 
-                    {/* Vital signs daily summary */}
+                    {/* Vital signs monthly summary */}
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>❤️ 활력징후 일일 요약</div>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>오늘 {VITAL_DAILY_SUMMARY.count.val}</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>❤️ 활력징후 월간 요약</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>{VITAL_MONTHLY_SUMMARY.totalDays.val} · {VITAL_MONTHLY_SUMMARY.totalReads.val}</div>
                     </div>
                     <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:12, background: dark?'rgba(238,63,96,0.08)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.2)':'rgba(238,63,96,0.14)'}` }}>
-                      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:0, marginBottom:10 }}>
-                        {[VITAL_DAILY_SUMMARY.avgBP, VITAL_DAILY_SUMMARY.avgHR, VITAL_DAILY_SUMMARY.minSpO2].map((item,i) => (
-                          <div key={i} style={{ textAlign:'center', borderRight: i<2 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:C.red, letterSpacing:'-0.02em', marginBottom:3 }}>{item.val}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.label}</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'-0.01em', marginBottom:8 }}>월간 평균값</div>
+                      <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:0 }}>
+                        {[VITAL_MONTHLY_SUMMARY.avgBP, VITAL_MONTHLY_SUMMARY.avgHR, VITAL_MONTHLY_SUMMARY.avgSpO2, VITAL_MONTHLY_SUMMARY.avgTemp, VITAL_MONTHLY_SUMMARY.avgRR].map((item,i) => (
+                          <div key={i} style={{ textAlign:'center', padding:'0 2px', borderRight: i<4 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:14, color:C.red, letterSpacing:'-0.02em', marginBottom:1 }}>{item.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:9.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.unit}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:10.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', marginTop:3, lineHeight:1.2 }}>{item.label.replace('평균 ','')}</div>
                           </div>
                         ))}
                       </div>
-                      <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:0, paddingTop:10, borderTop:`1px solid ${dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)'}` }}>
-                        {[VITAL_DAILY_SUMMARY.maxTemp, VITAL_DAILY_SUMMARY.rrRange].map((item,i) => (
-                          <div key={i} style={{ textAlign:'center', borderRight: i<1 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:C.red, letterSpacing:'-0.02em', marginBottom:3 }}>{item.val}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.label}</div>
+                      <div style={{ height:1, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)', margin:'12px 0' }} />
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'-0.01em', marginBottom:8 }}>월간 측정 범위</div>
+                      <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                        {[VITAL_MONTHLY_SUMMARY.bpRange, VITAL_MONTHLY_SUMMARY.hrRange, VITAL_MONTHLY_SUMMARY.spo2Range, VITAL_MONTHLY_SUMMARY.tempRange, VITAL_MONTHLY_SUMMARY.rrRange].map((item, i) => (
+                          <div key={i} style={{ display:'flex', alignItems:'baseline', gap:6 }}>
+                            <span style={{ flex:'0 0 84px', fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>{item.label}</span>
+                            <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{item.val}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Vital signs notes / 특이점 */}
+                    {/* Vital signs monthly notes / 특이점 */}
                     <div style={{ borderRadius:14, padding:'12px 14px', marginBottom:24, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:C.red, marginBottom:8, letterSpacing:'-0.01em' }}>일일 특이점</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:C.red, marginBottom:8, letterSpacing:'-0.01em' }}>월간 특이점</div>
                       <ul style={{ margin:0, paddingLeft:16, fontFamily:'Pretendard', fontWeight:400, fontSize:12, lineHeight:1.7, color: dark?'rgba(255,255,255,0.78)':'rgba(0,0,0,0.7)' }}>
-                        {VITAL_DAILY_NOTES.map((n, i) => (
-                          <li key={i} style={{ marginBottom: i<VITAL_DAILY_NOTES.length-1 ? 3 : 0 }}>{n}</li>
+                        {VITAL_MONTHLY_NOTES.map((n, i) => (
+                          <li key={i} style={{ marginBottom: i<VITAL_MONTHLY_NOTES.length-1 ? 3 : 0 }}>{n}</li>
                         ))}
                       </ul>
                     </div>
