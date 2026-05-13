@@ -991,11 +991,11 @@ function NutritionCard({ dark, accent = '#41d2b4' }) {
 }
 
 const VITALS = [
-  { key:'bp',   label:'혈압',       unit:'mmHg',  icon:'🩸', normal:'<130/80', accent:'#ee3f60' },
-  { key:'hr',   label:'맥박',       unit:'bpm',   icon:'❤️', normal:'60–100',  accent:'#7d50f0' },
-  { key:'spo2', label:'산소포화도', unit:'%',     icon:'🫁', normal:'≥95',     accent:'#41d2b4' },
-  { key:'temp', label:'체온',       unit:'°C',    icon:'🌡️', normal:'<37.5',   accent:'#f59e0b' },
-  { key:'rr',   label:'호흡 수',    unit:'회/분', icon:'💨', normal:'12–20',   accent:'#3b82f6' },
+  { key:'bp',   label:'혈압',       unit:'mmHg',  icon:'🩸', normal:'90–130 / 60–80', normalLow:90, normalHigh:130, yMin:80,  yMax:150, accent:'#ee3f60' },
+  { key:'hr',   label:'맥박',       unit:'bpm',   icon:'❤️', normal:'60–100',          normalLow:60, normalHigh:100, yMin:50,  yMax:110, accent:'#7d50f0' },
+  { key:'spo2', label:'산소포화도', unit:'%',     icon:'🫁', normal:'≥95',             normalLow:95, normalHigh:100, yMin:90,  yMax:100, accent:'#41d2b4' },
+  { key:'temp', label:'체온',       unit:'°C',    icon:'🌡️', normal:'36.0–37.4',       normalLow:36, normalHigh:37.4, yMin:35.5, yMax:38, accent:'#f59e0b' },
+  { key:'rr',   label:'호흡 수',    unit:'회/분', icon:'💨', normal:'12–20',           normalLow:12, normalHigh:20,  yMin:10,  yMax:24,  accent:'#3b82f6' },
 ];
 const VITAL_REMINDERS = [
   { time:'08:00', label:'아침 (기상 후)' },
@@ -1026,29 +1026,37 @@ const VITAL_DAILY_NOTES = [
   '22:00 (취침 전) 측정 미시행 — 알림 재발송 예정',
 ];
 
-function VitalSparkline({ values, accent, dark, yMin, yMax }) {
-  const W = 280, H = 64, P = 8;
+function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHigh, selectedIdx }) {
+  const W = 280, H = 78, P = 8, BOT = 12, LBL = 30;
   const pts = values.map(v => (v === null || v === undefined ? null : v));
   const min = yMin !== undefined ? yMin : Math.min(...pts.filter(v => v != null));
   const max = yMax !== undefined ? yMax : Math.max(...pts.filter(v => v != null));
   const span = max - min || 1;
-  const xs = pts.map((_, i) => P + (i * (W - 2*P)) / (pts.length - 1));
-  const ys = pts.map(v => v == null ? null : H - P - ((v - min) / span) * (H - 2*P));
+  const chartLeft = LBL;
+  const chartRight = W - P;
+  const chartTop = P;
+  const chartBottom = H - BOT;
+  const yOf = v => chartBottom - ((v - min) / span) * (chartBottom - chartTop);
+  const xs = pts.map((_, i) => chartLeft + (i * (chartRight - chartLeft)) / (pts.length - 1));
+  const ys = pts.map(v => v == null ? null : yOf(v));
   const linePath = pts.map((v, i) => v == null ? null : `${ys[i-1]==null||i===0?'M':'L'} ${xs[i]} ${ys[i]}`).filter(Boolean).join(' ');
   const areaPath = (() => {
     const segs = [];
     let started = false;
     pts.forEach((v, i) => {
       if (v == null) { started = false; return; }
-      if (!started) { segs.push(`M ${xs[i]} ${H-P}`); segs.push(`L ${xs[i]} ${ys[i]}`); started = true; }
+      if (!started) { segs.push(`M ${xs[i]} ${chartBottom}`); segs.push(`L ${xs[i]} ${ys[i]}`); started = true; }
       else segs.push(`L ${xs[i]} ${ys[i]}`);
     });
     if (started) {
       const lastIdx = pts.map((v,i)=>v==null?-1:i).filter(i=>i>=0).pop();
-      segs.push(`L ${xs[lastIdx]} ${H-P} Z`);
+      segs.push(`L ${xs[lastIdx]} ${chartBottom} Z`);
     }
     return segs.join(' ');
   })();
+  const bandTopY = normalHigh != null ? yOf(Math.min(normalHigh, max)) : null;
+  const bandBottomY = normalLow != null ? yOf(Math.max(normalLow, min)) : null;
+  const formatTick = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', display:'block' }}>
       <defs>
@@ -1057,16 +1065,41 @@ function VitalSparkline({ values, accent, dark, yMin, yMax }) {
           <stop offset="100%" stopColor={accent} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <g stroke={dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'} strokeDasharray="2 3">
-        <line x1={P} y1={H/2} x2={W-P} y2={H/2} />
-      </g>
+      {/* Normal range band */}
+      {bandTopY != null && bandBottomY != null && (
+        <>
+          <rect x={chartLeft} y={bandTopY} width={chartRight - chartLeft} height={Math.max(0, bandBottomY - bandTopY)}
+                fill={dark?'rgba(65,210,180,0.10)':'rgba(65,210,180,0.13)'} />
+          <line x1={chartLeft} y1={bandTopY} x2={chartRight} y2={bandTopY}
+                stroke={dark?'rgba(65,210,180,0.55)':'rgba(45,180,150,0.6)'} strokeWidth="1" strokeDasharray="3 3" />
+          <line x1={chartLeft} y1={bandBottomY} x2={chartRight} y2={bandBottomY}
+                stroke={dark?'rgba(65,210,180,0.55)':'rgba(45,180,150,0.6)'} strokeWidth="1" strokeDasharray="3 3" />
+          <text x={chartLeft - 4} y={bandTopY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700"
+                fill={dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)'}>{formatTick(normalHigh)}</text>
+          <text x={chartLeft - 4} y={bandBottomY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700"
+                fill={dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)'}>{formatTick(normalLow)}</text>
+          <text x={chartRight} y={bandTopY - 3} textAnchor="end" fontFamily="Pretendard" fontSize="8" fontWeight="700"
+                fill={dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)'}>정상 범위</text>
+        </>
+      )}
       <path d={areaPath} fill={`url(#vsfill-${accent.replace('#','')})`} />
       <path d={linePath} fill="none" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
       {pts.map((v, i) => v == null ? null : (
-        <circle key={i} cx={xs[i]} cy={ys[i]} r="3.2" fill={accent} stroke={dark?'#1a2c28':'#fff'} strokeWidth="1.6" />
+        <g key={i}>
+          {selectedIdx === i && (
+            <>
+              <line x1={xs[i]} y1={chartTop} x2={xs[i]} y2={chartBottom} stroke={accent} strokeOpacity="0.35" strokeWidth="1" strokeDasharray="2 2" />
+              <circle cx={xs[i]} cy={ys[i]} r="6" fill={accent} fillOpacity="0.22" />
+            </>
+          )}
+          <circle cx={xs[i]} cy={ys[i]} r={selectedIdx === i ? 3.8 : 3.2}
+                  fill={accent} stroke={dark?'#1a2c28':'#fff'} strokeWidth={selectedIdx === i ? 2 : 1.6} />
+        </g>
       ))}
       {VITAL_READINGS_TODAY.map((r, i) => (
-        <text key={`t${i}`} x={xs[i]} y={H-1} textAnchor="middle" fontFamily="Poppins" fontSize="8" fontWeight="600" fill={dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)'}>{r.time}</text>
+        <text key={`t${i}`} x={xs[i]} y={H-1} textAnchor="middle" fontFamily="Poppins" fontSize="8"
+              fontWeight={selectedIdx === i ? "800" : "600"}
+              fill={selectedIdx === i ? accent : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)')}>{r.time}</text>
       ))}
     </svg>
   );
@@ -1761,6 +1794,10 @@ function PROScreen({ tweaks, setTweak }) {
   const [chemoTab, setChemoTab] = React.useState('나의 항암제');
   const [coverTab, setCoverTab] = React.useState('급여');
   const [expandedDrug, setExpandedDrug] = React.useState(null);
+  const [selectedVitalIdx, setSelectedVitalIdx] = React.useState(() => {
+    const idx = VITAL_READINGS_TODAY.map((r, i) => r.recorded ? i : -1).filter(i => i >= 0).pop();
+    return idx == null ? 0 : idx;
+  });
   const [symptomMedia, setSymptomMedia] = React.useState([]);
   const [symptomText, setSymptomText] = React.useState('');
   const [selectedSymptom, setSelectedSymptom] = React.useState(null);
@@ -3140,22 +3177,60 @@ function PROScreen({ tweaks, setTweak }) {
                   <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>📅 오늘의 측정 알림</div>
                   <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>하루 4회</div>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:8, marginBottom:8 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:8, marginBottom:12 }}>
                   {VITAL_REMINDERS.map((r, i) => {
                     const rec = VITAL_READINGS_TODAY[i] && VITAL_READINGS_TODAY[i].recorded;
+                    const sel = selectedVitalIdx === i;
                     return (
-                      <div key={r.time} style={{
-                        padding:'10px 8px', borderRadius:12, textAlign:'center',
-                        background: rec ? (dark?'rgba(65,210,180,0.14)':'rgba(65,210,180,0.10)') : (dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'),
-                        border:`1px solid ${rec ? (dark?'rgba(65,210,180,0.32)':'rgba(65,210,180,0.28)') : (dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)')}`,
-                      }}>
-                        <div style={{ fontFamily:'Poppins', fontWeight:700, fontSize:13, color: rec ? C.main : (dark?'#fff':'#000'), letterSpacing:'-0.01em', marginBottom:2 }}>{r.time}</div>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color: rec ? C.main : (dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)'), letterSpacing:'-0.01em' }}>{rec ? '✓ 측정 완료' : '⏰ 알림 예정'}</div>
+                      <button key={r.time}
+                        onClick={() => rec && setSelectedVitalIdx(i)}
+                        disabled={!rec}
+                        style={{
+                          padding:'10px 8px', borderRadius:12, textAlign:'center', cursor: rec ? 'pointer' : 'default',
+                          background: sel ? `${C.red}22` : (rec ? (dark?'rgba(65,210,180,0.14)':'rgba(65,210,180,0.10)') : (dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)')),
+                          border:`1.5px solid ${sel ? C.red : (rec ? (dark?'rgba(65,210,180,0.32)':'rgba(65,210,180,0.28)') : (dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'))}`,
+                          transition:'all 0.15s',
+                        }}>
+                        <div style={{ fontFamily:'Poppins', fontWeight:800, fontSize:13, color: sel ? C.red : (rec ? C.main : (dark?'#fff':'#000')), letterSpacing:'-0.01em', marginBottom:2 }}>{r.time}</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color: sel ? C.red : (rec ? C.main : (dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)')), letterSpacing:'-0.01em' }}>{rec ? (sel ? '👁 보는 중' : '✓ 측정 완료') : '⏰ 알림 예정'}</div>
                         <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:9.5, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginTop:3, lineHeight:1.25 }}>{r.label}</div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
+
+                {/* 선택된 시간대 상세 기록 */}
+                {(() => {
+                  const sel = VITAL_READINGS_TODAY[selectedVitalIdx];
+                  const reminder = VITAL_REMINDERS[selectedVitalIdx];
+                  if (!sel || !sel.recorded) return null;
+                  const items = [
+                    { label:'혈압',       val: sel.bp,   unit:'mmHg',  color:'#ee3f60' },
+                    { label:'맥박',       val: sel.hr,   unit:'bpm',   color:'#7d50f0' },
+                    { label:'산소포화도', val: sel.spo2, unit:'%',     color:'#41d2b4' },
+                    { label:'체온',       val: sel.temp, unit:'°C',    color:'#f59e0b' },
+                    { label:'호흡 수',    val: sel.rr,   unit:'회/분', color:'#3b82f6' },
+                  ];
+                  return (
+                    <div style={{ borderRadius:14, padding:'12px 14px', marginBottom:14, background: dark?'rgba(238,63,96,0.08)':'rgba(238,63,96,0.05)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.16)'}` }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+                        <span style={{ fontFamily:'Poppins', fontWeight:800, fontSize:13, color:C.red, letterSpacing:'-0.01em' }}>{sel.time}</span>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em' }}>· {reminder.label}</span>
+                        <span style={{ marginLeft:'auto', padding:'2px 8px', borderRadius:6, background: dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.12)', fontFamily:'Pretendard', fontWeight:700, fontSize:10, color:C.main, letterSpacing:'-0.01em' }}>측정 완료</span>
+                      </div>
+                      <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:6 }}>
+                        {items.map((it, i) => (
+                          <div key={i} style={{ textAlign:'center', padding:'8px 4px', borderRadius:10, background: dark?'rgba(255,255,255,0.04)':'#fff' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color:it.color, letterSpacing:'-0.01em', marginBottom:3 }}>{it.label}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:14, color: dark?'#fff':'#000', letterSpacing:'-0.02em', lineHeight:1.1 }}>{it.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:8.5, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginTop:2 }}>{it.unit}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 14px', borderRadius:12, marginBottom:20, background: dark?'rgba(238,63,96,0.10)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.16)'}` }}>
                   <span style={{ fontSize:14 }}>🔔</span>
                   <div style={{ flex:1, fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.82)':'rgba(0,0,0,0.72)', letterSpacing:'-0.01em' }}>
@@ -3171,19 +3246,13 @@ function PROScreen({ tweaks, setTweak }) {
                       if (v.key === 'bp') return r.bpSys;
                       return r[v.key];
                     });
-                    const latestReading = [...VITAL_READINGS_TODAY].reverse().find(r => r.recorded) || VITAL_READINGS_TODAY[0];
-                    let latest;
-                    if (v.key === 'bp') latest = latestReading.recorded ? latestReading.bp : '–';
-                    else latest = latestReading.recorded ? latestReading[v.key] : '–';
+                    const selReading = VITAL_READINGS_TODAY[selectedVitalIdx];
+                    const fallback = [...VITAL_READINGS_TODAY].reverse().find(r => r.recorded) || VITAL_READINGS_TODAY[0];
+                    const reading = selReading && selReading.recorded ? selReading : fallback;
+                    let current;
+                    if (v.key === 'bp') current = reading.recorded ? reading.bp : '–';
+                    else current = reading.recorded ? reading[v.key] : '–';
                     const recordedCount = VITAL_READINGS_TODAY.filter(r => r.recorded).length;
-                    const yRange = (() => {
-                      if (v.key === 'bp')   return { yMin:100, yMax:150 };
-                      if (v.key === 'hr')   return { yMin:55,  yMax:110 };
-                      if (v.key === 'spo2') return { yMin:92,  yMax:100 };
-                      if (v.key === 'temp') return { yMin:36,  yMax:38  };
-                      if (v.key === 'rr')   return { yMin:12,  yMax:22  };
-                      return {};
-                    })();
                     return (
                       <div key={v.key} style={{
                         borderRadius:16, padding:'14px 16px',
@@ -3198,11 +3267,16 @@ function PROScreen({ tweaks, setTweak }) {
                           <span style={{ marginLeft:'auto', padding:'2px 8px', borderRadius:6, background:`${v.accent}22`, fontFamily:'Pretendard', fontWeight:700, fontSize:10, color:v.accent, letterSpacing:'-0.01em' }}>정상 {v.normal}</span>
                         </div>
                         <div style={{ display:'flex', alignItems:'baseline', gap:5, marginBottom:6 }}>
-                          <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:26, color: dark?'#fff':'#000', letterSpacing:'-0.03em', lineHeight:1 }}>{latest}</span>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:26, color: dark?'#fff':'#000', letterSpacing:'-0.03em', lineHeight:1 }}>{current}</span>
                           <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>{v.unit}</span>
-                          <span style={{ marginLeft:'auto', fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>오늘 {recordedCount}회 측정</span>
+                          <span style={{ marginLeft:'auto', fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>
+                            {reading.recorded ? `${reading.time} 측정` : `오늘 ${recordedCount}회 측정`}
+                          </span>
                         </div>
-                        <VitalSparkline values={series} accent={v.accent} dark={dark} yMin={yRange.yMin} yMax={yRange.yMax} />
+                        <VitalSparkline values={series} accent={v.accent} dark={dark}
+                          yMin={v.yMin} yMax={v.yMax}
+                          normalLow={v.normalLow} normalHigh={v.normalHigh}
+                          selectedIdx={selReading && selReading.recorded ? selectedVitalIdx : null} />
                       </div>
                     );
                   })}
