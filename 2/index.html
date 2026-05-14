@@ -756,7 +756,9 @@ function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusT
         <span style={{ fontSize: 12, color: C.mute, fontWeight: 500 }}>{unit}</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, color: accent, fontWeight: 600 }}>
-        <TrendIcon dir={trend} color={accent}/>
+        <span style={{ fontSize: 10, fontWeight: 700, background: accent + '18', color: accent, borderRadius: 5, padding: '1px 5px', letterSpacing: 0.2 }}>
+          {trend === 'steady' ? '안정' : trend === 'up' ? '상승' : '하강'}
+        </span>
         {statusText}
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 4 }}>
