@@ -525,50 +525,61 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
         <SyncIndicator/>
       </div>
 
-      {/* AI summary card — status-aware mesh orb */}
+      {/* AI summary card */}
       <div style={{ padding: '22px 16px 0' }}>
         <div style={{
-          background: '#0D0F14',
-          color: '#fff', borderRadius: 24, padding: '18px 20px 20px',
+          background: C.card, borderRadius: 22, padding: '18px 18px 16px',
+          boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
           position: 'relative', overflow: 'hidden',
         }}>
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: `radial-gradient(130% 90% at 110% -10%, ${sui.gradColor} 0%, transparent 55%)`,
-            pointerEvents: 'none',
-          }}/>
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-            <MeshOrb size={42} status={STATUS}/>
-          </div>
-          <div style={{ position: 'relative', textAlign: 'center' }}>
+          {/* Header row: section label + status pill */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: 1.6,
+              color: C.mute, textTransform: 'uppercase',
+            }}>지난 1시간 요약</div>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              padding: '4px 10px', borderRadius: 100, marginBottom: 8,
-              background: 'rgba(255,255,255,0.06)',
-              border: `1px solid ${sui.labelColor}44`,
+              padding: '3px 9px', borderRadius: 100,
+              background: sui.labelColor + '14',
             }}>
               <span style={{
-                width: 6, height: 6, borderRadius: '50%', background: sui.labelColor,
+                width: 5, height: 5, borderRadius: '50%', background: sui.labelColor,
                 animation: STATUS !== 'ok' ? 'pulseDot 1.2s ease-in-out infinite' : 'none',
               }}/>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, color: sui.labelColor }}>
+              <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 0.6, color: sui.labelColor }}>
                 {sui.label}
               </span>
             </div>
-            <div style={{
-              fontSize: 10, fontWeight: 600, letterSpacing: 2,
-              color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginBottom: 8,
-            }}>지난 1시간 요약</div>
-            <div style={{
-              fontSize: 14.5, fontWeight: 600, letterSpacing: -0.4, lineHeight: 1.55, padding: '0 4px', whiteSpace: 'nowrap',
-            }}>
-              RR, MinVent 지표에서 변화가 감지됩니다.<br/>아이 상태를 확인해주세요.
+          </div>
+
+          {/* Body row: orb + text, left-aligned */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+            <div style={{ flexShrink: 0, marginTop: 2 }}>
+              <MeshOrb size={36} status={STATUS}/>
             </div>
-            <div style={{
-              fontSize: 12, color: 'rgba(255,255,255,0.50)', marginTop: 10, lineHeight: 1.6,
-            }}>
-              분석 시각: 09:23 · 다음 분석: 10:00
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{
+                fontSize: 14.5, fontWeight: 700, letterSpacing: -0.4, lineHeight: 1.45, color: C.ink,
+              }}>
+                RR, MinVent 지표에서<br/>변화가 감지됩니다.
+              </div>
+              <div style={{
+                fontSize: 12.5, color: C.ink2, fontWeight: 500, lineHeight: 1.5, marginTop: 4,
+              }}>
+                아이 상태를 확인해주세요.
+              </div>
             </div>
+          </div>
+
+          {/* Footer meta */}
+          <div style={{
+            marginTop: 14, paddingTop: 10, borderTop: `1px solid ${C.line}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            fontSize: 11, color: C.mute, fontWeight: 500,
+          }}>
+            <span>분석 09:23</span>
+            <span>다음 분석 10:00</span>
           </div>
         </div>
       </div>
