@@ -495,7 +495,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
 
       {/* Minimal header */}
       <div style={{
-        padding: '18px 22px 4px',
+        padding: '10px 22px 4px',
         display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12,
       }}>
         <div style={{ minWidth: 0 }}>
@@ -518,22 +518,22 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
       </div>
 
       {/* Greeting */}
-      <div style={{ padding: '14px 22px 4px' }}>
-        <div style={{ fontSize: 28, fontWeight: 700, color: C.ink, letterSpacing: -1.0, lineHeight: 1.18 }}>
+      <div style={{ padding: '8px 22px 4px' }}>
+        <div style={{ fontSize: 26, fontWeight: 700, color: C.ink, letterSpacing: -1.0, lineHeight: 1.18 }}>
           안녕하세요, 어머님.
         </div>
         <SyncIndicator/>
       </div>
 
       {/* AI summary card */}
-      <div style={{ padding: '22px 16px 0' }}>
+      <div style={{ padding: '10px 16px 0' }}>
         <div style={{
-          background: C.card, borderRadius: 22, padding: '18px 18px 16px',
+          background: C.card, borderRadius: 22, padding: '14px 16px 12px',
           boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
           position: 'relative', overflow: 'hidden',
         }}>
           {/* Header row: section label + status pill */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{
               fontSize: 10, fontWeight: 700, letterSpacing: 1.6,
               color: C.mute, textTransform: 'uppercase',
@@ -569,7 +569,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
 
           {/* Footer meta */}
           <div style={{
-            marginTop: 14, paddingTop: 10, borderTop: `1px solid ${C.line}`,
+            marginTop: 10, paddingTop: 8, borderTop: `1px solid ${C.line}`,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             fontSize: 11, color: C.mute, fontWeight: 500,
           }}>
@@ -580,7 +580,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
       </div>
 
       {/* V-PEP — unified monitoring panel */}
-      <div style={{ padding: '20px 16px 0' }}>
+      <div style={{ padding: '10px 16px 0' }}>
         <div style={{ background: C.card, borderRadius: 22, overflow: 'hidden', boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)' }}>
 
           {/* Panel header */}
@@ -592,7 +592,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
           {/* 2 × 2 grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
             {[
-              { label:'PIP',  value:'18',  unit:'cmH₂O', tone:'ok',   trend:'up',     statusText:'기준 ±2',   bars:[15,16,15,17,16,15,17,18] },
+              { label:'PIP',  value:'18',  unit:'cmH₂O', tone:'ok',   trend:'steady', statusText:'기준 ±2',   bars:[15,16,15,17,16,15,17,18] },
               { label:'VTE',  value:'142', unit:'mL',    tone:'ok',   trend:'steady', statusText:'정상 범위', bars:[138,140,139,141,140,142,141,142] },
               { label:'RR',   value:'28',  unit:'bpm',   tone:'warn', trend:'up',     statusText:'+18% 상승', bars:[22,23,24,23,25,26,27,28] },
               { label:'LEAK', value:'19',  unit:'L/min', tone:'ok',   trend:'steady', statusText:'허용 범위', bars:[17,16,18,19,17,18,17,19] },
@@ -643,7 +643,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
       </div>
 
       {/* AI 인사이트 — prose */}
-      <div style={{ padding: '24px 22px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ padding: '14px 22px 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{
           width: 16, height: 16, borderRadius: '50%',
           background: 'linear-gradient(135deg, #6c5aff 0%, #a89bff 100%)',
