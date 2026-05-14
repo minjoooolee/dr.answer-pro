@@ -638,65 +638,65 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
       <div style={{
         width: '74%', height: '74%', position: 'relative',
         animation: `aiBreathe ${breatheDur}s ease-in-out infinite`,
-        filter: `drop-shadow(0 0 24px ${v.lead}55)
-                 drop-shadow(0 0 32px ${v.mid}44)
-                 drop-shadow(0 0 40px ${v.accentC}33)
-                 drop-shadow(0 12px 24px rgba(0,0,0,0.18))`,
+        filter: `drop-shadow(-22px 18px 36px ${v.lead}66)
+                 drop-shadow(22px 18px 36px ${v.mid}55)
+                 drop-shadow(0 30px 40px ${v.accentC}55)
+                 drop-shadow(0 8px 18px rgba(0,0,0,0.22))`,
       }}>
         {/* Sphere body */}
         <div style={{
           position: 'absolute', inset: 0, borderRadius: '50%',
           overflow: 'hidden',
-          background: `radial-gradient(circle at 40% 35%, #1a0a2e 0%, #0a0518 100%)`,
+          background: `
+            radial-gradient(circle at 70% 78%, ${v.shadow} 0%, transparent 55%),
+            radial-gradient(circle at 30% 28%, #ffffff 0%, ${v.lead} 30%, ${v.shadow} 100%)
+          `,
         }}>
-          {/* Large warm blob rotating slowly */}
+          {/* Slow-rotating chromatic blob layer */}
           <div style={{
-            position: 'absolute', inset: '-20%', borderRadius: '50%',
-            background: `radial-gradient(ellipse 60% 50% at 65% 55%, ${v.warm}ee 0%, ${v.warm}66 30%, transparent 70%)`,
-            filter: 'blur(22px)', mixBlendMode: 'screen', opacity: 0.85,
+            position: 'absolute', inset: 0, borderRadius: '50%',
             animation: `aiRotate ${rotDur}s linear infinite`,
-          }} />
-          {/* Lead color blob counter-rotating */}
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 65% 55%, ${v.mid} 0%, ${v.mid} 18%, transparent 60%)`,
+              filter: 'blur(14px)', mixBlendMode: 'screen', opacity: 1,
+              animation: `blobA ${blobDur}s ease-in-out infinite`,
+            }} />
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 30% 70%, ${v.accentC} 0%, ${v.accentC} 16%, transparent 55%)`,
+              filter: 'blur(16px)', mixBlendMode: 'screen', opacity: 0.95,
+              animation: `blobB ${blobDur * 1.3}s ease-in-out infinite`,
+            }} />
+          </div>
+
+          {/* Counter-rotating chromatic blob layer */}
           <div style={{
-            position: 'absolute', inset: '-20%', borderRadius: '50%',
-            background: `radial-gradient(ellipse 55% 45% at 35% 45%, ${v.lead}ff 0%, ${v.lead}88 25%, transparent 65%)`,
-            filter: 'blur(20px)', mixBlendMode: 'screen', opacity: 0.9,
+            position: 'absolute', inset: 0, borderRadius: '50%',
             animation: `aiRotateRev ${rotRevDur}s linear infinite`,
-          }} />
-          {/* Mid (purple) large blob */}
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 25% 35%, ${v.mid} 0%, transparent 45%)`,
+              filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.85,
+              animation: `blobC ${blobDur * 0.9}s ease-in-out infinite`,
+            }} />
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 75% 25%, ${v.warm} 0%, transparent 45%)`,
+              filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.8,
+              animation: `blobA ${blobDur * 1.5}s ease-in-out infinite reverse`,
+            }} />
+          </div>
+
+          {/* Inner core — heart bump */}
           <div style={{
-            position: 'absolute', inset: '-10%', borderRadius: '50%',
-            background: `radial-gradient(ellipse 50% 60% at 55% 40%, ${v.mid}ff 0%, ${v.mid}66 30%, transparent 65%)`,
-            filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.8,
-            animation: `blobA ${blobDur}s ease-in-out infinite`,
-          }} />
-          {/* Accent (red/pink) blob */}
-          <div style={{
-            position: 'absolute', inset: '-10%', borderRadius: '50%',
-            background: `radial-gradient(ellipse 45% 55% at 40% 65%, ${v.accentC}ee 0%, ${v.accentC}55 30%, transparent 65%)`,
-            filter: 'blur(20px)', mixBlendMode: 'screen', opacity: 0.75,
-            animation: `aiRotate ${rotDur * 0.8}s linear infinite reverse`,
-          }} />
-          {/* White/bright core highlight */}
-          <div style={{
-            position: 'absolute', inset: 0, borderRadius: '50%',
-            background: `radial-gradient(ellipse 40% 35% at 42% 42%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.3) 35%, transparent 65%)`,
-            filter: 'blur(10px)', mixBlendMode: 'screen', opacity: 0.7,
-            animation: `blobC ${blobDur * 0.7}s ease-in-out infinite`,
-          }} />
-          {/* Chromatic fringe — teal rim */}
-          <div style={{
-            position: 'absolute', inset: 0, borderRadius: '50%',
-            boxShadow: `inset 0 0 0 4px ${v.lead}88, inset 0 0 20px 2px ${v.lead}44`,
-            mixBlendMode: 'screen', opacity: 0.9,
-          }} />
-          {/* Inner core glow */}
-          <div style={{
-            position: 'absolute', top: '42%', left: '38%',
-            width: '30%', height: '30%',
+            position: 'absolute', top: '46%', left: '42%',
+            width: '32%', height: '32%',
             borderRadius: '50%',
             background: `radial-gradient(circle, #ffffff 0%, ${v.lead} 30%, transparent 65%)`,
-            filter: 'blur(8px)', mixBlendMode: 'screen',
+            filter: 'blur(6px)', mixBlendMode: 'screen',
             animation: `aiHeart ${breatheDur * 0.55}s ease-in-out infinite`,
           }} />
 
@@ -1904,8 +1904,6 @@ function PROScreen({ tweaks, setTweak }) {
             borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: submitted ? 1 : 0.32,
-            WebkitMaskImage: submitted ? 'none' : 'radial-gradient(circle at 50% 50%, #000 40%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.4) 80%, transparent 100%)',
-            maskImage: submitted ? 'none' : 'radial-gradient(circle at 50% 50%, #000 40%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.4) 80%, transparent 100%)',
             transition: 'opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             pointerEvents: 'none',
           }}>
