@@ -341,7 +341,7 @@ function MeshOrb({ size = 96, status = 'ok' }) {
 // ─── HOME ───────────────────────────────────────────────────────
 const STATUS_UI = {
   ok:    { label: '정상',     labelColor: '#5dffa0', gradColor: 'rgba(30,200,90,0.28)'  },
-  watch: { label: '관찰 필요', labelColor: '#ffcc55', gradColor: 'rgba(220,130,30,0.28)' },
+  watch: { label: '관찰 필요', labelColor: '#E0883A', gradColor: 'rgba(220,130,30,0.28)' },
   alert: { label: '응급 상황', labelColor: '#ff7777', gradColor: 'rgba(220,40,40,0.30)'  },
 };
 
@@ -562,12 +562,12 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
               <div style={{
                 fontSize: 14.5, fontWeight: 700, letterSpacing: -0.4, lineHeight: 1.45, color: C.ink,
               }}>
-                RR, MinVent 지표에서<br/>변화가 감지됩니다.
+                호흡이 평소보다 빠르고<br/>환기량이 설정치보다 낮아요.
               </div>
               <div style={{
-                fontSize: 12.5, color: C.ink2, fontWeight: 500, lineHeight: 1.5, marginTop: 4,
+                fontSize: 12, color: C.mute, fontWeight: 500, lineHeight: 1.5, marginTop: 5,
               }}>
-                아이 상태를 확인해주세요.
+                RR 28회/분 (+18%) · MinVent 3.97 L/min (−12%)
               </div>
             </div>
           </div>
