@@ -758,6 +758,23 @@ Object.assign(window, { AISymbol });
 <script type="text/babel">
 // PRO Conversational Companion — main screen
 
+const PATIENT_NAME = '성인';
+
+const HOME_QUESTIONS = [
+  { q: `${PATIENT_NAME}님, 오늘 소화는 잘 되셨나요?`,       ph: '식사 후 속 불편감, 메스꺼움, 식욕 변화 등을 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 오늘 운동은 하셨나요?`,          ph: '가볍게 걷기, 스트레칭 등 오늘 활동을 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 오늘 배변은 어떠셨나요?`,        ph: '횟수, 형태, 복통 여부 등 배변 상태를 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 오늘 식사는 잘 하셨나요?`,       ph: '먹은 양, 식욕 상태, 특이사항을 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 오늘 피로감은 어떠세요?`,        ph: '피로 정도, 수면 상태, 기력 등을 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 손발 저림이나 냉감은 없으신가요?`, ph: '말초신경 증상(저림·냉감·통증 등)이 있으면 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 체중 변화가 있으셨나요?`,        ph: '최근 체중 변화, 부종 여부 등을 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 오늘 통증은 어떠세요?`,          ph: '어디가 아픈지, 통증 정도(1~10점)를 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 구내염이나 입안 불편감은 없으신가요?`, ph: '입안 상처·따끔거림·삼킴 불편 등을 알려주세요.' },
+  { q: `${PATIENT_NAME}님, 오늘 수분 섭취는 충분하셨나요?`, ph: '물이나 음료 섭취량, 탈수 증상 여부를 알려주세요.' },
+];
+
+const HOME_Q_IDX = Math.floor(Math.random() * HOME_QUESTIONS.length);
+
 const TWEAKS_DEFAULT = /*EDITMODE-BEGIN*/{
   "variant": "aurora",
   "state": "idle",
@@ -1846,10 +1863,10 @@ function PROScreen({ tweaks, setTweak }) {
             <>
               <h1 style={{
                 fontFamily: 'Pretendard, system-ui', fontWeight: 800,
-                fontSize: 28, lineHeight: 1.25, margin: 0,
+                fontSize: 26, lineHeight: 1.3, margin: 0,
                 color: dark ? '#fff' : C.black, letterSpacing: '-0.025em',
               }}>
-                {tweaks.greeting}
+                {HOME_QUESTIONS[HOME_Q_IDX].q}
               </h1>
             </>
           )}
@@ -1905,7 +1922,7 @@ function PROScreen({ tweaks, setTweak }) {
                 }
               }
             }}
-            placeholder="오늘은 좀 어떠세요?에 대한 답변을 해주세요"
+            placeholder={HOME_QUESTIONS[HOME_Q_IDX].ph}
             style={{
               flex: 1, border: 'none', outline: 'none', background: 'transparent',
               fontFamily: 'Pretendard, system-ui', fontWeight: 400, fontSize: 14,
