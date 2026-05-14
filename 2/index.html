@@ -763,7 +763,6 @@ function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusT
         <div style={{ fontSize: 8.5, fontWeight: 600, color: C.mute2, letterSpacing: 0.3, marginBottom: 0, textTransform: 'uppercase' }}>1시간 추세</div>
         <BarChart bars={bars} accentTone={tone} w={120} h={24} animate={animate} showLabels unit={unit}/>
       </div>
-      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: accent, opacity: 0.85 }}/>
     </div>
   );
 }
