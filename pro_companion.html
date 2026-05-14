@@ -1861,8 +1861,8 @@ function PROScreen({ tweaks, setTweak }) {
             borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: submitted ? 1 : 0.32,
-            WebkitMaskImage: submitted ? 'none' : 'radial-gradient(circle at 50% 50%, #000 55%, transparent 78%)',
-            maskImage: submitted ? 'none' : 'radial-gradient(circle at 50% 50%, #000 55%, transparent 78%)',
+            WebkitMaskImage: submitted ? 'none' : 'radial-gradient(circle at 50% 50%, #000 15%, rgba(0,0,0,0.85) 35%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.2) 75%, transparent 100%)',
+            maskImage: submitted ? 'none' : 'radial-gradient(circle at 50% 50%, #000 15%, rgba(0,0,0,0.85) 35%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.2) 75%, transparent 100%)',
             transition: 'opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             pointerEvents: 'none',
           }}>
