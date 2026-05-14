@@ -588,10 +588,10 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
       </div>
 
       <div style={{ padding: '0 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <MetricCard label="PIP"  value="18"  unit="cmH₂O" tone="ok"   trend="up"     statusText="기준 ±2"               bars={[3,4,3,5,4,3,5,7]} animate={!showAgent}/>
-        <MetricCard label="VTE"  value="142" unit="mL"    tone="ok"   trend="steady" statusText="정상 범위"             bars={[4,5,4,5,4,5,4,6]} animate={!showAgent}/>
-        <MetricCard label="RR"   value="28"  unit="bpm"   tone="warn" trend="up"     statusText="+18% 상승"             bars={[3,4,5,4,5,6,7,8]} animate={!showAgent}/>
-        <MetricCard label="LEAK" value="19"  unit="L/min" tone="ok"   trend="steady" statusText="허용 범위"             bars={[4,3,4,5,4,5,4,6]} animate={!showAgent}/>
+        <MetricCard label="PIP"  value="18"  unit="cmH₂O" tone="ok"   trend="up"     statusText="기준 ±2"   bars={[15,16,15,17,16,15,17,18]} animate={!showAgent}/>
+        <MetricCard label="VTE"  value="142" unit="mL"    tone="ok"   trend="steady" statusText="정상 범위" bars={[138,140,139,141,140,142,141,142]} animate={!showAgent}/>
+        <MetricCard label="RR"   value="28"  unit="bpm"   tone="warn" trend="up"     statusText="+18% 상승" bars={[22,23,24,23,25,26,27,28]} animate={!showAgent}/>
+        <MetricCard label="LEAK" value="19"  unit="L/min" tone="ok"   trend="steady" statusText="허용 범위" bars={[17,16,18,19,17,18,17,19]} animate={!showAgent}/>
       </div>
 
       {/* MINVENT — wide card */}
@@ -666,26 +666,27 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
 }
 
 // ─── Small bar chart for metric cards ──────────────────────────
-function BarChart({ bars, highlightLast = true, accentTone = 'ok', w = 96, h = 26, animate = false }) {
+function BarChart({ bars, highlightLast = true, accentTone = 'ok', w = 96, h = 26, animate = false, showLabels = false, unit = '' }) {
+  const min = Math.min(...bars);
   const max = Math.max(...bars);
+  const range = max - min || 1;
   const accent = accentTone === 'warn' ? C.warn : C.ok;
   const gap = 2;
   const barW = (w - gap * (bars.length - 1)) / bars.length;
 
-  // Track whether the last bar has settled yet
   const [settled, setSettled] = React.useState(!animate);
   React.useEffect(() => {
     if (!animate) return;
     setSettled(false);
-    // blink 3 times (~1.5s) then settle
     const t = setTimeout(() => setSettled(true), 1500);
     return () => clearTimeout(t);
   }, [animate]);
 
-  return (
+  const chartEl = (
     <div style={{ position: 'relative', width: w, height: h, display: 'flex', alignItems: 'flex-end', gap: gap }}>
       {bars.map((v, i) => {
-        const bh = Math.max(2, (v / max) * (h - 2));
+        // Scale from min baseline so small fluctuations are visible
+        const bh = Math.max(3, ((v - min) / range) * (h - 6) + 6);
         const isLast = i === bars.length - 1;
         const fill = isLast && highlightLast ? accent : 'rgba(180,194,210,0.55)';
         let anim = 'none';
@@ -703,6 +704,22 @@ function BarChart({ bars, highlightLast = true, accentTone = 'ok', w = 96, h = 2
           }}/>
         );
       })}
+    </div>
+  );
+
+  if (!showLabels) return chartEl;
+
+  return (
+    <div style={{ width: w }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3, fontSize: 8.5, color: C.mute2, fontWeight: 600, letterSpacing: 0.2 }}>
+        <span>1h 전</span>
+        <span>지금</span>
+      </div>
+      {chartEl}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3, fontSize: 9, color: C.mute, fontWeight: 600 }}>
+        <span>{bars[0]}</span>
+        <span style={{ color: accent }}>{bars[bars.length - 1]}{unit}</span>
+      </div>
     </div>
   );
 }
@@ -742,8 +759,9 @@ function MetricCard({ label, value, unit, tone = 'ok', trend = 'steady', statusT
         <TrendIcon dir={trend} color={accent}/>
         {statusText}
       </div>
-      <div style={{ marginTop: 'auto', paddingTop: 6 }}>
-        <BarChart bars={bars} accentTone={tone} w={120} h={26} animate={animate}/>
+      <div style={{ marginTop: 'auto', paddingTop: 4 }}>
+        <div style={{ fontSize: 8.5, fontWeight: 600, color: C.mute2, letterSpacing: 0.3, marginBottom: 0, textTransform: 'uppercase' }}>1시간 추세</div>
+        <BarChart bars={bars} accentTone={tone} w={120} h={24} animate={animate} showLabels unit={unit}/>
       </div>
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 3, background: accent, opacity: 0.85 }}/>
     </div>
