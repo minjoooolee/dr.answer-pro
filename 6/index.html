@@ -34,6 +34,14 @@
     0%   { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+  @keyframes aiRotateRev {
+    0%   { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes aiShimmer {
+    0%, 100% { opacity: 0.55; transform: rotate(0deg) scale(1); }
+    50%      { opacity: 0.9;  transform: rotate(180deg) scale(1.05); }
+  }
   @keyframes aiBlink {
     0%, 100% { opacity: 1; }
     50%      { opacity: 0.25; }
@@ -597,11 +605,13 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
   const ring2Dur = state === 'listening' ? 1.7 : 3.4;
   const breatheDur = state === 'thinking' ? 1.8 : 4.4;
   const blobDur = state === 'thinking' ? 6 : 12;
+  const rotDur = state === 'thinking' ? 10 : 22;
+  const rotRevDur = state === 'thinking' ? 14 : 28;
 
   const variants = {
-    aurora: { lead: '#41d2b4', mid: '#7d50f0', accentC: '#ee3f60', shadow: '#5a3aa8' },
-    liquid: { lead: '#7d50f0', mid: '#41d2b4', accentC: '#ee3f60', shadow: '#a83050' },
-    plasma: { lead: '#ee3f60', mid: '#7d50f0', accentC: '#41d2b4', shadow: '#3a8c7a' },
+    aurora: { lead: '#41d2b4', mid: '#7d50f0', accentC: '#ee3f60', warm: '#ff9b3d', shadow: '#5a3aa8' },
+    liquid: { lead: '#7d50f0', mid: '#41d2b4', accentC: '#ee3f60', warm: '#ff9b3d', shadow: '#a83050' },
+    plasma: { lead: '#ee3f60', mid: '#7d50f0', accentC: '#41d2b4', warm: '#ff9b3d', shadow: '#3a8c7a' },
   };
   const v = variants[variant] || variants.aurora;
 
@@ -642,34 +652,43 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
             radial-gradient(circle at 30% 28%, #ffffff 0%, ${v.lead} 30%, ${v.shadow} 100%)
           `,
         }}>
-          {/* Mid color blob — large */}
+          {/* Slow-rotating chromatic blob layer */}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            background: `radial-gradient(circle at 65% 55%, ${v.mid} 0%, ${v.mid} 18%, transparent 60%)`,
-            filter: 'blur(14px)', mixBlendMode: 'screen', opacity: 1,
-            animation: `blobA ${blobDur}s ease-in-out infinite`,
-          }} />
-          {/* Accent color blob — large */}
+            animation: `aiRotate ${rotDur}s linear infinite`,
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 65% 55%, ${v.mid} 0%, ${v.mid} 18%, transparent 60%)`,
+              filter: 'blur(14px)', mixBlendMode: 'screen', opacity: 1,
+              animation: `blobA ${blobDur}s ease-in-out infinite`,
+            }} />
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 30% 70%, ${v.accentC} 0%, ${v.accentC} 16%, transparent 55%)`,
+              filter: 'blur(16px)', mixBlendMode: 'screen', opacity: 0.95,
+              animation: `blobB ${blobDur * 1.3}s ease-in-out infinite`,
+            }} />
+          </div>
+
+          {/* Counter-rotating chromatic blob layer */}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            background: `radial-gradient(circle at 30% 70%, ${v.accentC} 0%, ${v.accentC} 16%, transparent 55%)`,
-            filter: 'blur(16px)', mixBlendMode: 'screen', opacity: 0.95,
-            animation: `blobB ${blobDur * 1.3}s ease-in-out infinite`,
-          }} />
-          {/* Second mid blob */}
-          <div style={{
-            position: 'absolute', inset: 0, borderRadius: '50%',
-            background: `radial-gradient(circle at 25% 35%, ${v.mid} 0%, transparent 45%)`,
-            filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.85,
-            animation: `blobC ${blobDur * 0.9}s ease-in-out infinite`,
-          }} />
-          {/* Second accent blob */}
-          <div style={{
-            position: 'absolute', inset: 0, borderRadius: '50%',
-            background: `radial-gradient(circle at 75% 25%, ${v.accentC} 0%, transparent 42%)`,
-            filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.8,
-            animation: `blobA ${blobDur * 1.5}s ease-in-out infinite reverse`,
-          }} />
+            animation: `aiRotateRev ${rotRevDur}s linear infinite`,
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 25% 35%, ${v.mid} 0%, transparent 45%)`,
+              filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.85,
+              animation: `blobC ${blobDur * 0.9}s ease-in-out infinite`,
+            }} />
+            <div style={{
+              position: 'absolute', inset: 0, borderRadius: '50%',
+              background: `radial-gradient(circle at 75% 25%, ${v.warm} 0%, transparent 45%)`,
+              filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.8,
+              animation: `blobA ${blobDur * 1.5}s ease-in-out infinite reverse`,
+            }} />
+          </div>
 
           {/* Inner core — heart bump */}
           <div style={{
@@ -747,6 +766,30 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
           opacity: 0.85,
         }} />
       </div>
+
+      {/* Counter-orbiting small particle */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        animation: `aiRotateRev ${state === 'thinking' ? 11 : 21}s linear infinite`,
+        pointerEvents: 'none',
+      }}>
+        <div style={{
+          position: 'absolute', top: '50%', left: '4%',
+          width: 3, height: 3, borderRadius: '50%',
+          background: '#fff', boxShadow: `0 0 8px ${v.warm}`,
+          transform: 'translateY(-50%)',
+          opacity: 0.7,
+        }} />
+      </div>
+
+      {/* Bright trailing arc ring */}
+      <div style={{
+        position: 'absolute', inset: '6%', borderRadius: '50%',
+        background: `conic-gradient(from 0deg, transparent 0deg, transparent 200deg, ${v.lead}aa 280deg, #ffffffcc 330deg, transparent 360deg)`,
+        filter: 'blur(4px)', mixBlendMode: 'screen', opacity: 0.5,
+        animation: `aiRotate ${rotDur * 0.7}s linear infinite`,
+        pointerEvents: 'none',
+      }} />
     </div>
   );
 }
@@ -757,6 +800,23 @@ Object.assign(window, { AISymbol });
 <!-- ─── app ───────────────────────────────────────────────────── -->
 <script type="text/babel">
 // PRO Conversational Companion — main screen
+
+const PATIENT_NAME = '성인';
+
+const HOME_QUESTIONS = [
+  { q: '오늘 소화는 잘 되셨나요?',          ph: '식사 후 속 불편감, 메스꺼움, 식욕 변화 등을 알려주세요.' },
+  { q: '오늘 운동은 하셨나요?',             ph: '가볍게 걷기, 스트레칭 등 오늘 활동을 알려주세요.' },
+  { q: '오늘 배변은 어떠셨나요?',           ph: '횟수, 형태, 복통 여부 등 배변 상태를 알려주세요.' },
+  { q: '오늘 식사는 잘 하셨나요?',          ph: '먹은 양, 식욕 상태, 특이사항을 알려주세요.' },
+  { q: '오늘 피로감은 어떠세요?',           ph: '피로 정도, 수면 상태, 기력 등을 알려주세요.' },
+  { q: '손발 저림이나 냉감은 없으신가요?',   ph: '말초신경 증상(저림·냉감·통증 등)이 있으면 알려주세요.' },
+  { q: '체중 변화가 있으셨나요?',           ph: '최근 체중 변화, 부종 여부 등을 알려주세요.' },
+  { q: '오늘 통증은 어떠세요?',             ph: '어디가 아픈지, 통증 정도(1~10점)를 알려주세요.' },
+  { q: '구내염이나 입안 불편감은 없으신가요?', ph: '입안 상처·따끔거림·삼킴 불편 등을 알려주세요.' },
+  { q: '오늘 수분 섭취는 충분하셨나요?',     ph: '물이나 음료 섭취량, 탈수 증상 여부를 알려주세요.' },
+];
+
+const HOME_Q_IDX = Math.floor(Math.random() * HOME_QUESTIONS.length);
 
 const TWEAKS_DEFAULT = /*EDITMODE-BEGIN*/{
   "variant": "aurora",
@@ -1827,13 +1887,52 @@ function PROScreen({ tweaks, setTweak }) {
         alignItems: 'center', justifyContent: 'center',
         padding: '0 24px',
       }}>
-        <AISymbol size={submitted ? 110 : 180} variant={tweaks.variant} state={symbolState} accent={C.main} />
-
         <div style={{
-          marginTop: submitted ? 32 : 88, textAlign: 'center', maxWidth: 320,
-          transition: 'margin-top 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+          position: 'relative',
+          width: submitted ? 110 : 340,
+          height: submitted ? 110 : 340,
+          flexShrink: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+          contain: 'layout paint',
+          isolation: 'isolate',
         }}>
-          {submitted ? (
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%',
+            width: submitted ? 110 : 340, height: submitted ? 110 : 340,
+            transform: 'translate(-50%, -50%)',
+            borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            opacity: submitted ? 1 : 0.32,
+            transition: 'opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
+            pointerEvents: 'none',
+          }}>
+            <AISymbol size={submitted ? 110 : 340} variant={tweaks.variant} state={symbolState} accent={C.main} />
+          </div>
+
+          {!submitted && (
+            <div style={{
+              position: 'absolute', top: '50%', left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 1, textAlign: 'center',
+              width: '100%', maxWidth: 300, padding: '0 12px',
+            }}>
+              <h1 style={{
+                fontFamily: 'Pretendard, system-ui', fontWeight: 800,
+                fontSize: 26, lineHeight: 1.35, margin: 0,
+                color: dark ? '#fff' : C.black, letterSpacing: '-0.025em',
+                textShadow: dark
+                  ? '0 2px 16px rgba(0,0,0,0.5)'
+                  : '0 2px 16px rgba(255,255,255,0.85), 0 0 24px rgba(255,255,255,0.7)',
+              }}>
+                {PATIENT_NAME}님,<br/>{HOME_QUESTIONS[HOME_Q_IDX].q}
+              </h1>
+            </div>
+          )}
+        </div>
+
+        {submitted && (
+          <div style={{ marginTop: 32, textAlign: 'center', maxWidth: 320 }}>
             <p style={{
               fontFamily: 'Pretendard, system-ui', fontWeight: 400,
               fontSize: 16, lineHeight: 1.55, margin: 0,
@@ -1842,18 +1941,8 @@ function PROScreen({ tweaks, setTweak }) {
               마지막 데이터 입력 시점으로부터<br/>
               지금까지 <span style={{ fontWeight: 800, color: C.main }}>건강함</span>으로 기록됩니다.
             </p>
-          ) : (
-            <>
-              <h1 style={{
-                fontFamily: 'Pretendard, system-ui', fontWeight: 800,
-                fontSize: 28, lineHeight: 1.25, margin: 0,
-                color: dark ? '#fff' : C.black, letterSpacing: '-0.025em',
-              }}>
-                {tweaks.greeting}
-              </h1>
-            </>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Tags */}
         <div style={{
@@ -1905,7 +1994,7 @@ function PROScreen({ tweaks, setTweak }) {
                 }
               }
             }}
-            placeholder="오늘은 좀 어떠세요?에 대한 답변을 해주세요"
+            placeholder={HOME_QUESTIONS[HOME_Q_IDX].ph}
             style={{
               flex: 1, border: 'none', outline: 'none', background: 'transparent',
               fontFamily: 'Pretendard, system-ui', fontWeight: 400, fontSize: 14,
