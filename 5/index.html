@@ -677,7 +677,7 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
             position: 'absolute', inset: 0, borderRadius: '50%',
             background: `radial-gradient(circle at 75% 25%, ${v.accentC} 0%, transparent 42%)`,
             filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.8,
-            animation: `blobA ${blobDur * 1.5}s ease-in-out infinite reverse`,
+            animation: isStatic ? 'none' : `blobA ${blobDur * 1.5}s ease-in-out infinite reverse`,
           }} />
 
           {/* Inner core — heart bump */}
@@ -745,7 +745,7 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
       {/* Orbiting particle */}
       <div style={{
         position: 'absolute', inset: 0,
-        animation: `aiRotate ${state === 'thinking' ? 8 : 16}s linear infinite`,
+        animation: isStatic ? 'none' : `aiRotate ${state === 'thinking' ? 8 : 16}s linear infinite`,
         pointerEvents: 'none',
       }}>
         <div style={{
