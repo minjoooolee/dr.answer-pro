@@ -1902,11 +1902,15 @@ function PROScreen({ tweaks, setTweak }) {
             transform: 'translate(-50%, -50%)',
             borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: submitted ? 1 : 0.35,
+            opacity: submitted ? 1 : 0.45,
             transition: 'opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             pointerEvents: 'none',
           }}>
-            <AISymbol size={submitted ? 110 : 340} variant={tweaks.variant} state={symbolState} accent={C.main} />
+            {submitted ? (
+              <AISymbol size={110} variant={tweaks.variant} state={symbolState} accent={C.main} />
+            ) : (
+              <img src="ai-orb.svg" alt="" style={{ width: '100%', height: '100%', display: 'block' }} />
+            )}
           </div>
 
           {/* Natural edge fade — overlays page background color from corners inward */}
@@ -1916,7 +1920,7 @@ function PROScreen({ tweaks, setTweak }) {
               width: 340, height: 340,
               transform: 'translate(-50%, -50%)',
               borderRadius: '50%',
-              background: `radial-gradient(circle at 50% 50%, transparent 52%, ${dark ? 'rgba(18,18,28,0.55)' : 'rgba(243,246,245,0.55)'} 68%, ${dark ? 'rgba(18,18,28,0.92)' : 'rgba(243,246,245,0.92)'} 82%, ${dark ? '#12121c' : '#f3f6f5'} 100%)`,
+              background: `radial-gradient(circle at 50% 50%, transparent 55%, ${dark ? 'rgba(18,18,28,0.5)' : 'rgba(243,246,245,0.5)'} 72%, ${dark ? 'rgba(18,18,28,0.9)' : 'rgba(243,246,245,0.9)'} 86%, ${dark ? '#12121c' : '#f3f6f5'} 100%)`,
               pointerEvents: 'none', zIndex: 2,
             }} />
           )}
