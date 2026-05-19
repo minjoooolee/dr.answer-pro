@@ -481,10 +481,117 @@ function AgentPopup({ onClose, onWorry }) {
   );
 }
 
+function OCRModal({ onClose, onCapture }) {
+  const [phase, setPhase] = React.useState('aim'); // 'aim' | 'analyzing'
+
+  const handleShutter = () => {
+    setPhase('analyzing');
+    setTimeout(() => { onCapture && onCapture(); }, 1600);
+  };
+
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, zIndex: 300, background: '#000',
+      display: 'flex', flexDirection: 'column',
+      color: '#fff',
+    }}>
+      {/* Top bar */}
+      <div style={{
+        padding: '54px 18px 14px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <button onClick={onClose} disabled={phase === 'analyzing'} style={{
+          width: 34, height: 34, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.12)', border: 0, cursor: 'pointer',
+          color: '#fff', fontSize: 18, lineHeight: 1, opacity: phase === 'analyzing' ? 0.4 : 1,
+        }}>✕</button>
+        <span style={{ fontSize: 13, fontWeight: 600, letterSpacing: -0.2 }}>인공호흡기 화면 촬영</span>
+        <div style={{ width: 34 }}/>
+      </div>
+
+      {/* Viewfinder */}
+      <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 30px' }}>
+        <div style={{
+          width: '100%', aspectRatio: '4/3', position: 'relative',
+          background: phase === 'analyzing' ? 'rgba(75,59,224,0.12)' : 'rgba(255,255,255,0.04)',
+          borderRadius: 16, overflow: 'hidden',
+          transition: 'background 0.3s',
+        }}>
+          {/* Corner brackets */}
+          {[
+            { top: 0, left: 0, borderTop: '3px solid #fff', borderLeft: '3px solid #fff', borderTopLeftRadius: 14 },
+            { top: 0, right: 0, borderTop: '3px solid #fff', borderRight: '3px solid #fff', borderTopRightRadius: 14 },
+            { bottom: 0, left: 0, borderBottom: '3px solid #fff', borderLeft: '3px solid #fff', borderBottomLeftRadius: 14 },
+            { bottom: 0, right: 0, borderBottom: '3px solid #fff', borderRight: '3px solid #fff', borderBottomRightRadius: 14 },
+          ].map((s, i) => (
+            <div key={i} style={{ position: 'absolute', width: 28, height: 28, ...s }}/>
+          ))}
+
+          {/* Mock LCD content */}
+          <div style={{
+            position: 'absolute', inset: '18% 14%',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 6, padding: '10px 12px',
+            fontFamily: 'ui-monospace, monospace',
+            fontSize: 10, color: 'rgba(180,255,200,0.7)',
+            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>PIP 18</span><span>VTE 142</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>RR  28</span><span>LEAK 19</span>
+            </div>
+            <div>MinVent 3.97 L/min</div>
+          </div>
+
+          {/* Scanning overlay during analysis */}
+          {phase === 'analyzing' && (
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexDirection: 'column', gap: 10, background: 'rgba(0,0,0,0.4)',
+            }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: '50%',
+                border: '3px solid rgba(255,255,255,0.2)',
+                borderTopColor: '#fff', animation: 'orbFloat 0.9s linear infinite',
+              }}/>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>수치 인식 중...</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Hint */}
+      <div style={{ padding: '0 30px', textAlign: 'center', fontSize: 11.5, color: 'rgba(255,255,255,0.55)', minHeight: 32 }}>
+        {phase === 'aim' ? 'LCD 화면을 사각형 안에 맞춰주세요' : ''}
+      </div>
+
+      {/* Shutter */}
+      <div style={{ padding: '20px 0 60px', display: 'flex', justifyContent: 'center' }}>
+        <button onClick={handleShutter} disabled={phase === 'analyzing'} style={{
+          width: 70, height: 70, borderRadius: '50%',
+          background: 'transparent', border: '4px solid rgba(255,255,255,0.5)',
+          cursor: phase === 'analyzing' ? 'default' : 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          opacity: phase === 'analyzing' ? 0.5 : 1,
+        }}>
+          <span style={{ width: 54, height: 54, borderRadius: '50%', background: '#fff' }}/>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Home({ showAgent = false, onAgentClose, onWorry }) {
   // 'ok' | 'watch' | 'alert' — 오브/카드 색상 연동
   const STATUS = 'watch';
   const sui = STATUS_UI[STATUS];
+
+  const [vpepMode, setVpepMode] = React.useState('photo'); // 'photo' | 'live'
+  const [ocrOpen, setOcrOpen] = React.useState(false);
+  const [captured, setCaptured] = React.useState(false);
 
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 120, background: C.bg, position: 'relative' }}>
@@ -583,13 +690,63 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
       <div style={{ padding: '10px 16px 0' }}>
         <div style={{ background: C.card, borderRadius: 22, overflow: 'hidden', boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)' }}>
 
-          {/* Panel header */}
-          <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', borderBottom: `1px solid ${C.line}` }}>
+          {/* Panel header with mode toggle */}
+          <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: `1px solid ${C.line}` }}>
             <span style={{ fontSize: 12, fontWeight: 700, color: C.ink, letterSpacing: -0.2 }}>V-PEP 환기 지표</span>
-            <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: C.ok, animation: 'pulseDot 1.6s ease-in-out infinite' }}/>
+            <div style={{
+              marginLeft: 'auto', display: 'flex', background: 'rgba(14,17,22,0.05)',
+              borderRadius: 100, padding: 2,
+            }}>
+              {[
+                { id: 'photo', label: '촬영하기' },
+                { id: 'live',  label: '실시간' },
+              ].map(opt => {
+                const active = vpepMode === opt.id;
+                return (
+                  <button key={opt.id} onClick={() => setVpepMode(opt.id)} style={{
+                    background: active ? C.card : 'transparent',
+                    color: active ? C.ink : C.mute,
+                    border: 0, cursor: 'pointer',
+                    padding: '4px 10px', borderRadius: 100,
+                    fontSize: 10.5, fontWeight: 700, letterSpacing: -0.1,
+                    boxShadow: active ? '0 1px 1.5px rgba(14,17,22,0.08)' : 'none',
+                  }}>{opt.label}</button>
+                );
+              })}
+            </div>
+            {vpepMode === 'live' && (
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.ok, animation: 'pulseDot 1.6s ease-in-out infinite' }}/>
+            )}
           </div>
 
+          {/* Photo mode (no capture yet) — camera CTA */}
+          {vpepMode === 'photo' && !captured && (
+            <button onClick={() => setOcrOpen(true)} style={{
+              width: '100%', background: 'transparent', border: 0, cursor: 'pointer',
+              padding: '30px 14px 32px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%',
+                background: 'rgba(14,17,22,0.05)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 8a2 2 0 012-2h2l1.5-2h5L16 6h2a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8z" stroke={C.ink} strokeWidth="1.6" strokeLinejoin="round"/>
+                  <circle cx="12" cy="13" r="3.5" stroke={C.ink} strokeWidth="1.6"/>
+                </svg>
+              </div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: C.ink, letterSpacing: -0.2 }}>
+                인공호흡기 화면을 촬영해주세요
+              </div>
+              <div style={{ fontSize: 10.5, color: C.mute, fontWeight: 500 }}>
+                탭하여 OCR로 수치를 자동 인식합니다
+              </div>
+            </button>
+          )}
+
           {/* 2 × 2 grid */}
+          {(vpepMode === 'live' || captured) && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
             {[
               { label:'PIP',  value:'18',  unit:'cmH₂O', tone:'ok',   trend:'steady', statusText:'기준 ±2' },
@@ -633,10 +790,20 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
               <span style={{ fontSize: 10, color: C.mute, fontWeight: 500 }}>L/min</span>
               <span style={{ fontSize: 10, color: C.mute2, fontWeight: 500, marginLeft: 'auto' }}>설정치 -12% · 추세 확인 필요</span>
             </div>
+            {vpepMode === 'photo' && captured && (
+              <button onClick={() => setOcrOpen(true)} style={{
+                marginTop: 8, width: '100%', background: 'rgba(14,17,22,0.04)',
+                border: 0, cursor: 'pointer', borderRadius: 8,
+                padding: '7px 0', fontSize: 10.5, fontWeight: 600, color: C.ink2,
+              }}>다시 촬영하기</button>
+            )}
           </div>
+          )}
 
         </div>
       </div>
+
+      {ocrOpen && <OCRModal onClose={() => setOcrOpen(false)} onCapture={() => { setCaptured(true); setOcrOpen(false); }}/>}
 
       {/* AI 인사이트 — prose */}
       <div style={{ padding: '14px 22px 6px', display: 'flex', alignItems: 'center', gap: 8 }}>
