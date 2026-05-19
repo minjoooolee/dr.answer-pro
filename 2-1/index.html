@@ -499,33 +499,60 @@ function OCRCapture({ onClose, onCaptured }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <div style={{
-            width: '78%', maxWidth: 280, aspectRatio: '4 / 3',
+            width: '78%', maxWidth: 280, aspectRatio: '4 / 3.4',
             background: 'linear-gradient(180deg, #0c1018 0%, #050709 100%)',
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 8,
-            padding: '14px 16px',
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+            padding: '12px 14px',
+            display: 'flex', flexDirection: 'column', gap: 8,
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
             transform: 'perspective(800px) rotateY(-2deg) rotateX(1deg)',
             boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
           }}>
-            {[
-              { l: 'PIP',    v: '18',  u: 'cmH₂O', c: '#5ad19a' },
-              { l: 'VTE',    v: '142', u: 'mL',    c: '#5ad19a' },
-              { l: 'RR',     v: '28',  u: 'bpm',   c: '#f3b35a' },
-              { l: 'LEAK',   v: '19',  u: 'L/min', c: '#5ad19a' },
-            ].map(m => (
-              <div key={m.l} style={{
-                padding: '6px 8px',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.05)',
-                borderRadius: 4,
-              }}>
-                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>{m.l}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: m.c, lineHeight: 1.1, marginTop: 2 }}>{m.v}</div>
-                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>{m.u}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1 }}>
+              {[
+                { l: 'PIP',    v: '18',  u: 'cmH₂O', c: '#5ad19a' },
+                { l: 'VTE',    v: '142', u: 'mL',    c: '#5ad19a' },
+                { l: 'RR',     v: '28',  u: 'bpm',   c: '#f3b35a' },
+                { l: 'LEAK',   v: '19',  u: 'L/min', c: '#5ad19a' },
+              ].map(m => (
+                <div key={m.l} style={{
+                  padding: '5px 8px',
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: 4,
+                }}>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>{m.l}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: m.c, lineHeight: 1.1, marginTop: 2 }}>{m.v}</div>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>{m.u}</div>
+                </div>
+              ))}
+            </div>
+            {/* MINVENT footer row */}
+            <div style={{
+              padding: '6px 10px',
+              background: 'rgba(243,179,90,0.08)',
+              border: '1px solid rgba(243,179,90,0.18)',
+              borderRadius: 4,
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            }}>
+              <div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>MINVENT</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginTop: 1 }}>
+                  <span style={{ fontSize: 20, fontWeight: 700, color: '#f3b35a', lineHeight: 1.1 }}>3.97</span>
+                  <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>L/min</span>
+                </div>
               </div>
-            ))}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 22 }}>
+                {[8,7,7,6,6,5,4,4].map((h, i) => (
+                  <div key={i} style={{
+                    width: 3, height: `${(h/8)*100}%`,
+                    background: i === 7 ? '#f3b35a' : 'rgba(243,179,90,0.35)',
+                    borderRadius: 1,
+                  }}/>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -596,16 +623,19 @@ function OCRCapture({ onClose, onCaptured }) {
               display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap',
             }}>
               {[
-                { l: 'PIP', v: '18 cmH₂O' },
-                { l: 'VTE', v: '142 mL' },
-                { l: 'RR',  v: '28 bpm' },
-                { l: 'LEAK', v: '19 L/min' },
+                { l: 'PIP',     v: '18 cmH₂O', warn: false },
+                { l: 'VTE',     v: '142 mL',   warn: false },
+                { l: 'RR',      v: '28 bpm',   warn: true  },
+                { l: 'LEAK',    v: '19 L/min', warn: false },
+                { l: 'MinVent', v: '3.97 L/min', warn: true },
               ].map(t => (
                 <div key={t.l} style={{
                   padding: '4px 9px', borderRadius: 100,
-                  background: 'rgba(43,182,115,0.18)',
-                  border: '1px solid rgba(43,182,115,0.45)',
-                  fontSize: 10.5, fontWeight: 700, color: '#7adfae', letterSpacing: -0.1,
+                  background: t.warn ? 'rgba(243,179,90,0.18)' : 'rgba(43,182,115,0.18)',
+                  border: `1px solid ${t.warn ? 'rgba(243,179,90,0.45)' : 'rgba(43,182,115,0.45)'}`,
+                  fontSize: 10.5, fontWeight: 700,
+                  color: t.warn ? '#f3b35a' : '#7adfae',
+                  letterSpacing: -0.1,
                 }}>
                   {t.l} {t.v}
                 </div>
