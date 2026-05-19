@@ -345,15 +345,16 @@ const STATUS_UI = {
   alert: { label: '응급 상황', labelColor: '#ff7777', gradColor: 'rgba(220,40,40,0.30)'  },
 };
 
-function SyncIndicator() {
+function SyncIndicator({ synced = false }) {
   const TOTAL = 600; // 10분
   const [seconds, setSeconds] = React.useState(TOTAL);
   React.useEffect(() => {
+    if (!synced) return;
     const id = setInterval(() => {
       setSeconds(s => (s <= 1 ? TOTAL : s - 1));
     }, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [synced]);
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   const fmt = `${m}:${String(s).padStart(2, '0')}`;
@@ -362,25 +363,28 @@ function SyncIndicator() {
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 7,
         padding: '5px 11px 5px 9px', borderRadius: 100,
-        background: 'rgba(43,182,115,0.10)',
-        border: '1px solid rgba(43,182,115,0.22)',
+        background: synced ? 'rgba(43,182,115,0.10)' : 'rgba(14,17,22,0.05)',
+        border: `1px solid ${synced ? 'rgba(43,182,115,0.22)' : 'rgba(14,17,22,0.10)'}`,
       }}>
         <span style={{ position: 'relative', width: 8, height: 8 }}>
           <span style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            background: C.ok,
-            animation: 'syncRing 1.6s ease-out infinite',
+            background: synced ? C.ok : C.mute2,
+            animation: synced ? 'syncRing 1.6s ease-out infinite' : 'none',
           }}/>
           <span style={{
-            position: 'absolute', inset: 0, borderRadius: '50%', background: C.ok,
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            background: synced ? C.ok : C.mute2,
           }}/>
         </span>
-        <span style={{ fontSize: 11.5, fontWeight: 700, color: C.ok, letterSpacing: -0.1 }}>
-          Ventilator 동기화중
+        <span style={{ fontSize: 11.5, fontWeight: 700, color: synced ? C.ok : C.mute, letterSpacing: -0.1 }}>
+          {synced ? 'Ventilator 동기화중' : 'Ventilator 미연결'}
         </span>
       </div>
-      <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>
-        마지막 동기화 · <span style={{ color: C.ink, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{fmt}</span>
+      <div style={{ fontSize: 11.5, color: synced ? C.mute : C.mute2, fontWeight: 500, letterSpacing: -0.1 }}>
+        {synced
+          ? <>마지막 동기화 · <span style={{ color: C.ink, fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{fmt}</span></>
+          : '실시간 모드로 전환 시 동기화'}
       </div>
     </div>
   );
@@ -653,7 +657,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
         <div style={{ fontSize: 26, fontWeight: 700, color: C.ink, letterSpacing: -1.0, lineHeight: 1.18 }}>
           안녕하세요, 어머님.
         </div>
-        <SyncIndicator/>
+        <SyncIndicator synced={vpepMode === 'live'}/>
       </div>
 
       {/* AI summary card */}
