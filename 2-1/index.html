@@ -386,18 +386,7 @@ function SyncIndicator() {
   );
 }
 
-function AgentPopup({ onClose, onWorry }) {
-  const [answered, setAnswered] = React.useState(null);
-
-  const handleAnswer = (v) => {
-    setAnswered(v);
-    if (v === 'warn') {
-      setTimeout(() => { onWorry && onWorry(); }, 280);
-    } else {
-      setTimeout(onClose, 1400);
-    }
-  };
-
+function AgentPopup({ onClose, onCapture }) {
   return (
     <div style={{
       position: 'absolute', inset: 0, zIndex: 200,
@@ -405,83 +394,278 @@ function AgentPopup({ onClose, onWorry }) {
       WebkitBackdropFilter: 'blur(6px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '0 24px',
-    }} onClick={answered ? undefined : onClose}>
-      {answered === 'ok' ? (
-        <div style={{
-          background: '#fff', borderRadius: 20, padding: '28px 24px',
-          width: '100%', textAlign: 'center',
-          boxShadow: '0 12px 40px rgba(14,17,22,0.18)',
-        }}>
-          <div style={{ fontSize: 36, marginBottom: 10 }}>🙂</div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: C.ink, letterSpacing: -0.4 }}>다행이에요</div>
-          <div style={{ fontSize: 12.5, color: C.mute, marginTop: 6, lineHeight: 1.5, letterSpacing: -0.1 }}>
-            계속 모니터링할게요.
-          </div>
-        </div>
-      ) : (
+    }} onClick={onClose}>
       <div style={{
         width: '100%', background: '#fff', borderRadius: 20,
-        padding: '22px 22px 20px',
+        padding: '24px 22px 20px',
         boxShadow: '0 12px 40px rgba(14,17,22,0.18)',
       }} onClick={e => e.stopPropagation()}>
 
-        {/* 헤더 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 22, height: 22, borderRadius: '50%',
-              background: C.ink,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                <path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z" fill="#fff"/>
-              </svg>
-            </div>
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>AI 모니터링 에이전트</span>
+        {/* 헤더: AI 오브 + 타이틀 */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 18 }}>
+          <div style={{ marginBottom: 12 }}>
+            <MeshOrb size={56} status="watch"/>
           </div>
-          <button onClick={onClose} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: C.mute, fontSize: 18, lineHeight: 1, padding: 4,
-          }}>×</button>
-        </div>
-
-        {/* 상태 메시지 */}
-        <div style={{ marginBottom: 22 }}>
-          <div style={{ fontSize: 14.5, fontWeight: 700, color: C.ink, lineHeight: 1.55, letterSpacing: -0.3 }}>
-            호흡수(RR)가 기준치보다 다소 높게 측정되고 있어요.
+          <div style={{ fontSize: 16, fontWeight: 700, color: C.ink, letterSpacing: -0.4, textAlign: 'center' }}>
+            민준이 상태 분석하기
           </div>
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: C.ink, marginTop: 6, lineHeight: 1.55, letterSpacing: -0.2 }}>
-            지금 민준이 상태가 어떤가요?
+          <div style={{ fontSize: 12.5, color: C.mute, marginTop: 6, lineHeight: 1.5, letterSpacing: -0.1, textAlign: 'center' }}>
+            벤틸레이터 화면을 촬영하면<br/>지금 상태를 더 정확히 분석할 수 있어요.
           </div>
         </div>
 
         {/* 버튼 */}
-        <div style={{ display: 'flex', gap: 10 }}>
-          {[
-            { v: 'ok',   emoji: '😊', label: '괜찮아요' },
-            { v: 'warn', emoji: '😟', label: '걱정돼요' },
-          ].map(o => (
-            <button key={o.v} onClick={() => handleAnswer(o.v)} style={{
-              flex: 1, padding: '13px 0', borderRadius: 14, cursor: 'pointer',
-              background: '#fff',
-              border: `1px solid ${answered === o.v ? C.ink : 'rgba(14,17,22,0.14)'}`,
-              color: C.ink,
-              fontSize: 14, fontWeight: 600, letterSpacing: -0.3,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              transition: 'border-color 0.2s',
-            }}>
-              <span style={{ fontSize: 16 }}>{o.emoji}</span>
-              {o.label}
-            </button>
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <button onClick={onCapture} style={{
+            width: '100%', padding: '14px 0', borderRadius: 14, cursor: 'pointer',
+            background: C.ink, border: 'none', color: '#fff',
+            fontSize: 14, fontWeight: 700, letterSpacing: -0.3,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M4 8h3l2-2h6l2 2h3a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round"/>
+              <circle cx="12" cy="13" r="3.5" stroke="#fff" strokeWidth="1.6"/>
+            </svg>
+            벤틸레이터 화면 촬영하기
+          </button>
+          <button onClick={onClose} style={{
+            width: '100%', padding: '13px 0', borderRadius: 14, cursor: 'pointer',
+            background: '#fff', border: '1px solid rgba(14,17,22,0.14)', color: C.ink,
+            fontSize: 14, fontWeight: 600, letterSpacing: -0.3,
+          }}>
+            닫기
+          </button>
         </div>
       </div>
-      )}
     </div>
   );
 }
 
-function Home({ showAgent = false, onAgentClose, onWorry }) {
+function OCRCapture({ onClose, onCaptured }) {
+  const [phase, setPhase] = React.useState('aim'); // aim → capturing → done
+  const [scanY, setScanY] = React.useState(0);
+
+  React.useEffect(() => {
+    if (phase !== 'capturing') return;
+    let raf;
+    const start = performance.now();
+    const tick = (t) => {
+      const p = Math.min(1, (t - start) / 1800);
+      setScanY(p);
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else setPhase('done');
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [phase]);
+
+  const handleShutter = () => {
+    if (phase === 'aim') setPhase('capturing');
+  };
+
+  return (
+    <div style={{
+      position: 'absolute', inset: 0, zIndex: 300,
+      background: '#000', display: 'flex', flexDirection: 'column',
+      color: '#fff',
+    }}>
+      {/* 상단 바 */}
+      <div style={{
+        padding: '14px 18px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'rgba(0,0,0,0.4)',
+      }}>
+        <button onClick={onClose} style={{
+          background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: 100,
+          width: 32, height: 32, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M15 6l-6 6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: -0.2 }}>
+          벤틸레이터 화면 촬영
+        </div>
+        <div style={{ width: 32 }}/>
+      </div>
+
+      {/* 카메라 뷰파인더 */}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {/* 시뮬레이션된 벤틸레이터 화면 */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(120% 100% at 50% 50%, #1b2230 0%, #0a0d12 70%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            width: '78%', maxWidth: 280, aspectRatio: '4 / 3',
+            background: 'linear-gradient(180deg, #0c1018 0%, #050709 100%)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 8,
+            padding: '14px 16px',
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            transform: 'perspective(800px) rotateY(-2deg) rotateX(1deg)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+          }}>
+            {[
+              { l: 'PIP',    v: '18',  u: 'cmH₂O', c: '#5ad19a' },
+              { l: 'VTE',    v: '142', u: 'mL',    c: '#5ad19a' },
+              { l: 'RR',     v: '28',  u: 'bpm',   c: '#f3b35a' },
+              { l: 'LEAK',   v: '19',  u: 'L/min', c: '#5ad19a' },
+            ].map(m => (
+              <div key={m.l} style={{
+                padding: '6px 8px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.05)',
+                borderRadius: 4,
+              }}>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>{m.l}</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: m.c, lineHeight: 1.1, marginTop: 2 }}>{m.v}</div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>{m.u}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 어두운 마스크 + 가운데 프레임 */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(70% 50% at 50% 50%, transparent 0%, transparent 60%, rgba(0,0,0,0.55) 100%)',
+        }}/>
+        <div style={{
+          position: 'absolute', left: '8%', right: '8%', top: '20%', bottom: '20%',
+          pointerEvents: 'none',
+        }}>
+          {/* 네 모서리 가이드 */}
+          {[
+            { t: 0, l: 0, br: 'tl' },
+            { t: 0, r: 0, br: 'tr' },
+            { b: 0, l: 0, br: 'bl' },
+            { b: 0, r: 0, br: 'br' },
+          ].map((p, i) => {
+            const corner = {};
+            if (p.t !== undefined) corner.top = p.t;
+            if (p.b !== undefined) corner.bottom = p.b;
+            if (p.l !== undefined) corner.left = p.l;
+            if (p.r !== undefined) corner.right = p.r;
+            const isTop = p.t !== undefined;
+            const isLeft = p.l !== undefined;
+            return (
+              <div key={i} style={{
+                position: 'absolute', ...corner,
+                width: 26, height: 26,
+                borderTop: isTop ? '3px solid #fff' : 'none',
+                borderBottom: !isTop ? '3px solid #fff' : 'none',
+                borderLeft: isLeft ? '3px solid #fff' : 'none',
+                borderRight: !isLeft ? '3px solid #fff' : 'none',
+                borderTopLeftRadius: isTop && isLeft ? 6 : 0,
+                borderTopRightRadius: isTop && !isLeft ? 6 : 0,
+                borderBottomLeftRadius: !isTop && isLeft ? 6 : 0,
+                borderBottomRightRadius: !isTop && !isLeft ? 6 : 0,
+              }}/>
+            );
+          })}
+
+          {/* 스캔 라인 */}
+          {phase === 'capturing' && (
+            <div style={{
+              position: 'absolute', left: 4, right: 4,
+              top: `calc(${scanY * 100}% - 1px)`,
+              height: 2, background: 'linear-gradient(90deg, transparent, #4B3BE0, transparent)',
+              boxShadow: '0 0 12px rgba(75,59,224,0.8)',
+            }}/>
+          )}
+
+          {/* 안내 라벨 */}
+          <div style={{
+            position: 'absolute', left: 0, right: 0, top: -34,
+            textAlign: 'center', fontSize: 12, fontWeight: 600,
+            color: 'rgba(255,255,255,0.85)', letterSpacing: -0.2,
+          }}>
+            {phase === 'aim' && '벤틸레이터 화면을 사각형 안에 맞춰주세요'}
+            {phase === 'capturing' && 'OCR로 수치를 읽는 중...'}
+            {phase === 'done' && '인식 완료'}
+          </div>
+
+          {/* 인식된 값 표시 */}
+          {phase === 'done' && (
+            <div style={{
+              position: 'absolute', left: 0, right: 0, bottom: -56,
+              display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap',
+            }}>
+              {[
+                { l: 'PIP', v: '18 cmH₂O' },
+                { l: 'VTE', v: '142 mL' },
+                { l: 'RR',  v: '28 bpm' },
+                { l: 'LEAK', v: '19 L/min' },
+              ].map(t => (
+                <div key={t.l} style={{
+                  padding: '4px 9px', borderRadius: 100,
+                  background: 'rgba(43,182,115,0.18)',
+                  border: '1px solid rgba(43,182,115,0.45)',
+                  fontSize: 10.5, fontWeight: 700, color: '#7adfae', letterSpacing: -0.1,
+                }}>
+                  {t.l} {t.v}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 하단 컨트롤 */}
+      <div style={{
+        padding: '20px 24px 30px',
+        background: 'rgba(0,0,0,0.5)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ width: 44, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+          {phase === 'done' && '재촬영'}
+        </div>
+
+        {phase !== 'done' ? (
+          <button onClick={handleShutter} disabled={phase !== 'aim'} style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'transparent', border: '3px solid rgba(255,255,255,0.9)',
+            cursor: phase === 'aim' ? 'pointer' : 'default',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 0,
+          }}>
+            <div style={{
+              width: 50, height: 50, borderRadius: '50%',
+              background: phase === 'capturing' ? '#4B3BE0' : '#fff',
+              transition: 'background 0.2s',
+            }}/>
+          </button>
+        ) : (
+          <button onClick={() => { onCaptured && onCaptured(); }} style={{
+            padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer',
+            background: '#fff', color: C.ink,
+            fontSize: 13.5, fontWeight: 700, letterSpacing: -0.2,
+          }}>
+            분석 시작
+          </button>
+        )}
+
+        <button onClick={phase === 'done' ? () => setPhase('aim') : undefined} style={{
+          width: 44, height: 44, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.08)', border: 'none',
+          cursor: phase === 'done' ? 'pointer' : 'default',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          opacity: phase === 'done' ? 1 : 0.3,
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M4 10V6a2 2 0 012-2h4M14 4h4a2 2 0 012 2v4M20 14v4a2 2 0 01-2 2h-4M10 20H6a2 2 0 01-2-2v-4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Home({ showAgent = false, onAgentClose, onCapture }) {
   // 'ok' | 'watch' | 'alert' — 오브/카드 색상 연동
   const STATUS = 'watch';
   const sui = STATUS_UI[STATUS];
@@ -490,7 +674,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 64, paddingBottom: 120, background: C.bg, position: 'relative' }}>
       {showAgent && <AgentPopup
         onClose={onAgentClose}
-        onWorry={onWorry}
+        onCapture={onCapture}
       />}
 
       {/* Minimal header */}
@@ -2083,6 +2267,7 @@ function App() {
   const [authed, setAuthed] = React.useState(false);
   const [screen, setScreen] = React.useState('home');
   const [agentSeen, setAgentSeen] = React.useState(false);
+  const [showOCR, setShowOCR] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
 
   const handleSubmit = () => {
@@ -2105,9 +2290,9 @@ function App() {
     <IOSDevice>
       {screen === 'home' && (
         <Home
-          showAgent={!agentSeen}
+          showAgent={!agentSeen && !showOCR}
           onAgentClose={() => setAgentSeen(true)}
-          onWorry={() => { setAgentSeen(true); setScreen('record'); }}
+          onCapture={() => { setAgentSeen(true); setShowOCR(true); }}
         />
       )}
       {screen === 'record' && <Survey onBack={() => setScreen('home')} onSubmit={handleSubmit}/>}
@@ -2116,9 +2301,16 @@ function App() {
         setAuthed(false);
         setScreen('home');
         setAgentSeen(false);
+        setShowOCR(false);
       }}/>}
       <TabBar active={screen === 'home' ? 'home' : screen} onChange={setScreen}/>
       {submitting && <SubmitToast/>}
+      {showOCR && (
+        <OCRCapture
+          onClose={() => setShowOCR(false)}
+          onCaptured={() => { setShowOCR(false); setSubmitting(true); setTimeout(() => setSubmitting(false), 1100); }}
+        />
+      )}
     </IOSDevice>
   );
 }
