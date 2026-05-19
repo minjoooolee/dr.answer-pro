@@ -34,14 +34,6 @@
     0%   { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
-  @keyframes aiRotateRev {
-    0%   { transform: rotate(360deg); }
-    100% { transform: rotate(0deg); }
-  }
-  @keyframes aiShimmer {
-    0%, 100% { opacity: 0.55; transform: rotate(0deg) scale(1); }
-    50%      { opacity: 0.9;  transform: rotate(180deg) scale(1.05); }
-  }
   @keyframes aiBlink {
     0%, 100% { opacity: 1; }
     50%      { opacity: 0.25; }
@@ -71,6 +63,15 @@
   @keyframes sheetUp {
     from { transform: translateY(100%); }
     to   { transform: translateY(0); }
+  }
+  @keyframes mezooPulse {
+    0%   { transform: scale(0.55); opacity: 1; }
+    100% { transform: scale(1.4);  opacity: 0; }
+  }
+  @keyframes mezooBar {
+    0%   { transform: translateX(-110%); }
+    50%  { transform: translateX(40%); }
+    100% { transform: translateX(260%); }
   }
   @keyframes slideInRight {
     from { transform: translateX(100%); }
@@ -600,18 +601,16 @@ Object.assign(window, {
 // AI Symbol — sculpted 3D orb using all three brand colors
 // (#41d2b4 main, #7d50f0 purple, #ee3f60 red).
 
-function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#41d2b4' }) {
+function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#41d2b4', isStatic = false }) {
   const ring1Dur = state === 'listening' ? 1.4 : 2.8;
   const ring2Dur = state === 'listening' ? 1.7 : 3.4;
   const breatheDur = state === 'thinking' ? 1.8 : 4.4;
   const blobDur = state === 'thinking' ? 6 : 12;
-  const rotDur = state === 'thinking' ? 10 : 22;
-  const rotRevDur = state === 'thinking' ? 14 : 28;
 
   const variants = {
-    aurora: { lead: '#41d2b4', mid: '#7d50f0', accentC: '#ee3f60', warm: '#ff9b3d', shadow: '#5a3aa8' },
-    liquid: { lead: '#7d50f0', mid: '#41d2b4', accentC: '#ee3f60', warm: '#ff9b3d', shadow: '#a83050' },
-    plasma: { lead: '#ee3f60', mid: '#7d50f0', accentC: '#41d2b4', warm: '#ff9b3d', shadow: '#3a8c7a' },
+    aurora: { lead: '#41d2b4', mid: '#7d50f0', accentC: '#ee3f60', shadow: '#5a3aa8' },
+    liquid: { lead: '#7d50f0', mid: '#41d2b4', accentC: '#ee3f60', shadow: '#a83050' },
+    plasma: { lead: '#ee3f60', mid: '#7d50f0', accentC: '#41d2b4', shadow: '#3a8c7a' },
   };
   const v = variants[variant] || variants.aurora;
 
@@ -625,19 +624,19 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
       <div style={{
         position: 'absolute', inset: 0, borderRadius: '50%',
         border: `1px solid ${v.lead}`, opacity: 0.22,
-        animation: `aiPulse ${ring1Dur}s ease-out infinite`,
+        animation: isStatic ? 'none' : `aiPulse ${ring1Dur}s ease-out infinite`,
       }} />
       <div style={{
         position: 'absolute', inset: 14, borderRadius: '50%',
         border: `1px solid ${v.lead}`, opacity: 0.16,
-        animation: `aiPulse ${ring2Dur}s ease-out infinite`,
+        animation: isStatic ? 'none' : `aiPulse ${ring2Dur}s ease-out infinite`,
         animationDelay: '0.4s',
       }} />
 
       {/* Breathing wrapper */}
       <div style={{
         width: '74%', height: '74%', position: 'relative',
-        animation: `aiBreathe ${breatheDur}s ease-in-out infinite`,
+        animation: isStatic ? 'none' : `aiBreathe ${breatheDur}s ease-in-out infinite`,
         filter: `drop-shadow(-22px 18px 36px ${v.lead}66)
                  drop-shadow(22px 18px 36px ${v.mid}55)
                  drop-shadow(0 30px 40px ${v.accentC}55)
@@ -652,43 +651,34 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
             radial-gradient(circle at 30% 28%, #ffffff 0%, ${v.lead} 30%, ${v.shadow} 100%)
           `,
         }}>
-          {/* Slow-rotating chromatic blob layer */}
+          {/* Mid color blob — large */}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            animation: `aiRotate ${rotDur}s linear infinite`,
-          }}>
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 65% 55%, ${v.mid} 0%, ${v.mid} 18%, transparent 60%)`,
-              filter: 'blur(14px)', mixBlendMode: 'screen', opacity: 1,
-              animation: `blobA ${blobDur}s ease-in-out infinite`,
-            }} />
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 30% 70%, ${v.accentC} 0%, ${v.accentC} 16%, transparent 55%)`,
-              filter: 'blur(16px)', mixBlendMode: 'screen', opacity: 0.95,
-              animation: `blobB ${blobDur * 1.3}s ease-in-out infinite`,
-            }} />
-          </div>
-
-          {/* Counter-rotating chromatic blob layer */}
+            background: `radial-gradient(circle at 65% 55%, ${v.mid} 0%, ${v.mid} 18%, transparent 60%)`,
+            filter: 'blur(14px)', mixBlendMode: 'screen', opacity: 1,
+            animation: isStatic ? 'none' : `blobA ${blobDur}s ease-in-out infinite`,
+          }} />
+          {/* Accent color blob — large */}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            animation: `aiRotateRev ${rotRevDur}s linear infinite`,
-          }}>
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 25% 35%, ${v.mid} 0%, transparent 45%)`,
-              filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.85,
-              animation: `blobC ${blobDur * 0.9}s ease-in-out infinite`,
-            }} />
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: '50%',
-              background: `radial-gradient(circle at 75% 25%, ${v.warm} 0%, transparent 45%)`,
-              filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.8,
-              animation: `blobA ${blobDur * 1.5}s ease-in-out infinite reverse`,
-            }} />
-          </div>
+            background: `radial-gradient(circle at 30% 70%, ${v.accentC} 0%, ${v.accentC} 16%, transparent 55%)`,
+            filter: 'blur(16px)', mixBlendMode: 'screen', opacity: 0.95,
+            animation: isStatic ? 'none' : `blobB ${blobDur * 1.3}s ease-in-out infinite`,
+          }} />
+          {/* Second mid blob */}
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            background: `radial-gradient(circle at 25% 35%, ${v.mid} 0%, transparent 45%)`,
+            filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.85,
+            animation: isStatic ? 'none' : `blobC ${blobDur * 0.9}s ease-in-out infinite`,
+          }} />
+          {/* Second accent blob */}
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            background: `radial-gradient(circle at 75% 25%, ${v.accentC} 0%, transparent 42%)`,
+            filter: 'blur(18px)', mixBlendMode: 'screen', opacity: 0.8,
+            animation: isStatic ? 'none' : `blobA ${blobDur * 1.5}s ease-in-out infinite reverse`,
+          }} />
 
           {/* Inner core — heart bump */}
           <div style={{
@@ -697,7 +687,7 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
             borderRadius: '50%',
             background: `radial-gradient(circle, #ffffff 0%, ${v.lead} 30%, transparent 65%)`,
             filter: 'blur(6px)', mixBlendMode: 'screen',
-            animation: `aiHeart ${breatheDur * 0.55}s ease-in-out infinite`,
+            animation: isStatic ? 'none' : `aiHeart ${breatheDur * 0.55}s ease-in-out infinite`,
           }} />
 
           {state === 'listening' && (
@@ -755,7 +745,7 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
       {/* Orbiting particle */}
       <div style={{
         position: 'absolute', inset: 0,
-        animation: `aiRotate ${state === 'thinking' ? 8 : 16}s linear infinite`,
+        animation: isStatic ? 'none' : `aiRotate ${state === 'thinking' ? 8 : 16}s linear infinite`,
         pointerEvents: 'none',
       }}>
         <div style={{
@@ -766,30 +756,6 @@ function AISymbol({ size = 240, variant = 'aurora', state = 'idle', accent = '#4
           opacity: 0.85,
         }} />
       </div>
-
-      {/* Counter-orbiting small particle */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        animation: `aiRotateRev ${state === 'thinking' ? 11 : 21}s linear infinite`,
-        pointerEvents: 'none',
-      }}>
-        <div style={{
-          position: 'absolute', top: '50%', left: '4%',
-          width: 3, height: 3, borderRadius: '50%',
-          background: '#fff', boxShadow: `0 0 8px ${v.warm}`,
-          transform: 'translateY(-50%)',
-          opacity: 0.7,
-        }} />
-      </div>
-
-      {/* Bright trailing arc ring */}
-      <div style={{
-        position: 'absolute', inset: '6%', borderRadius: '50%',
-        background: `conic-gradient(from 0deg, transparent 0deg, transparent 200deg, ${v.lead}aa 280deg, #ffffffcc 330deg, transparent 360deg)`,
-        filter: 'blur(4px)', mixBlendMode: 'screen', opacity: 0.5,
-        animation: `aiRotate ${rotDur * 0.7}s linear infinite`,
-        pointerEvents: 'none',
-      }} />
     </div>
   );
 }
@@ -801,30 +767,28 @@ Object.assign(window, { AISymbol });
 <script type="text/babel">
 // PRO Conversational Companion — main screen
 
-const PATIENT_NAME = '성인';
-
-const HOME_QUESTIONS = [
-  { q: '오늘 소화는 잘 되셨나요?',          ph: '식사 후 속 불편감, 메스꺼움, 식욕 변화 등을 알려주세요.' },
-  { q: '오늘 운동은 하셨나요?',             ph: '가볍게 걷기, 스트레칭 등 오늘 활동을 알려주세요.' },
-  { q: '오늘 배변은 어떠셨나요?',           ph: '횟수, 형태, 복통 여부 등 배변 상태를 알려주세요.' },
-  { q: '오늘 식사는 잘 하셨나요?',          ph: '먹은 양, 식욕 상태, 특이사항을 알려주세요.' },
-  { q: '오늘 피로감은 어떠세요?',           ph: '피로 정도, 수면 상태, 기력 등을 알려주세요.' },
-  { q: '손발 저림이나 냉감은 없으신가요?',   ph: '말초신경 증상(저림·냉감·통증 등)이 있으면 알려주세요.' },
-  { q: '체중 변화가 있으셨나요?',           ph: '최근 체중 변화, 부종 여부 등을 알려주세요.' },
-  { q: '오늘 통증은 어떠세요?',             ph: '어디가 아픈지, 통증 정도(1~10점)를 알려주세요.' },
-  { q: '구내염이나 입안 불편감은 없으신가요?', ph: '입안 상처·따끔거림·삼킴 불편 등을 알려주세요.' },
-  { q: '오늘 수분 섭취는 충분하셨나요?',     ph: '물이나 음료 섭취량, 탈수 증상 여부를 알려주세요.' },
+const MEAL_GREETINGS = [
+  "식사는 잘 하셨어요?",
+  "소화는 잘 됐어요?",
+  "입맛은 있으셨어요?",
+  "물은 충분히 드셨어요?",
+  "속은 편안하셨어요?",
+  "아침은 잘 드셨어요?",
+  "약은 잘 챙기셨어요?",
+  "식사가 불편하셨어요?",
+  "오늘 무엇을 드셨어요?",
+  "메스꺼움은 없으셨어요?",
 ];
-
-const HOME_Q_IDX = Math.floor(Math.random() * HOME_QUESTIONS.length);
+const TODAY_GREETING = MEAL_GREETINGS[Math.floor(Math.random() * MEAL_GREETINGS.length)];
 
 const TWEAKS_DEFAULT = /*EDITMODE-BEGIN*/{
   "variant": "aurora",
   "state": "idle",
   "darkMode": false,
-  "greeting": "오늘은 좀 어떠세요?",
+  "greeting": "오늘 식사는 잘 하셨어요?",
   "subGreeting": "Let's begin your daily check-in"
 }/*EDITMODE-END*/;
+TWEAKS_DEFAULT.greeting = TODAY_GREETING;
 
 const C = {
   main: '#41d2b4',
@@ -1035,6 +999,163 @@ function NutritionCard({ dark, accent = '#41d2b4' }) {
   );
 }
 
+const VITALS = [
+  { key:'bp',   label:'혈압',       unit:'mmHg',  icon:'🩸', normal:'90–130 / 60–80', normalLow:90, normalHigh:130, diaNormalLow:60, diaNormalHigh:80, yMin:55,  yMax:150, accent:'#ee3f60' },
+  { key:'hr',   label:'맥박',       unit:'bpm',   icon:'❤️', normal:'60–100',          normalLow:60, normalHigh:100, yMin:50,  yMax:110, accent:'#7d50f0' },
+  { key:'spo2', label:'산소포화도', unit:'%',     icon:'🫁', normal:'≥95',             normalLow:95, normalHigh:100, yMin:90,  yMax:100, accent:'#41d2b4' },
+  { key:'temp', label:'체온',       unit:'°C',    icon:'🌡️', normal:'36.0–37.4',       normalLow:36, normalHigh:37.4, yMin:35.5, yMax:38, accent:'#f59e0b' },
+  { key:'rr',   label:'호흡 수',    unit:'회/분', icon:'💨', normal:'12–20',           normalLow:12, normalHigh:20,  yMin:10,  yMax:24,  accent:'#3b82f6' },
+];
+const VITAL_REMINDERS = [
+  { time:'08:00', label:'아침 (기상 후)' },
+  { time:'13:00', label:'점심 후' },
+  { time:'18:00', label:'저녁 식사 후' },
+  { time:'22:00', label:'취침 전' },
+];
+const VITAL_READINGS_TODAY = [
+  { time:'08:00', recorded:true,  bp:'128/82', bpSys:128, bpDia:82, hr:72, spo2:97, temp:36.4, rr:16 },
+  { time:'13:00', recorded:true,  bp:'124/78', bpSys:124, bpDia:78, hr:78, spo2:98, temp:36.7, rr:18 },
+  { time:'18:00', recorded:true,  bp:'130/84', bpSys:130, bpDia:84, hr:84, spo2:96, temp:37.1, rr:18 },
+  { time:'22:00', recorded:false, bp:null,     bpSys:null, bpDia:null, hr:null, spo2:null, temp:null, rr:null },
+];
+const VITAL_AI_INSIGHT = '오늘 활력징후는 전반적으로 안정적이에요. 다만 18시 측정에서 체온 37.1°C로 미열 경향, 심박수 84bpm으로 평소보다 약간 빨라졌습니다. 항암 치료 중에는 38°C 이상 발열이나 안정 시 심박수 100bpm 초과가 지속되면 즉시 의료진에 알리고, 충분한 수분 섭취와 휴식을 권장해요. 22시 취침 전 측정이 아직 남아있으니 잊지 마세요.';
+const VITAL_NEXT_REMINDER = { time:'22:00', label:'취침 전 측정' };
+const VITAL_DAILY_SUMMARY = {
+  count:     { label:'측정 횟수',          val:'3 / 4회' },
+  avgBP:     { label:'평균 혈압',          val:'127 / 81' },
+  avgHR:     { label:'평균 맥박',          val:'78 bpm' },
+  minSpO2:   { label:'최저 산소포화도',    val:'96 %' },
+  maxTemp:   { label:'최고 체온',          val:'37.1 °C' },
+  rrRange:   { label:'호흡 수 범위',       val:'16–18 회/분' },
+};
+const VITAL_DAILY_NOTES = [
+  '18:00 측정 시 체온 37.1°C(미열 경향) 및 심박수 84 bpm로 일시 상승',
+  '산소포화도 96–98%로 안정 범위 유지',
+  '혈압 평균 127/81 mmHg로 정상 범위',
+  '22:00 (취침 전) 측정 미시행 — 알림 재발송 예정',
+];
+const VITAL_MONTHLY_SUMMARY = {
+  totalDays:    { label:'측정 일수',           val:'30 / 31일' },
+  totalReads:   { label:'총 측정 횟수',        val:'114회' },
+  avgBP:        { label:'평균 혈압',           val:'126 / 80', unit:'mmHg' },
+  avgHR:        { label:'평균 맥박',           val:'76',       unit:'bpm' },
+  avgSpO2:      { label:'평균 산소포화도',     val:'97.4',     unit:'%' },
+  avgTemp:      { label:'평균 체온',           val:'36.6',     unit:'°C' },
+  avgRR:        { label:'평균 호흡 수',        val:'17',       unit:'회/분' },
+  bpRange:      { label:'혈압 범위',           val:'112/72 – 138/88' },
+  hrRange:      { label:'맥박 범위',           val:'62 – 92 bpm' },
+  spo2Range:    { label:'산소포화도 범위',     val:'94 – 99 %' },
+  tempRange:    { label:'체온 범위',           val:'36.1 – 37.4 °C' },
+  rrRange:      { label:'호흡 수 범위',        val:'14 – 21 회/분' },
+};
+const VITAL_MONTHLY_NOTES = [
+  '미열(≥37.0°C) 4일 발생 — 5/9, 5/14, 5/18, 5/24 모두 18:00 측정 (항암 투약 D+5~7 구간과 일치)',
+  '맥박 100bpm 초과 일시 상승 2회 — 5/9 18:00 (102 bpm), 5/24 18:00 (101 bpm), 모두 30분 내 정상 회복',
+  '산소포화도 95% 미만 1회 — 5/14 22:00 (94 %), 다음 측정 시 97 %로 회복',
+  '혈압 130/85 mmHg 초과 일수 5일 — 항암 투약일 다음날 오후~저녁에 집중',
+  '하루 4회 측정률 78% (전월 64% 대비 +14%p 개선)',
+  '특별한 기립성 저혈압 또는 빈맥 패턴은 관찰되지 않음',
+];
+
+function VitalSparkline({ values, accent, dark, yMin, yMax, normalLow, normalHigh, selectedIdx, times, secondary }) {
+  const W = 280, H = 78, P = 8, BOT = 12, LBL = 30;
+  const pts = values.map(v => (v === null || v === undefined ? null : v));
+  const secPts = (secondary && secondary.values) ? secondary.values.map(v => (v === null || v === undefined ? null : v)) : null;
+  const allPts = secPts ? [...pts, ...secPts] : pts;
+  const min = yMin !== undefined ? yMin : Math.min(...allPts.filter(v => v != null));
+  const max = yMax !== undefined ? yMax : Math.max(...allPts.filter(v => v != null));
+  const span = max - min || 1;
+  const chartLeft = LBL;
+  const chartRight = W - P;
+  const chartTop = P;
+  const chartBottom = H - BOT;
+  const yOf = v => chartBottom - ((v - min) / span) * (chartBottom - chartTop);
+  const xs = pts.map((_, i) => chartLeft + (i * (chartRight - chartLeft)) / (pts.length - 1));
+  const ys = pts.map(v => v == null ? null : yOf(v));
+  const ys2 = secPts ? secPts.map(v => v == null ? null : yOf(v)) : null;
+  const linePath = pts.map((v, i) => v == null ? null : `${ys[i-1]==null||i===0?'M':'L'} ${xs[i]} ${ys[i]}`).filter(Boolean).join(' ');
+  const linePath2 = ys2 ? secPts.map((v, i) => v == null ? null : `${ys2[i-1]==null||i===0?'M':'L'} ${xs[i]} ${ys2[i]}`).filter(Boolean).join(' ') : null;
+  const areaPath = (() => {
+    const segs = [];
+    let started = false;
+    pts.forEach((v, i) => {
+      if (v == null) { started = false; return; }
+      if (!started) { segs.push(`M ${xs[i]} ${chartBottom}`); segs.push(`L ${xs[i]} ${ys[i]}`); started = true; }
+      else segs.push(`L ${xs[i]} ${ys[i]}`);
+    });
+    if (started) {
+      const lastIdx = pts.map((v,i)=>v==null?-1:i).filter(i=>i>=0).pop();
+      segs.push(`L ${xs[lastIdx]} ${chartBottom} Z`);
+    }
+    return segs.join(' ');
+  })();
+  const bandTopY = normalHigh != null ? yOf(Math.min(normalHigh, max)) : null;
+  const bandBottomY = normalLow != null ? yOf(Math.max(normalLow, min)) : null;
+  const secBandTopY = secondary && secondary.normalHigh != null ? yOf(Math.min(secondary.normalHigh, max)) : null;
+  const secBandBottomY = secondary && secondary.normalLow != null ? yOf(Math.max(secondary.normalLow, min)) : null;
+  const formatTick = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
+  const bandFill = dark?'rgba(65,210,180,0.10)':'rgba(65,210,180,0.13)';
+  const bandStroke = dark?'rgba(65,210,180,0.55)':'rgba(45,180,150,0.6)';
+  const bandLabelFill = dark?'rgba(65,210,180,0.85)':'rgba(45,160,130,0.85)';
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', display:'block' }}>
+      <defs>
+        <linearGradient id={`vsfill-${accent.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={accent} stopOpacity="0.32" />
+          <stop offset="100%" stopColor={accent} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* Primary normal range band */}
+      {bandTopY != null && bandBottomY != null && (
+        <>
+          <rect x={chartLeft} y={bandTopY} width={chartRight - chartLeft} height={Math.max(0, bandBottomY - bandTopY)} fill={bandFill} />
+          <line x1={chartLeft} y1={bandTopY} x2={chartRight} y2={bandTopY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <line x1={chartLeft} y1={bandBottomY} x2={chartRight} y2={bandBottomY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <text x={chartLeft - 4} y={bandTopY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(normalHigh)}</text>
+          <text x={chartLeft - 4} y={bandBottomY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(normalLow)}</text>
+          <text x={chartRight} y={bandTopY - 3} textAnchor="end" fontFamily="Pretendard" fontSize="8" fontWeight="700" fill={bandLabelFill}>정상 범위</text>
+        </>
+      )}
+      {/* Secondary normal range band */}
+      {secBandTopY != null && secBandBottomY != null && (
+        <>
+          <rect x={chartLeft} y={secBandTopY} width={chartRight - chartLeft} height={Math.max(0, secBandBottomY - secBandTopY)} fill={bandFill} />
+          <line x1={chartLeft} y1={secBandTopY} x2={chartRight} y2={secBandTopY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <line x1={chartLeft} y1={secBandBottomY} x2={chartRight} y2={secBandBottomY} stroke={bandStroke} strokeWidth="1" strokeDasharray="3 3" />
+          <text x={chartLeft - 4} y={secBandTopY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(secondary.normalHigh)}</text>
+          <text x={chartLeft - 4} y={secBandBottomY + 3} textAnchor="end" fontFamily="Poppins" fontSize="8" fontWeight="700" fill={bandLabelFill}>{formatTick(secondary.normalLow)}</text>
+        </>
+      )}
+      <path d={areaPath} fill={`url(#vsfill-${accent.replace('#','')})`} />
+      <path d={linePath} fill="none" stroke={accent} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      {linePath2 && (
+        <path d={linePath2} fill="none" stroke={accent} strokeOpacity="0.65" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" strokeLinejoin="round" />
+      )}
+      {secPts && secPts.map((v, i) => v == null ? null : (
+        <circle key={`s${i}`} cx={xs[i]} cy={ys2[i]} r={selectedIdx === i ? 3.4 : 2.8}
+                fill={dark?'#1a2c28':'#fff'} stroke={accent} strokeWidth={selectedIdx === i ? 2 : 1.6} />
+      ))}
+      {pts.map((v, i) => v == null ? null : (
+        <g key={i}>
+          {selectedIdx === i && (
+            <>
+              <line x1={xs[i]} y1={chartTop} x2={xs[i]} y2={chartBottom} stroke={accent} strokeOpacity="0.35" strokeWidth="1" strokeDasharray="2 2" />
+              <circle cx={xs[i]} cy={ys[i]} r="6" fill={accent} fillOpacity="0.22" />
+            </>
+          )}
+          <circle cx={xs[i]} cy={ys[i]} r={selectedIdx === i ? 3.8 : 3.2}
+                  fill={accent} stroke={dark?'#1a2c28':'#fff'} strokeWidth={selectedIdx === i ? 2 : 1.6} />
+        </g>
+      ))}
+      {(times || VITAL_READINGS_TODAY.map(r => r.time)).map((t, i) => (
+        <text key={`t${i}`} x={xs[i]} y={H-1} textAnchor="middle" fontFamily="Poppins" fontSize="8"
+              fontWeight={selectedIdx === i ? "800" : "600"}
+              fill={selectedIdx === i ? accent : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)')}>{t}</text>
+      ))}
+    </svg>
+  );
+}
+
 const EXERCISE_ITEMS = [
   { emoji:'🚴', name:'실내 자전거', duration:30, kcal:240 },
   { emoji:'🏃', name:'런닝머신',    duration:40, kcal:380 },
@@ -1089,26 +1210,26 @@ const REPORT_DIET_DIARY = [
   { date:'5/26', summary:'닭가슴살·두부·시금치', kcal:430 },
   { date:'5/28', summary:'연어·현미밥·브로콜리', kcal:470 },
 ];
-const REPORT_EXERCISE_DIARY = [
-  { date:'5/1',  done:true,  summary:'실내 자전거 30분·런닝머신 20분', kcal:420 },
-  { date:'5/2',  done:false, summary:'휴식', kcal:0 },
-  { date:'5/5',  done:true,  summary:'수영 45분', kcal:380 },
-  { date:'5/7',  done:true,  summary:'실내 자전거 30분·런닝머신 40분·산책 10분', kcal:655 },
-  { date:'5/9',  done:false, summary:'컨디션 불량', kcal:0 },
-  { date:'5/12', done:true,  summary:'런닝머신 30분·스쿼트 20분', kcal:350 },
-  { date:'5/14', done:true,  summary:'수영 50분·스트레칭 15분', kcal:420 },
-  { date:'5/16', done:true,  summary:'실내 자전거 40분', kcal:310 },
-  { date:'5/19', done:true,  summary:'런닝머신 30분·근력 운동 30분', kcal:480 },
-  { date:'5/21', done:true,  summary:'요가 60분', kcal:220 },
-  { date:'5/23', done:true,  summary:'실내 자전거 30분·런닝머신 30분', kcal:530 },
-  { date:'5/26', done:true,  summary:'수영 40분·스트레칭 20분', kcal:360 },
-  { date:'5/28', done:true,  summary:'런닝머신 30분·스쿼트·데드리프트', kcal:410 },
+const REPORT_VITAL_DIARY = [
+  { date:'5/1',  count:4, summary:'혈압 122/78 · 맥박 74 · SpO₂ 98%', flag:null },
+  { date:'5/3',  count:4, summary:'혈압 124/80 · 맥박 76 · SpO₂ 97%', flag:null },
+  { date:'5/5',  count:3, summary:'혈압 126/82 · 맥박 78 · SpO₂ 97%', flag:null },
+  { date:'5/7',  count:4, summary:'혈압 128/84 · 맥박 80 · SpO₂ 96%', flag:'주의' },
+  { date:'5/9',  count:3, summary:'18시 체온 37.2°C · 맥박 88',        flag:'미열' },
+  { date:'5/12', count:4, summary:'혈압 120/76 · 맥박 72 · SpO₂ 98%', flag:null },
+  { date:'5/14', count:4, summary:'혈압 124/78 · 맥박 74 · SpO₂ 98%', flag:null },
+  { date:'5/16', count:3, summary:'혈압 126/80 · 맥박 76 · SpO₂ 97%', flag:null },
+  { date:'5/18', count:3, summary:'18시 체온 37.0°C · 맥박 84',        flag:'미열' },
+  { date:'5/21', count:4, summary:'혈압 122/78 · 맥박 70 · SpO₂ 98%', flag:null },
+  { date:'5/23', count:4, summary:'혈압 124/80 · 맥박 72 · SpO₂ 98%', flag:null },
+  { date:'5/26', count:3, summary:'혈압 126/82 · 맥박 76 · SpO₂ 97%', flag:null },
+  { date:'5/28', count:3, summary:'혈압 127/81 · 맥박 78 · SpO₂ 96%', flag:null },
 ];
 const REPORT_LLM_SUMMARY = {
   '문진': '이번 달 통증은 전반적으로 감소 추세입니다. 5월 9일 일시적 통증·피로·신경 이상이 함께 나타났으나 이후 빠르게 회복되었습니다. 소화 불량이 3회 관찰되었으니 식이 패턴 점검을 권장합니다.',
   '체중': '치료 시작 대비 총 3.4kg 감량하였습니다. 이번 달 평균 체중은 68.0kg으로 꾸준한 감소 추세이며, 주간 감량 속도는 0.4kg으로 건강 범위 내에 있습니다.',
   '식단': '단백질 위주의 식단이 잘 유지되고 있습니다. 5월 9일 고칼로리 식사(720kcal)가 있었으나 전체적으로 일일 평균 469kcal로 목표 범위 내에 있습니다. 탄수화물 섭취 다양성 확보를 권장합니다.',
-  '운동': '이번 달 11일 운동 기록이 완료되었습니다(총 13회 기록 중). 유산소 운동 비중이 높으며 근력 운동 추가를 권장합니다. 컨디션 저하일에도 무리하지 않는 습관이 잘 형성되어 있습니다.',
+  '활력': '하루 4회 측정 권장 중 평균 3.2회/일 시행했습니다. 평균 혈압 127/81 mmHg, 평균 맥박 78 bpm, 산소포화도 96–98%로 안정 범위입니다. 5월 9일·18일 18시 측정에서 미열(37.0–37.2°C) 경향이 반복되어 추적이 필요합니다.',
 };
 const MEDICAL_SCORES = [
   { label:'통증 및 불편감', score:2.8, trend:'↓ 개선', color:'#ee3f60' },
@@ -1126,7 +1247,7 @@ const MEDICAL_TABLE_GROUPS = [
   { icon:'🌱', label:'컨디션 및 생활습관', rows:[
     { name:'전반적 컨디션', type:'face', values:['🙂','🙂','🙂','😊','😊','🙂','🙂','🙂','😐','😐','🙂','🙂','😊','😊','😊','🙂','🙂','🙂','🙂','😊','😊','🙂','😐','🙂','🙂','😊','😊','🙂','🙂','😊'] },
     { name:'식사 만족도', type:'score', values:[null,null,null,4,2,null,null,null,3,null,3,null,4,4,null,null,3,null,null,4,4,null,2,null,3,null,4,null,null,4] },
-    { name:'오늘의 운동', type:'score', values:[null,null,null,null,'기록됨',null,2,null,4,null,null,3,null,'기록됨',null,null,2,null,null,3,null,null,null,4,null,'기록됨',null,2,null,3] },
+    { name:'활력 측정', type:'score', values:[4,4,3,4,4,3,4,3,2,3,4,4,4,3,4,4,4,3,3,4,4,4,4,4,4,4,3,4,4,3] },
     { name:'오늘의 메모', type:'memo', values:[null,null,null,null,null,null,null,'메모 있음','메모 있음',null,null,'메모 있음',null,null,null,null,'메모 있음',null,null,null,null,'메모 있음','메모 있음',null,null,null,null,'메모 있음',null,null] },
   ]},
   { icon:'🍽️', label:'소화기계', rows:[
@@ -1287,6 +1408,10 @@ const MEDICAL_LLM_SECTIONS = [
     body: '5월 9일 복합 이상 반응(통증 1점·피로 1점·신경증상 이상)이 단기적으로 나타났습니다. 치료 반응 모니터링이 필요합니다.',
   },
   {
+    title: '활력징후 분석',
+    body: '5월 30일 동안 총 114회 측정(일평균 3.8회). 평균 혈압 126/80 mmHg, 맥박 76 bpm, SpO₂ 97.4%, 체온 36.6°C, 호흡 17회/분으로 모두 정상 범위 내에 있습니다. 다만 5/9·14·18·24 18:00 측정에서 미열(37.0–37.4°C)과 일시적 빈맥(101–102 bpm)이 반복되어 항암 투약 D+5~7 구간의 잠재적 발열 신호로 해석되며, 다음 사이클에서 동일 시간대 집중 모니터링을 권장합니다.',
+  },
+  {
     title: '소화 지표',
     body: '월 평균 3.6으로 안정 범위이나 간헐적 소화 불량이 3회 반복되었습니다. 식이 상담을 권장합니다.',
   },
@@ -1303,42 +1428,67 @@ const CONSULTATIONS = [
     department: '종양내과',
     doctor: '김정훈 교수',
     color: '#7d50f0',
-    summary: 'FOLFOX 6차 항암 치료 진행 상황을 점검했습니다. 말초신경병증(손발 저림) 증상에 대해 논의했으며, 다음 주기 용량을 80%로 조정하기로 했습니다. 영양 상태 양호, 체중 감소 적정 범위 내로 평가되었습니다.',
+    summary: 'SOX 6차 항암 치료 진행 상황을 점검했습니다. 말초신경병증(손발 저림) 증상에 대해 논의했으며, 다음 주기 옥살리플라틴 용량을 80%로 조정하기로 했습니다. 영양 상태 양호, 체중 감소 적정 범위 내로 평가되었습니다.',
     keypoints: ['항암 6차 진행', '용량 80% 조정', '신경병증 모니터링'],
   },
   {
     date: '2026.04.23',
-    department: '대장암 센터',
+    department: '위암 센터',
     doctor: '이수진 교수',
     color: '#ee3f60',
-    summary: '수술 후 6개월 추적 검사 결과를 공유했습니다. CEA 수치가 정상 범위로 안정적이며, 복부 CT상 재발 소견 없습니다. 일상 생활 복귀가 가능하며, 다음 추적 검사는 3개월 후로 예정되었습니다.',
-    keypoints: ['CEA 정상 범위', '재발 소견 없음', '3개월 후 추적'],
+    summary: '위 절제술 후 6개월 추적 검사 결과를 공유했습니다. CEA·CA72-4 수치가 정상 범위로 안정적이며, 복부 CT상 문합부 및 복강 내 재발 소견 없습니다. 일상 생활 복귀가 가능하며, 다음 추적 검사는 3개월 후로 예정되었습니다.',
+    keypoints: ['CEA·CA72-4 정상', '재발 소견 없음', '3개월 후 추적'],
   },
   {
     date: '2026.04.10',
     department: '종양내과',
     doctor: '김정훈 교수',
     color: '#7d50f0',
-    summary: 'FOLFOX 5차 항암 치료 후 부작용 면담을 진행했습니다. 메스꺼움은 호전되었으나 피로감 지속됩니다. 항구토제 처방 변경, 충분한 수분 섭취와 휴식 권고하였습니다.',
-    keypoints: ['5차 항암 완료', '항구토제 변경', '피로 관리'],
+    summary: 'SOX 5차 항암 치료 후 부작용 면담을 진행했습니다. 메스꺼움과 식욕 부진은 호전되었으나 피로감과 손발 저림이 지속됩니다. 항구토제 처방 변경, 충분한 수분 섭취와 휴식 권고하였습니다.',
+    keypoints: ['5차 항암 완료', '항구토제 변경', '피로·신경병증 관리'],
   },
   {
     date: '2026.03.28',
     department: '영양 클리닉',
     doctor: '박지영 영양사',
     color: '#41d2b4',
-    summary: '항암 치료 중 영양 관리 상담을 진행했습니다. 단백질 섭취 부족 우려가 있어, 일일 단백질 1.2g/kg 목표 설정했습니다. 식단 일지 작성을 통해 패턴을 점검하기로 했습니다.',
-    keypoints: ['단백질 목표 설정', '식단 일지 시작', '소량 다회 식사'],
+    summary: '위 절제 후 영양 관리 상담을 진행했습니다. 위 용적 감소로 단백질·철분 섭취 부족이 우려되어, 일일 단백질 1.2g/kg 목표와 소량씩 6회 분식(分食) 식사 패턴을 설정했습니다. 덤핑 증후군 예방을 위한 식사 요령도 안내드렸습니다.',
+    keypoints: ['단백질 목표 설정', '소량 6회 분식', '덤핑 증후군 예방'],
   },
   {
     date: '2026.03.15',
-    department: '대장암 센터',
+    department: '위암 센터',
     doctor: '이수진 교수',
     color: '#ee3f60',
-    summary: '수술 부위 회복 상태를 점검했습니다. 절개 부위 정상 회복, 장 기능 회복 양호합니다. 가벼운 운동(걷기, 요가) 시작 가능하며, 무거운 물건 들기는 4주간 제한입니다.',
-    keypoints: ['수술 부위 정상', '가벼운 운동 가능', '무거운 물건 제한'],
+    summary: '위아전절제술(distal subtotal gastrectomy) 부위 회복 상태를 점검했습니다. 절개 부위 정상 회복, 문합부 통과 양호합니다. 가벼운 운동(걷기, 요가) 시작 가능하며, 무거운 물건 들기는 4주간 제한입니다.',
+    keypoints: ['문합부 통과 양호', '가벼운 운동 가능', '무거운 물건 제한'],
   },
 ];
+
+const SURGERY_RECORD = {
+  date: '2026.04.08',
+  hospital: '서울대학교병원 위장관외과',
+  surgeon: '이수진 교수',
+  procedure: '복강경 위아전절제술',
+  procedureEn: 'Laparoscopic Distal Subtotal Gastrectomy',
+  approach: '복강경 (Minimally Invasive)',
+  reconstruction: 'Billroth II 문합',
+  stage: { tnm:'T3N1M0', overall:'IIIB', desc:'장막하층 침범 · 국소 림프절 전이' },
+  lymph: { positive:3, harvested:32 },           // 3/32
+  duration: { min:215, avgMin:240 },             // surgery time vs average
+  bloodLoss: { mL:120, avgML:200 },              // estimated blood loss
+  drain: [                                       // POD 1–6 drain amount (mL/day)
+    { day:'POD 1', val:180 },
+    { day:'POD 2', val:140 },
+    { day:'POD 3', val:90  },
+    { day:'POD 4', val:50  },
+    { day:'POD 5', val:25  },
+    { day:'POD 6', val:10  },
+  ],
+  margins: '음성 (R0 완전절제)',
+  hospitalDays: 9,
+  ai: '복강경 위아전절제술이 안전하게 완료되었으며, 절제 경계 음성(R0)으로 완전 절제를 달성했어요. 절제된 림프절 32개 중 3개에서 전이가 확인되어 N1로 분류되고, 최종 병기는 IIIB (T3N1M0)입니다. 수술 시간 215분과 출혈량 120 mL는 동종 수술 평균 대비 양호한 수준이며, 수술 후 배액량은 POD 1 180 mL에서 POD 6 10 mL로 가파르게 감소해 정상 회복 패턴을 보입니다. 현재 받고 계신 보조 SOX 항암의 적응증에 부합하며, 1년 내 재발 위험 모니터링을 위해 3개월 간격 추적 영상·종양표지자(CEA·CA72-4) 검사를 권장해요.',
+};
 
 const TEST_RESULTS = [
   {
@@ -1352,9 +1502,9 @@ const TEST_RESULTS = [
       { label:'Hb',      value:'11.2', unit:'g/dL',    range:'12.0–16.0', status:'low' },
       { label:'PLT',     value:'185',  unit:'×10³/μL', range:'150–400',   status:'normal' },
       { label:'CEA',     value:'2.8',  unit:'ng/mL',   range:'<5.0',      status:'normal' },
-      { label:'CA19-9',  value:'18.4', unit:'U/mL',    range:'<37.0',     status:'normal' },
+      { label:'CA72-4',  value:'3.6',  unit:'U/mL',    range:'<6.9',      status:'normal' },
     ],
-    ai: '전반적으로 종양 표지자(CEA, CA19-9)는 정상 범위 내로 안정적입니다. 다만 RBC와 Hb 수치가 정상 하한보다 낮아 경증 빈혈이 관찰되며, 이는 항암 치료의 일반적 부작용입니다. 철분 함유 식품(붉은 살코기, 시금치, 콩류) 섭취를 권장하며, 다음 검사에서 추적 관찰이 필요합니다.',
+    ai: '전반적으로 위암 관련 종양 표지자(CEA, CA72-4)는 정상 범위 내로 안정적입니다. 다만 RBC와 Hb 수치가 정상 하한보다 낮아 경증 빈혈이 관찰되며, 이는 위 절제 후 철분·B12 흡수 저하 및 항암 치료의 일반적 부작용으로 보입니다. 철분 함유 식품(붉은 살코기, 시금치, 콩류) 섭취와 비타민 B12 보충을 권장하며, 다음 검사에서 추적 관찰이 필요합니다.',
   },
   {
     name: 'PET-CT 결과지',
@@ -1364,40 +1514,42 @@ const TEST_RESULTS = [
     items: [
       { label:'원발 병소', value:'관해', unit:'', range:'-',    status:'normal' },
       { label:'간 전이',   value:'없음', unit:'', range:'-',    status:'normal' },
-      { label:'폐 전이',   value:'없음', unit:'', range:'-',    status:'normal' },
+      { label:'복막 전이', value:'없음', unit:'', range:'-',    status:'normal' },
       { label:'림프절',    value:'정상', unit:'', range:'-',    status:'normal' },
       { label:'SUVmax',    value:'2.1',  unit:'',  range:'<2.5', status:'normal' },
     ],
-    ai: '전신 PET-CT 소견상 원발 부위와 주요 전이 호발 부위(간, 폐, 림프절)에서 새로운 병변이 관찰되지 않습니다. SUVmax 2.1로 대사 활성도가 낮아 잔존 종양 가능성이 낮습니다. 현재 치료 반응이 매우 양호한 상태로 평가되며, 3개월 후 추적 영상 검사를 권장합니다.',
+    ai: '전신 PET-CT 소견상 원발 부위와 위암 주요 전이 호발 부위(간, 복막, 림프절)에서 새로운 병변이 관찰되지 않습니다. SUVmax 2.1로 대사 활성도가 낮아 잔존 종양 가능성이 낮습니다. 현재 치료 반응이 매우 양호한 상태로 평가되며, 3개월 후 추적 영상 검사를 권장합니다.',
   },
   {
-    name: '조직검사 결과지',
+    name: '위 내시경 & 조직검사 결과지',
     date: '2026.03.04',
     hospital: '서울대학교병원 병리과',
     icon: '🔬',
     items: [
-      { label:'조직 종류',   value:'대장 선암', unit:'', range:'-',     status:'caution' },
-      { label:'분화도',      value:'중등도',    unit:'', range:'-',     status:'caution' },
-      { label:'TNM 병기',    value:'T3N1M0',    unit:'', range:'-',     status:'caution' },
-      { label:'절제 경계',   value:'음성',      unit:'', range:'음성',  status:'normal' },
-      { label:'KRAS 변이',   value:'야생형',    unit:'', range:'-',     status:'normal' },
-      { label:'MSI 상태',    value:'MSS',       unit:'', range:'-',     status:'normal' },
+      { label:'조직 종류',     value:'위 선암',   unit:'', range:'-',     status:'caution' },
+      { label:'Lauren 분류',   value:'장형',      unit:'', range:'-',     status:'caution' },
+      { label:'분화도',        value:'중등도',    unit:'', range:'-',     status:'caution' },
+      { label:'TNM 병기',      value:'T3N1M0',    unit:'', range:'-',     status:'caution' },
+      { label:'절제 경계',     value:'음성',      unit:'', range:'음성',  status:'normal' },
+      { label:'HER2',          value:'음성',      unit:'', range:'-',     status:'normal' },
+      { label:'MSI 상태',      value:'MSS',       unit:'', range:'-',     status:'normal' },
+      { label:'Claudin 18.2',  value:'양성',      unit:'', range:'-',     status:'caution' },
     ],
-    ai: '대장 선암(중등도 분화)이 확인되었으며 TNM 병기는 IIIB(T3N1M0)에 해당합니다. 절제 경계가 음성으로 완전 절제가 이루어졌습니다. KRAS 야생형, MSS 결과로 표적 치료제(EGFR 억제제) 적용 가능성이 있어 종양내과 상담을 권장합니다.',
+    ai: '위 선암(Lauren 장형, 중등도 분화)이 확인되었으며 TNM 병기는 IIIB(T3N1M0)에 해당합니다. 절제 경계가 음성으로 완전 절제가 이루어졌습니다. HER2 음성·MSS이나 Claudin 18.2 양성으로 졸베툭시맙 병용요법 적용 가능성이 있어 종양내과 상담을 권장합니다.',
   },
   {
-    name: 'MRI 결과지',
+    name: '간 MRI 결과지',
     date: '2026.04.18',
     hospital: '서울대학교병원 영상의학과',
     icon: '🧲',
     items: [
-      { label:'골반강 내',     value:'정상',  unit:'', range:'-', status:'normal' },
-      { label:'직장 주변 조직', value:'정상',  unit:'', range:'-', status:'normal' },
-      { label:'림프절',        value:'경미',  unit:'', range:'-', status:'caution' },
+      { label:'간 실질',       value:'정상',  unit:'', range:'-', status:'normal' },
+      { label:'간문맥 림프절', value:'경미',  unit:'', range:'-', status:'caution' },
       { label:'복수',          value:'없음',  unit:'', range:'-', status:'normal' },
+      { label:'담관·담낭',     value:'정상',  unit:'', range:'-', status:'normal' },
       { label:'골 전이',       value:'없음',  unit:'', range:'-', status:'normal' },
     ],
-    ai: '골반 MRI 소견상 직장 주변 조직과 골반강 내 명확한 잔존 병변은 관찰되지 않습니다. 일부 림프절이 경미하게 관찰되나 반응성 변화로 판단되며 임상적 의미는 낮습니다. 골 전이 소견 없으며, 다음 추적 영상은 3개월 후 권장됩니다.',
+    ai: '간 MRI 소견상 간 실질과 담관계에 명확한 잔존 병변은 관찰되지 않습니다. 간문맥 주변 림프절이 경미하게 관찰되나 반응성 변화로 판단되며 임상적 의미는 낮습니다. 복수·골 전이 소견 없으며, 다음 추적 영상은 3개월 후 권장됩니다.',
   },
   {
     name: '복부 CT 결과지',
@@ -1405,12 +1557,12 @@ const TEST_RESULTS = [
     hospital: '서울대학교병원 영상의학과',
     icon: '🖼️',
     items: [
+      { label:'위·문합부',   value:'정상', unit:'', range:'-', status:'normal' },
       { label:'간',          value:'정상', unit:'', range:'-', status:'normal' },
-      { label:'췌장',        value:'정상', unit:'', range:'-', status:'normal' },
-      { label:'신장',        value:'정상', unit:'', range:'-', status:'normal' },
+      { label:'복막',        value:'정상', unit:'', range:'-', status:'normal' },
       { label:'복강 림프절', value:'경미', unit:'', range:'-', status:'caution' },
     ],
-    ai: '복부 장기에 새로운 병변 소견은 없습니다. 복강 내 일부 림프절이 경미하게 관찰되나 임상적 의미는 낮은 것으로 판단됩니다. 다음 추적 영상 검사에서 변화 여부를 모니터링할 예정이며, 현재 시점에서는 정상 범위로 평가됩니다.',
+    ai: '위 문합부와 복부 장기에 새로운 병변 소견은 없습니다. 복강 내 일부 림프절이 경미하게 관찰되나 임상적 의미는 낮은 것으로 판단됩니다. 복막 전이 소견 없으며, 다음 추적 영상 검사에서 변화 여부를 모니터링할 예정입니다.',
   },
   {
     name: '간기능 검사 결과지',
@@ -1464,79 +1616,84 @@ function ExerciseCard({ dark, accent = '#ee3f60' }) {
 const CURRENT_CHEMO = {
   name: '옥살리플라틴',
   brand: 'Eloxatin (엘록사틴)',
-  cycle: '2주 1회',
-  round: '6차 / 총 12차',
-  regimen: 'FOLFOX 복합 요법',
-  function: '백금 계열 알킬화제로, DNA 이중 가닥에 교차 결합을 형성해 암세포의 복제와 분열을 억제합니다. 대장암 표준 1차 항암 치료에 5-FU·류코보린과 병용 사용합니다.',
+  cycle: '3주 1회',
+  round: '6차 / 총 8차',
+  regimen: 'SOX 복합 요법',
+  function: '백금 계열 알킬화제로, DNA 이중 가닥에 교차 결합을 형성해 암세포의 복제와 분열을 억제합니다. 위암 표준 1차 항암 치료에 경구 S-1(테가푸르·기메라실·오테라실)과 병용 사용하는 SOX 요법의 핵심 약제입니다.',
   sideEffects: ['말초신경병증 (손발 저림·냉감)', '오심·구토', '피로감', '구내염', '탈모(경미)', '호중구 감소증', '냉각 과민반응'],
 };
 const COVERED_DRUGS = [
   {
+    name: 'S-1 (티에스원)', received: true,
+    desc: '경구용 5-FU 전구약물 복합제. 위암 SOX·단독 요법의 근간입니다.',
+    sideEffects: '구내염, 설사, 색소침착, 골수 억제, 눈물 분비',
+  },
+  {
     name: '5-FU (플루오로우라실)', received: true,
-    desc: '피리미딘 계열 항대사제. DNA 합성을 차단해 암세포 증식을 억제합니다.',
+    desc: '피리미딘 계열 항대사제. DNA 합성을 차단해 위암 세포 증식을 억제합니다.',
     sideEffects: '구내염, 설사, 손발바닥 발적·통증(HFS), 골수 억제',
   },
   {
-    name: '카페시타빈 (젤로다)', received: true,
-    desc: '경구용 5-FU 전구약물. 체내에서 5-FU로 변환되어 작용합니다.',
+    name: '카페시타빈 (젤로다)', received: false, color: '#41d2b4',
+    desc: '경구용 5-FU 전구약물. XELOX(CAPOX) 요법에서 옥살리플라틴과 병용됩니다.',
     sideEffects: '손발바닥증후군(HFS), 오심, 설사, 피로',
   },
   {
+    name: '시스플라틴', received: false, color: '#7d50f0',
+    desc: '백금 계열 항암제. FP(5-FU+시스플라틴) 요법으로 위암에 사용됩니다.',
+    sideEffects: '신독성, 청력 저하, 오심·구토, 골수 억제',
+  },
+  {
+    name: '도세탁셀 (탁소텔)', received: false, color: '#ee3f60',
+    desc: '탁산계 항암제. 진행성 위암 FLOT 요법 또는 2차 치료에 사용됩니다.',
+    sideEffects: '호중구 감소, 탈모, 부종, 손발톱 변화, 신경병증',
+  },
+  {
+    name: '파클리탁셀 (탁솔)', received: false, color: '#f59e0b',
+    desc: '탁산계 항암제. 라무시루맙과 병용해 위암 2차 표준 치료에 사용됩니다.',
+    sideEffects: '말초신경병증, 호중구 감소, 탈모, 근육통, 과민반응',
+  },
+  {
     name: '이리노테칸', received: false, color: '#41d2b4',
-    desc: '토포이소머라제 I 억제제. DNA 복제 과정을 방해해 암세포를 사멸시킵니다.',
+    desc: '토포이소머라제 I 억제제. 위암 2·3차 치료에서 단독 또는 병용됩니다.',
     sideEffects: '지연성 설사(주의), 골수 억제, 탈모, 오심',
   },
   {
-    name: '베바시주맙 (아바스틴)', received: false, color: '#7d50f0',
-    desc: 'VEGF 표적 항체. 종양 혈관 신생을 차단해 암세포 영양 공급을 억제합니다.',
-    sideEffects: '고혈압, 단백뇨, 출혈 위험, 상처 회복 지연',
+    name: '라무시루맙 (사이람자)', received: false, color: '#7d50f0',
+    desc: 'VEGFR-2 표적 단클론항체. 진행성 위암 2차에서 파클리탁셀과 병용 급여입니다.',
+    sideEffects: '고혈압, 단백뇨, 출혈·혈전 위험, 상처 회복 지연',
   },
   {
-    name: '세툭시맙 (얼비툭스)', received: false, color: '#ee3f60',
-    desc: 'EGFR 표적 단클론항체. KRAS 야생형 대장암에 효과적입니다.',
-    sideEffects: '여드름성 피부 발진(효과 지표), 저마그네슘혈증, 주입 반응',
+    name: '트라스투주맙 (허셉틴)', received: false, color: '#ee3f60',
+    desc: 'HER2 표적 단클론항체. HER2 양성(IHC 3+ 또는 ISH 양성) 진행성 위암 1차 치료에 화학요법과 병용됩니다.',
+    sideEffects: '심장 독성(좌심실 기능 모니터링), 주입 반응, 설사, 발열',
   },
   {
-    name: '파니투무맙 (벡티빅스)', received: false, color: '#f59e0b',
-    desc: '완전 인간화 EGFR 단클론항체. 세툭시맙 대비 주입 반응 위험이 낮습니다.',
-    sideEffects: '피부 독성, 손발톱 주위염, 피로, 저마그네슘혈증',
-  },
-  {
-    name: '엔코라페닙 (비라토비)', received: false, color: '#41d2b4',
-    desc: 'BRAF V600E 억제제. 세툭시맙과 병용해 BRAF 변이 대장암에 사용합니다.',
-    sideEffects: '피로, 관절통, 오심, 광과민반응',
-  },
-  {
-    name: '펨브롤리주맙 (키트루다)', received: false, color: '#7d50f0',
-    desc: 'PD-1 면역관문억제제. MSI-H/MMR 결함 대장암에서 강한 효과를 보입니다.',
-    sideEffects: '면역 관련 폐렴·간염·내분비 이상, 피로, 피부 발진',
-  },
-  {
-    name: '론서프 (TAS-102)', received: false, color: '#ee3f60',
-    desc: '트리플루리딘+티피라실 경구 복합제. 다중 치료 실패 후 3·4차에 사용합니다.',
-    sideEffects: '골수 억제(호중구 감소), 오심, 피로, 식욕 감소',
-  },
-  {
-    name: '스티바가 (레고라페닙)', received: false, color: '#f59e0b',
-    desc: '다중 키나제 억제제(경구). 혈관·기질·종양 경로를 동시에 차단합니다.',
-    sideEffects: '수족구증후군, 피로, 고혈압, 간 독성(간수치 모니터링)',
+    name: '니볼루맙 (옵디보)', received: false, color: '#f59e0b',
+    desc: 'PD-1 면역관문억제제. CheckMate-649에 따라 PD-L1 CPS≥5 위암 1차 화학요법과 병용 급여입니다.',
+    sideEffects: '면역 관련 폐렴·간염·갑상선·대장염, 피로, 피부 발진',
   },
 ];
 const NONCOVERED_DRUGS = [
   {
-    name: '라무시루맙 (사이람자)', color: '#41d2b4',
-    desc: 'VEGFR-2 표적 단클론항체. 이리노테칸과 병용해 2차 치료에 사용됩니다.',
-    sideEffects: '고혈압, 단백뇨, 피로, 혈전·출혈 위험',
+    name: '트라스투주맙 데룩스테칸 (엔허투)', color: '#41d2b4',
+    desc: 'HER2 표적 항체-약물 접합체(ADC). HER2 양성 진행성 위암 2차 이상 치료에서 강한 반응을 보입니다.',
+    sideEffects: '간질성 폐질환(주의), 오심, 호중구 감소, 탈모, 피로',
   },
   {
-    name: '프루퀸티닙 (프루퀴티닙)', color: '#7d50f0',
-    desc: '고선택적 VEGFR 1/2/3 억제제(경구). 다중 치료 실패 후 단독 사용합니다.',
-    sideEffects: '고혈압, 단백뇨, 수족구증후군, 발성장애, 피로',
+    name: '졸베툭시맙 (zolbetuximab)', color: '#7d50f0',
+    desc: 'Claudin 18.2 표적 단클론항체. SPOTLIGHT·GLOW 결과로 CLDN18.2 양성 위암 1차 화학요법과 병용 사용됩니다.',
+    sideEffects: '오심·구토, 식욕 감소, 주입 반응, 피로',
   },
   {
-    name: '트라스투주맙 + 퍼투주맙', color: '#ee3f60',
-    desc: 'HER2 표적 이중 항체 병용 요법. HER2 양성 대장암 후기 치료에 사용됩니다.',
-    sideEffects: '심장 독성(좌심실 기능 모니터링), 주입 반응, 설사, 피로',
+    name: '펨브롤리주맙 (키트루다)', color: '#ee3f60',
+    desc: 'PD-1 면역관문억제제. KEYNOTE-811에서 HER2 양성·PD-L1 CPS≥1 위암 1차에 트라스투주맙·화학요법과 병용됩니다.',
+    sideEffects: '면역 관련 폐렴·간염·내분비 이상, 피로, 피부 발진',
+  },
+  {
+    name: '론서프 (TAS-102)', color: '#f59e0b',
+    desc: '트리플루리딘+티피라실 경구 복합제. 진행성 위암 3차 이상 치료에 사용됩니다.',
+    sideEffects: '골수 억제(호중구 감소), 오심, 피로, 식욕 감소',
   },
 ];
 
@@ -1547,21 +1704,21 @@ const RESEARCH_PAPERS = [
     impact: 'IF 158.5',
     date: '2026.04.18',
     type: 'Phase III RCT',
-    title: 'Pembrolizumab vs. FOLFOX in MSI-H Metastatic Colorectal Cancer: 5-Year Follow-up',
-    authors: 'André T, Shiu KK, et al.',
-    summary: 'KEYNOTE-177 5년 추적 결과, MSI-H/dMMR 전이성 대장암에서 펨브롤리주맙 단독 치료가 표준 화학요법 대비 무진행 생존기간을 유의미하게 연장(중앙값 16.5 vs 8.2개월)했으며, 장기 반응 지속률은 47%를 보였습니다.',
-    tags: ['면역항암제', 'MSI-H', '1차 치료'],
+    title: 'Pembrolizumab + Trastuzumab + Chemotherapy in HER2-Positive Advanced Gastric Cancer: KEYNOTE-811 5-Year Update',
+    authors: 'Janjigian YY, Kawazoe A, et al.',
+    summary: 'HER2 양성 진행성 위/위식도접합부 선암 1차 치료에서 펨브롤리주맙·트라스투주맙·화학요법 병용군이 표준 치료 대비 전체 생존기간(중앙값 20.5 vs 15.6개월)과 무진행 생존기간을 유의미하게 연장했으며, PD-L1 CPS≥1 환자에서 효과가 두드러졌습니다.',
+    tags: ['HER2 양성', '면역항암제', '1차 치료'],
     color: '#7d50f0',
   },
   {
     journal: 'Lancet Oncology',
     impact: 'IF 51.1',
     date: '2026.03.30',
-    type: 'Phase II',
-    title: 'Encorafenib + Cetuximab + Pembrolizumab in BRAF V600E mCRC',
-    authors: 'Kopetz S, Grothey A, et al.',
-    summary: 'BRAF V600E 변이 전이성 대장암 환자 79명을 대상으로 3제 병용요법의 객관적 반응률(ORR) 50.0%, 무진행 생존기간 7.4개월을 보고했습니다. BEACON 후속 연구로 면역치료 추가 효과가 확인되었습니다.',
-    tags: ['BRAF V600E', '표적치료', '면역항암제'],
+    type: 'Phase III',
+    title: 'Zolbetuximab + mFOLFOX6 in Claudin 18.2–Positive Advanced Gastric Cancer (SPOTLIGHT Follow-up)',
+    authors: 'Shitara K, Lordick F, et al.',
+    summary: 'CLDN18.2 양성·HER2 음성 진행성 위/위식도접합부 선암 565명을 대상으로 졸베툭시맙+mFOLFOX6 병용이 위약+화학요법 대비 무진행 생존기간(중앙값 10.6 vs 8.7개월)과 전체 생존기간을 유의미하게 연장했습니다. 새로운 표적 치료 시대를 여는 결과입니다.',
+    tags: ['Claudin 18.2', '표적치료', '1차 치료'],
     color: '#41d2b4',
   },
   {
@@ -1569,9 +1726,9 @@ const RESEARCH_PAPERS = [
     impact: 'IF 28.4',
     date: '2026.03.12',
     type: 'Meta-analysis',
-    title: 'Oxaliplatin-Induced Peripheral Neuropathy: Risk Factors and Prevention Strategies',
+    title: 'Oxaliplatin-Induced Peripheral Neuropathy in SOX/CAPOX Regimens: Risk Factors and Prevention',
     authors: 'Loprinzi CL, Lacouture ME, et al.',
-    summary: '14개 임상시험·4,832명 메타분석에서 옥살리플라틴 누적용량 850 mg/m² 이상에서 grade ≥2 신경병증 위험이 3.2배 증가했습니다. 듀록세틴이 통증 완화에 유의한 효과를 보였으며, 칼슘·마그네슘 주입은 효과를 입증하지 못했습니다.',
+    summary: '위암 환자를 포함한 14개 임상시험·4,832명 메타분석에서 옥살리플라틴 누적용량 850 mg/m² 이상에서 grade ≥2 신경병증 위험이 3.2배 증가했습니다. 듀록세틴이 통증 완화에 유의한 효과를 보였으며, 칼슘·마그네슘 주입은 효과를 입증하지 못했습니다.',
     tags: ['옥살리플라틴', '부작용 관리', '신경병증'],
     color: '#ee3f60',
   },
@@ -1580,10 +1737,10 @@ const RESEARCH_PAPERS = [
     impact: 'IF 50.5',
     date: '2026.02.24',
     type: 'Phase III',
-    title: 'Trifluridine/Tipiracil + Bevacizumab vs. TAS-102 alone in Refractory mCRC',
-    authors: 'Prager GW, Taieb J, et al.',
-    summary: 'SUNLIGHT 시험 후속 분석으로, 표준 치료 실패 후 론서프(TAS-102)에 베바시주맙 병용 시 전체 생존기간이 단독 투여 대비 3.3개월 연장(10.8 vs 7.5개월)되었습니다. 안전성 프로파일은 관리 가능한 수준이었습니다.',
-    tags: ['론서프', '3차 이상', '병용요법'],
+    title: 'Nivolumab + Chemotherapy vs. Chemotherapy Alone in Advanced Gastric Cancer: CheckMate-649 4-Year Update',
+    authors: 'Janjigian YY, Shitara K, et al.',
+    summary: 'CheckMate-649 후속 분석으로, PD-L1 CPS≥5 진행성 위/위식도접합부 선암에서 니볼루맙+화학요법 병용 시 전체 생존기간이 단독 대비 3.4개월 연장(14.4 vs 11.0개월)되었습니다. 안전성 프로파일은 관리 가능한 수준이었습니다.',
+    tags: ['면역항암제', 'PD-L1', '1차 치료'],
     color: '#f59e0b',
   },
   {
@@ -1591,9 +1748,9 @@ const RESEARCH_PAPERS = [
     impact: 'IF 87.2',
     date: '2026.02.05',
     type: 'Translational',
-    title: 'Circulating Tumor DNA Dynamics Predicts Treatment Response in Stage III CRC',
-    authors: 'Tie J, Cohen JD, et al.',
-    summary: '3기 대장암 수술 후 ctDNA 양성군의 재발률이 음성군 대비 7.1배 높았으며, 보조 항암 치료 중 ctDNA 음전 환자는 5년 무재발 생존율 92%를 보였습니다. ctDNA 기반 치료 강도 조정의 임상적 근거를 제시합니다.',
+    title: 'Circulating Tumor DNA Dynamics Predicts Recurrence in Stage III Gastric Cancer After Curative Gastrectomy',
+    authors: 'Kim ST, Park SH, et al.',
+    summary: '3기 위암 근치적 절제 후 ctDNA 양성군의 재발률이 음성군 대비 6.8배 높았으며, 보조 SOX 항암 치료 중 ctDNA 음전 환자는 3년 무재발 생존율 89%를 보였습니다. ctDNA 기반 보조요법 강도 조정의 임상적 근거를 제시합니다.',
     tags: ['ctDNA', '예후 예측', '보조요법'],
     color: '#7d50f0',
   },
@@ -1602,72 +1759,72 @@ const RESEARCH_PAPERS = [
 // ── Clinical trials (Korea) ──────────────────────────────────────
 const CLINICAL_TRIALS = [
   {
-    id: 'KCSG CO22-12',
+    id: 'KCSG GC22-12',
     phase: 'Phase III',
     status: '모집 중',
     statusColor: '#41d2b4',
-    title: 'KRAS G12C 변이 전이성 대장암 환자에서 소토라십+세툭시맙 병용요법',
+    title: 'Claudin 18.2 양성 진행성 위암에서 졸베툭시맙 + SOX 병용요법',
     sponsor: '대한항암요법연구회 (KCSG)',
     sites: ['서울대병원', '삼성서울병원', '서울아산병원', '세브란스병원'],
     enroll: '120명 모집 (현재 47명)',
-    eligibility: 'KRAS G12C 변이 확인, 1차 표준 항암 치료 실패, ECOG 0–1',
-    summary: 'KRAS G12C 표적 치료제 소토라십과 EGFR 항체 세툭시맙 병용의 안전성·유효성을 평가하는 다기관 무작위 3상 시험입니다.',
+    eligibility: 'CLDN18.2 IHC 2+/3+ (≥75% 세포 발현), HER2 음성, 1차 항암 치료 미실시, ECOG 0–1',
+    summary: 'CLDN18.2 표적 단클론항체 졸베툭시맙과 SOX(S-1+옥살리플라틴) 병용의 안전성·유효성을 평가하는 다기관 무작위 3상 시험입니다.',
     period: '2025.06 — 2027.12',
     color: '#7d50f0',
   },
   {
-    id: 'KFCS-MSI-2026',
+    id: 'KFCS-IO-2026',
     phase: 'Phase II',
     status: '모집 중',
     statusColor: '#41d2b4',
-    title: 'MSS 대장암에서 STING 작용제 + 펨브롤리주맙 병용요법 탐색',
+    title: 'MSS 진행성 위암에서 STING 작용제 + 펨브롤리주맙 병용요법 탐색',
     sponsor: '국립암센터',
     sites: ['국립암센터', '분당서울대병원', '아주대병원'],
     enroll: '60명 모집 (현재 18명)',
-    eligibility: 'MSS/MSI-L 전이성 대장암, 2차 이상 치료 실패, 측정 가능한 병변',
-    summary: '면역항암제 반응이 낮은 MSS 대장암에서 면역 활성화 STING 작용제를 병용해 반응률을 향상시키는 탐색 시험입니다.',
+    eligibility: 'MSS/MSI-L 전이성 위/위식도접합부 선암, 2차 이상 치료 실패, 측정 가능한 병변',
+    summary: '면역항암제 반응이 낮은 MSS 위암에서 STING 작용제를 병용해 반응률을 향상시키는 탐색 시험입니다.',
     period: '2026.01 — 2028.06',
     color: '#41d2b4',
   },
   {
-    id: 'CTONG-CRC-007',
+    id: 'CTONG-GC-007',
     phase: 'Phase II',
     status: '모집 예정',
     statusColor: '#f59e0b',
-    title: 'HER2 양성 대장암에서 트라스투주맙 데룩스테칸(T-DXd) 단독 요법',
+    title: 'HER2 양성 진행성 위암 2차에서 트라스투주맙 데룩스테칸(T-DXd) 단독 요법',
     sponsor: '서울아산병원',
     sites: ['서울아산병원', '서울대병원'],
     enroll: '40명 모집 예정',
-    eligibility: 'HER2 IHC 3+ 또는 ISH 양성, 표준 치료 실패, 측정 가능한 병변',
-    summary: 'HER2 양성 전이성 대장암에서 항체-약물 접합체 T-DXd의 단독 요법 효과를 평가하는 단일군 2상 시험입니다.',
+    eligibility: 'HER2 IHC 3+ 또는 ISH 양성 위/위식도접합부 선암, 트라스투주맙 함유 1차 치료 실패',
+    summary: 'HER2 양성 진행성 위암에서 항체-약물 접합체 T-DXd의 단독 요법 효과를 평가하는 단일군 2상 시험입니다 (DESTINY-Gastric04 한국 확장).',
     period: '2026.07 시작 예정',
     color: '#ee3f60',
   },
   {
-    id: 'KCSG-IO-2025',
+    id: 'KCSG-PERI-2025',
     phase: 'Phase Ib',
     status: '모집 중',
     statusColor: '#41d2b4',
-    title: '난치성 대장암에서 종양 내 면역세포 주입 치료(TIL) 1상 시험',
+    title: '복막 전이 위암에서 가압식 복강내 에어로졸 항암화학요법(PIPAC) 1상 시험',
     sponsor: '삼성서울병원',
     sites: ['삼성서울병원'],
     enroll: '24명 모집 (현재 8명)',
-    eligibility: '3차 이상 치료 실패, 절제 가능한 종양 조직 확보 가능, ECOG 0–1',
-    summary: '환자 자신의 종양 침윤 림프구(TIL)를 분리·증식 후 재투여하는 입양세포치료의 안전성과 초기 유효성을 평가합니다.',
+    eligibility: '복막 전이 동반 진행성 위암, 1·2차 전신 항암 치료 후 진행, ECOG 0–1',
+    summary: '복강경하 가압식 복강내 에어로졸 항암화학요법(PIPAC)의 안전성과 초기 유효성을 평가하는 연구자 주도 1상 시험입니다.',
     period: '2025.03 — 2027.03',
     color: '#7d50f0',
   },
   {
-    id: 'NCCK-CRC-008',
+    id: 'NCCK-GC-008',
     phase: 'Phase III',
     status: '추적 중',
     statusColor: 'rgba(0,0,0,0.4)',
-    title: '직장암 완전관해 후 비수술적 관찰(Watch-and-Wait) 전략 비교',
+    title: '국소 진행성 위암 술전(FLOT) vs 술후(SOX) 항암 치료 전략 비교',
     sponsor: '국립암센터·연세암병원',
     sites: ['국립암센터', '세브란스병원', '서울아산병원'],
     enroll: '모집 종료 (등록 218명)',
-    eligibility: '전방위 항암방사선 후 임상적 완전관해(cCR) 확인 환자',
-    summary: '국소 진행성 직장암에서 술전 항암방사선 치료 후 cCR 환자에 대한 수술 vs 관찰 전략의 장기 종양학적 결과를 비교합니다.',
+    eligibility: 'cT2-4 또는 N+ 절제 가능 위/위식도접합부 선암',
+    summary: '국소 진행성 위암에서 술전 FLOT 항암 후 수술(perioperative) 전략과 수술 후 SOX 보조 항암 전략의 장기 종양학적 결과를 비교합니다.',
     period: '2022.04 — 2027.12 추적',
     color: '#f59e0b',
   },
@@ -1680,13 +1837,12 @@ function PROScreen({ tweaks, setTweak }) {
   const [submitted, setSubmitted] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [sidebarEdit, setSidebarEdit] = React.useState(false);
-  const [chemoRegimen, setChemoRegimen] = React.useState('FOLFOX');
+  const [chemoRegimen, setChemoRegimen] = React.useState('SOX');
   const [chemoLine, setChemoLine] = React.useState('1');
   const [chemoCycle, setChemoCycle] = React.useState('1');
   const [chemoStartDate, setChemoStartDate] = React.useState('2026-04-01');
   const [surgeryDates, setSurgeryDates] = React.useState(['2026-04-08']);
   const [leftNavOpen, setLeftNavOpen] = React.useState(false);
-  const [welcomeAlert, setWelcomeAlert] = React.useState(true);
   const [elderMode, setElderMode] = React.useState(true);
   const [surveyStep, setSurveyStep] = React.useState(0);
   const [subStep, setSubStep] = React.useState(-1);
@@ -1713,6 +1869,20 @@ function PROScreen({ tweaks, setTweak }) {
   const [chemoTab, setChemoTab] = React.useState('나의 항암제');
   const [coverTab, setCoverTab] = React.useState('급여');
   const [expandedDrug, setExpandedDrug] = React.useState(null);
+  const [extraReadings, setExtraReadings] = React.useState([]);
+  const [mezooSync, setMezooSync] = React.useState(null); // null | 'syncing' | 'success'
+  const combinedReadings = React.useMemo(() => {
+    return [...VITAL_READINGS_TODAY, ...extraReadings].sort((a, b) => a.time.localeCompare(b.time));
+  }, [extraReadings]);
+  const [selectedReadingTime, setSelectedReadingTime] = React.useState(() => {
+    const last = [...VITAL_READINGS_TODAY].reverse().find(r => r.recorded);
+    return last ? last.time : VITAL_READINGS_TODAY[0].time;
+  });
+  const selectedVitalIdx = combinedReadings.findIndex(r => r.time === selectedReadingTime);
+  const setSelectedVitalIdx = idx => {
+    const r = combinedReadings[idx];
+    if (r) setSelectedReadingTime(r.time);
+  };
   const [symptomMedia, setSymptomMedia] = React.useState([]);
   const [symptomText, setSymptomText] = React.useState('');
   const [selectedSymptom, setSelectedSymptom] = React.useState(null);
@@ -1887,75 +2057,41 @@ function PROScreen({ tweaks, setTweak }) {
         alignItems: 'center', justifyContent: 'center',
         padding: '0 24px',
       }}>
-        <div style={{
-          position: 'relative',
-          width: submitted ? 110 : 340,
-          height: submitted ? 110 : 340,
-          flexShrink: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
-          isolation: 'isolate',
-        }}>
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%',
-            width: submitted ? 110 : 340, height: submitted ? 110 : 340,
-            transform: 'translate(-50%, -50%)',
-            borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: submitted ? 1 : 0.45,
-            transition: 'opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), width 0.5s cubic-bezier(0.22, 1, 0.36, 1), height 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
-            pointerEvents: 'none',
-          }}>
-            {submitted ? (
-              <AISymbol size={110} variant={tweaks.variant} state={symbolState} accent={C.main} />
-            ) : (
-              <img src="ai-orb.svg" alt="" style={{ width: '100%', height: '100%', display: 'block' }} />
-            )}
-          </div>
-
-          {/* Natural edge fade — overlays page background color from corners inward */}
-          {!submitted && (
+        {submitted ? (
+          <>
+            <AISymbol size={110} variant={tweaks.variant} state={symbolState} accent={C.main} />
             <div style={{
-              position: 'absolute', top: '50%', left: '50%',
-              width: 340, height: 340,
-              transform: 'translate(-50%, -50%)',
-              borderRadius: '50%',
-              background: `radial-gradient(circle at 50% 50%, transparent 55%, ${dark ? 'rgba(18,18,28,0.5)' : 'rgba(243,246,245,0.5)'} 72%, ${dark ? 'rgba(18,18,28,0.9)' : 'rgba(243,246,245,0.9)'} 86%, ${dark ? '#12121c' : '#f3f6f5'} 100%)`,
-              pointerEvents: 'none', zIndex: 2,
-            }} />
-          )}
-
-          {!submitted && (
-            <div style={{
-              position: 'absolute', top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 1, textAlign: 'center',
-              width: '100%', maxWidth: 300, padding: '0 12px',
+              marginTop: 32, textAlign: 'center', maxWidth: 320,
+              transition: 'margin-top 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             }}>
-              <h1 style={{
-                fontFamily: 'Pretendard, system-ui', fontWeight: 800,
-                fontSize: 26, lineHeight: 1.35, margin: 0,
-                color: dark ? '#fff' : C.black, letterSpacing: '-0.025em',
-                textShadow: dark
-                  ? '0 2px 16px rgba(0,0,0,0.5)'
-                  : '0 2px 16px rgba(255,255,255,0.85), 0 0 24px rgba(255,255,255,0.7)',
+              <p style={{
+                fontFamily: 'Pretendard, system-ui', fontWeight: 400,
+                fontSize: 16, lineHeight: 1.55, margin: 0,
+                color: dark ? '#fff' : C.black, letterSpacing: '-0.02em',
               }}>
-                {PATIENT_NAME}님,<br/>{HOME_QUESTIONS[HOME_Q_IDX].q}
-              </h1>
+                마지막 데이터 입력 시점으로부터<br/>
+                지금까지 <span style={{ fontWeight: 800, color: C.main }}>건강함</span>으로 기록됩니다.
+              </p>
             </div>
-          )}
-        </div>
-
-        {submitted && (
-          <div style={{ marginTop: 32, textAlign: 'center', maxWidth: 320 }}>
-            <p style={{
-              fontFamily: 'Pretendard, system-ui', fontWeight: 400,
-              fontSize: 16, lineHeight: 1.55, margin: 0,
-              color: dark ? '#fff' : C.black, letterSpacing: '-0.02em',
+          </>
+        ) : (
+          <div style={{
+            position: 'relative', width: 320, height: 320,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.35, pointerEvents: 'none' }}>
+              <AISymbol size={300} variant={tweaks.variant} state={symbolState} accent={C.main} isStatic={true} />
+            </div>
+            <h1 style={{
+              position: 'relative',
+              fontFamily: 'Pretendard, system-ui', fontWeight: 800,
+              fontSize: 26, lineHeight: 1.3, margin: 0,
+              color: dark ? '#fff' : C.black, letterSpacing: '-0.025em',
+              textAlign: 'center', maxWidth: 300,
+              wordBreak: 'keep-all', whiteSpace: 'normal',
             }}>
-              마지막 데이터 입력 시점으로부터<br/>
-              지금까지 <span style={{ fontWeight: 800, color: C.main }}>건강함</span>으로 기록됩니다.
-            </p>
+              성인님,<br/><span style={{ whiteSpace: 'nowrap' }}>{tweaks.greeting}</span>
+            </h1>
           </div>
         )}
 
@@ -1975,7 +2111,7 @@ function PROScreen({ tweaks, setTweak }) {
           <Tag label="⚠️ 이상증세 기록" dark={dark} onClick={() => setActiveTag('이상증세')} />
           <Tag label="📏 오늘 체중 기록" dark={dark} onClick={() => setActiveTag('체중')} />
           <Tag label="🥗 오늘의 식단 기록" dark={dark} onClick={() => setActiveTag('식단')} />
-          <Tag label="🏃 오늘의 운동 기록" dark={dark} onClick={() => setActiveTag('운동')} />
+          <Tag label="❤️ 실시간 활력징후" dark={dark} onClick={() => setActiveTag('활력')} />
         </div>
       </div>
 
@@ -2009,7 +2145,7 @@ function PROScreen({ tweaks, setTweak }) {
                 }
               }
             }}
-            placeholder={HOME_QUESTIONS[HOME_Q_IDX].ph}
+            placeholder={`${tweaks.greeting}에 대한 답변을 해주세요`}
             style={{
               flex: 1, border: 'none', outline: 'none', background: 'transparent',
               fontFamily: 'Pretendard, system-ui', fontWeight: 400, fontSize: 14,
@@ -2072,63 +2208,6 @@ function PROScreen({ tweaks, setTweak }) {
           )}
         </button>
       </div>
-
-      {/* Welcome alert */}
-      {welcomeAlert && !submitted && !activeTag && (
-        <div style={{
-          position:'absolute', inset:0, zIndex:300,
-          background:'rgba(0,0,0,0.5)',
-          display:'flex', alignItems:'center', justifyContent:'center',
-          padding:'0 32px',
-        }}>
-          <div style={{
-            width:'100%', maxWidth:340, borderRadius:24,
-            background:dark?'#10201d':'#fff',
-            padding:'28px 26px 22px',
-            boxShadow:'0 20px 60px rgba(0,0,0,0.4)',
-            animation:'sheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1)',
-          }}>
-            <div style={{
-              width:54, height:54, borderRadius:'50%',
-              background:`linear-gradient(135deg, ${C.main}, ${C.purple})`,
-              display:'flex', alignItems:'center', justifyContent:'center',
-              fontSize:26, marginBottom:16,
-            }}>🩺</div>
-            <div style={{
-              fontFamily:'Pretendard', fontWeight:800, fontSize:18,
-              color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:10, lineHeight:1.4,
-            }}>오늘은 문진을 꼭 진행해주세요</div>
-            <div style={{
-              fontFamily:'Pretendard', fontWeight:500, fontSize:13.5,
-              color:dark?'rgba(255,255,255,0.65)':'rgba(0,0,0,0.6)',
-              lineHeight:1.6, letterSpacing:'-0.01em', marginBottom:22,
-            }}>
-              지난 3주간 건강하여 문진하기를 생략하였습니다.<br/>
-              오늘은 문진을 반드시 해주셔야 합니다.
-            </div>
-            <div style={{ display:'flex', gap:8 }}>
-              <button
-                onClick={() => setWelcomeAlert(false)}
-                style={{
-                  flex:'0 0 auto', padding:'0 18px', height:48, borderRadius:14, border:'none', cursor:'pointer',
-                  background:dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)',
-                  fontFamily:'Pretendard', fontWeight:700, fontSize:14,
-                  color:dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em',
-                }}
-              >나중에</button>
-              <button
-                onClick={() => { setWelcomeAlert(false); setActiveTag('문진'); if (!elderMode) setSurveyMode('list'); }}
-                style={{
-                  flex:1, height:48, borderRadius:14, border:'none', cursor:'pointer',
-                  background:`linear-gradient(135deg, ${C.main}, ${C.purple})`,
-                  fontFamily:'Pretendard', fontWeight:800, fontSize:14, color:'#fff',
-                  letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(74,159,143,0.35)',
-                }}
-              >문진 시작하기</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Symptom detail popup */}
       {selectedSymptom && (
@@ -2268,7 +2347,7 @@ function PROScreen({ tweaks, setTweak }) {
                   { key:'이상증세', icon:'⚠️', label:'이상증세 기록', accent:C.red, onClick:() => navTo({ tag:'이상증세' }) },
                   { key:'체중', icon:'📏', label:'오늘 체중 기록', accent:C.main, onClick:() => navTo({ tag:'체중' }) },
                   { key:'식단', icon:'🥗', label:'오늘 식단 기록', accent:C.purple, onClick:() => navTo({ tag:'식단' }) },
-                  { key:'운동', icon:'🏃', label:'오늘 운동 기록', accent:C.red, onClick:() => navTo({ tag:'운동' }) },
+                  { key:'활력', icon:'❤️', label:'실시간 활력징후', accent:C.red, onClick:() => navTo({ tag:'활력' }) },
                 ];
                 return items.map(it => {
                   const expanded = navExpanded === it.key;
@@ -2386,7 +2465,7 @@ function PROScreen({ tweaks, setTweak }) {
               </div>
               <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em' }}>김성인</div>
               <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12.5, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em', marginTop:4 }}>
-                대장암 · {chemoRegimen} 치료 중
+                위암 · {chemoRegimen} 치료 중
               </div>
             </div>
 
@@ -2417,7 +2496,7 @@ function PROScreen({ tweaks, setTweak }) {
 
                 if (sidebarEdit) {
                   /* ─── EDIT MODE ─── */
-                  const REGIMENS = ['FOLFOX (mFOLFOX6)','FOLFIRI','CAPOX (XELOX)','FOLFOXIRI','XELIRI','5-FU/LV','Regorafenib','TAS-102 (Lonsurf)','Nivolumab + 화학요법','Pembrolizumab'];
+                  const REGIMENS = ['SOX (S-1 + 옥살리플라틴)','XELOX (CAPOX)','FOLFOX (mFOLFOX6)','FLOT','S-1 단독','5-FU/LV','Paclitaxel + Ramucirumab','TAS-102 (Lonsurf)','Nivolumab + 화학요법','Pembrolizumab + Trastuzumab + 화학요법'];
                   return (
                     <>
                       {/* 항암 치료 입력 */}
@@ -2555,8 +2634,8 @@ function PROScreen({ tweaks, setTweak }) {
           <div onClick={e => e.stopPropagation()} style={{
             width: '100%', background: dark ? '#0d1614' : '#fff',
             borderTopLeftRadius: 28, borderTopRightRadius: 28,
-            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) || activeTag === '항암제' || activeTag === '이상증세' ? '20px 28px 40px' : '20px 24px 32px',
-            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || (activeTag === '운동' && exerciseDone && exerciseMode) || (activeTag === '리포트' && reportType) || activeTag === '항암제' || activeTag === '이상증세' ? '88%' : 'auto',
+            padding: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || activeTag === '활력' || (activeTag === '리포트' && reportType) || activeTag === '항암제' || activeTag === '이상증세' ? '20px 28px 40px' : '20px 24px 32px',
+            minHeight: (activeTag === '문진' && surveyMode) || (activeTag === '식단' && dietMode) || activeTag === '활력' || (activeTag === '리포트' && reportType) || activeTag === '항암제' || activeTag === '이상증세' ? '88%' : 'auto',
             maxHeight: '92%',
             overflowY: 'auto',
             WebkitOverflowScrolling: 'touch',
@@ -3117,426 +3196,282 @@ function PROScreen({ tweaks, setTweak }) {
                   </div>
                 )}
               </>
-            ) : activeTag === '운동' ? (
+            ) : activeTag === '활력' ? (
               <>
-                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>EXERCISE LOG</div>
-                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>오늘의 운동 기록</div>
+                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', marginBottom:8 }}>VITAL SIGNS</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:14 }}>❤️ 실시간 활력징후</div>
 
-                {exerciseDone === null && (
+                {/* AI 인사이트 (top) */}
+                <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:18, background: dark?'rgba(125,80,240,0.10)':'rgba(125,80,240,0.07)', border:`1px solid ${dark?'rgba(125,80,240,0.24)':'rgba(125,80,240,0.18)'}` }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:6 }}>
+                    <span style={{ fontSize:14 }}>✨</span>
+                    <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:12, color:C.purple, letterSpacing:'-0.01em' }}>AI 인사이트</span>
+                  </div>
+                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.82)':'rgba(0,0,0,0.72)', lineHeight:1.65 }}>{VITAL_AI_INSIGHT}</div>
+                </div>
+
+                {/* 측정 알림 */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                  <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>📅 오늘의 측정 알림</div>
+                  <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', letterSpacing:'-0.01em' }}>하루 4회</div>
+                </div>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:8, marginBottom:12 }}>
+                  {VITAL_REMINDERS.map((r, i) => {
+                    const reading = VITAL_READINGS_TODAY[i];
+                    const rec = reading && reading.recorded;
+                    const sel = selectedReadingTime === reading.time && rec;
+                    return (
+                      <button key={r.time}
+                        onClick={() => rec && setSelectedReadingTime(reading.time)}
+                        disabled={!rec}
+                        style={{
+                          padding:'10px 8px', borderRadius:12, textAlign:'center', cursor: rec ? 'pointer' : 'default',
+                          background: sel ? (dark?'#1f2a28':'#fff') : (dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.03)'),
+                          border:`1.5px solid ${sel ? (dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.55)') : (dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.08)')}`,
+                          boxShadow: sel ? '0 4px 12px rgba(0,0,0,0.10)' : 'none',
+                          transition:'all 0.15s',
+                          opacity: rec ? 1 : 0.55,
+                        }}>
+                        <div style={{ fontFamily:'Poppins', fontWeight:800, fontSize:13, color: dark?'#fff':'#000', letterSpacing:'-0.01em', marginBottom:2 }}>{r.time}</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>{rec ? (sel ? '👁 보는 중' : '✓ 측정 완료') : '⏰ 알림 예정'}</div>
+                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:9.5, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginTop:3, lineHeight:1.25 }}>{r.label}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* 추가 측정 (Mezoo 동기화) chips */}
+                {extraReadings.length > 0 && (
                   <>
-                    <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:15, lineHeight:1.55, color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', marginBottom:24 }}>
-                      오늘 <span style={{ fontWeight:800, color:C.red }}>운동</span>을 하셨나요?
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)', letterSpacing:'-0.01em' }}>📡 추가 측정 (Mezoo)</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)', letterSpacing:'-0.01em' }}>{extraReadings.length}건</div>
                     </div>
-                    <div style={{ display:'flex', gap:10 }}>
-                      <button onClick={() => setExerciseDone(true)} style={{
-                        flex:1, height:54, borderRadius:16, cursor:'pointer',
-                        background: dark?'rgba(255,255,255,0.06)':'#fff',
-                        border:`1.5px solid ${dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.12)'}`,
-                        fontFamily:'Pretendard', fontWeight:600, fontSize:15,
-                        color: dark?'#fff':'#000', letterSpacing:'-0.01em',
-                        boxShadow:'0 2px 8px rgba(0,0,0,0.06)',
-                      }}>운동 했음</button>
-                      <button onClick={() => { setExerciseDone(false); setTimeout(closeSheet, 600); }} style={{
-                        flex:1, height:54, borderRadius:16, cursor:'pointer',
-                        background: dark?'rgba(255,255,255,0.06)':'#fff',
-                        border:`1.5px solid ${dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.12)'}`,
-                        fontFamily:'Pretendard', fontWeight:600, fontSize:15,
-                        color: dark?'#fff':'#000', letterSpacing:'-0.01em',
-                        boxShadow:'0 2px 8px rgba(0,0,0,0.06)',
-                      }}>운동 안 했음</button>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:12 }}>
+                      {extraReadings.map(r => {
+                        const sel = selectedReadingTime === r.time;
+                        return (
+                          <button key={r.time}
+                            onClick={() => setSelectedReadingTime(r.time)}
+                            style={{
+                              padding:'8px 12px', borderRadius:10, cursor:'pointer',
+                              background: sel ? (dark?'#1f2a28':'#fff') : (dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.03)'),
+                              border:`1.5px solid ${sel ? (dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.55)') : (dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.08)')}`,
+                              boxShadow: sel ? '0 4px 12px rgba(0,0,0,0.10)' : 'none',
+                              display:'flex', alignItems:'center', gap:6, transition:'all 0.15s',
+                            }}>
+                            <span style={{ fontFamily:'Poppins', fontWeight:800, fontSize:12, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{r.time}</span>
+                            <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>· Mezoo</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </>
                 )}
 
-                {exerciseDone === false && (
-                  <div style={{ textAlign:'center', padding:'16px 0' }}>
-                    <div style={{ fontSize:34, marginBottom:10 }}>💤</div>
-                    <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:15, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)' }}>휴식도 회복의 일부예요</div>
-                  </div>
-                )}
-
-                {exerciseDone === true && exerciseMode === null && (
-                  <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                    {[
-                      { icon:'⌨️', label:'텍스트로 간단 입력하기', sub:'AI가 입력한 운동의 칼로리를 계산해요', mode:'text', color:C.purple },
-                      { icon:'🎙️', label:'음성으로 간단 입력하기', sub:'말로 편하게 입력할 수 있어요', mode:'voice', color:C.red },
-                      { icon:'👟', label:'걷기 기록 불러오기', sub:'오늘 걸음 수·거리·칼로리를 자동으로 가져와요', mode:'walk', color:C.main },
-                    ].map(({ icon, label, sub, mode, color }) => (
-                      <button key={mode} onClick={() => setExerciseMode(mode)} style={{
-                        width:'100%', border:'none', cursor:'pointer', borderRadius:18,
-                        padding:'18px 22px', textAlign:'left',
-                        background: dark?'rgba(255,255,255,0.05)':'#fafafa',
-                        borderWidth:1, borderStyle:'solid',
-                        borderColor: dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)',
-                        display:'flex', alignItems:'center', gap:16,
-                        boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
-                      }}>
-                        <span style={{ fontSize:30 }}>{icon}</span>
-                        <div>
-                          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color, letterSpacing:'-0.01em', marginBottom:2 }}>{label}</div>
-                          <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>{sub}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {exerciseDone === true && (exerciseMode === 'text' || exerciseMode === 'voice') && (
-                  <div style={{ flex:1, display:'flex', flexDirection:'column', gap:14 }}>
-                    <div style={{ padding:'12px 14px', borderRadius:12, background: dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)', fontFamily:'Pretendard', fontWeight:400, fontSize:12, lineHeight:1.7, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>
-                      간편한 AI 한 줄 입력 모드입니다. 칼로리 계산을 위한 운동을 한 번에 입력해주시면 AI가 칼로리를 자동으로 계산합니다
-                    </div>
-
-                    <div style={{ position:'relative', minHeight:56, borderRadius:16, padding:'14px 16px', background: dark?'rgba(255,255,255,0.06)':'#fff', border:`1.5px solid ${exerciseInput ? C.red : (dark?'rgba(255,255,255,0.14)':'rgba(0,0,0,0.1)')}`, transition:'border-color 0.15s' }}>
-                      {!exerciseInput && (
-                        <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:14, color: dark?'rgba(255,255,255,0.22)':'rgba(0,0,0,0.22)', lineHeight:1.6, pointerEvents:'none', position:'absolute', top:14, left:16, right:16 }}>
-                          예: 실내 자전거 30분, 런닝머신 40분, 산책 10분
-                        </div>
-                      )}
-                      {exerciseMode === 'text' ? (
-                        <textarea value={exerciseInput} onChange={e => { setExerciseInput(e.target.value); setExerciseAnalyzed(false); }}
-                          rows={2}
-                          style={{ width:'100%', border:'none', outline:'none', background:'transparent', resize:'none', fontFamily:'Pretendard', fontWeight: exerciseInput?600:400, fontSize:14, lineHeight:1.6, color: dark?'#fff':'#000' }} />
-                      ) : (
-                        <div style={{ fontFamily:'Pretendard', fontWeight: exerciseInput?600:400, fontSize:14, lineHeight:1.6, color: dark?'#fff':'#000', minHeight:40 }}>
-                          {exerciseInput}
-                          {exerciseRecording && <span style={{ display:'inline-block', width:2, height:14, background:C.red, marginLeft:3, verticalAlign:'middle', opacity:0.7, animation:'aiBlink 1s infinite' }} />}
-                        </div>
-                      )}
-                    </div>
-
-                    {exerciseMode === 'voice' && !exerciseRecording && !exerciseInput && (
-                      <button onClick={() => setExerciseRecording(true)} style={{ alignSelf:'center', width:64, height:64, borderRadius:'50%', border:'none', cursor:'pointer', background:`linear-gradient(135deg,${C.red},${C.purple})`, fontSize:28, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:`0 6px 20px rgba(238,63,96,0.4)` }}>🎙️</button>
-                    )}
-                    {exerciseMode === 'voice' && exerciseRecording && (
-                      <div style={{ textAlign:'center', fontFamily:'Pretendard', fontWeight:400, fontSize:13, color:C.red }}>듣는 중…</div>
-                    )}
-
-                    {exerciseInput && !exerciseAnalyzed && (
-                      <button onClick={() => setExerciseAnalyzed(true)} style={{ width:'100%', height:48, borderRadius:14, border:'none', cursor:'pointer', background:C.red, color:'#fff', fontFamily:'Pretendard', fontWeight:700, fontSize:14, letterSpacing:'-0.01em', boxShadow:'0 6px 18px rgba(238,63,96,0.3)' }}>🔍 분석하기</button>
-                    )}
-
-                    {exerciseAnalyzed && (
-                      <>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)' }}>AI 분석 결과</div>
-                        <ExerciseCard dark={dark} accent={C.red} />
-                        <button onClick={closeSheet} style={{ width:'100%', height:52, borderRadius:14, border:'none', cursor:'pointer', background:C.red, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(238,63,96,0.35)' }}>등록하기</button>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {exerciseDone === true && exerciseMode === 'walk' && (
-                  <div style={{ display:'flex', flexDirection:'column', gap:14, marginTop:-6 }}>
-                    {/* header */}
-                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                      <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>2026.05.05 (화) 18:56</span>
-                      <span style={{ width:3, height:3, borderRadius:'50%', background: dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)' }} />
-                      <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>한강공원</span>
-                      <div style={{ marginLeft:'auto', padding:'2px 8px', borderRadius:6, background: dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.14)', fontFamily:'Pretendard', fontWeight:700, fontSize:9.5, color:C.main, letterSpacing:'-0.01em' }}>가져옴</div>
-                    </div>
-
-                    {/* GPS map */}
-                    <div style={{ position:'relative', width:'100%', borderRadius:18, overflow:'hidden', background: dark?'#1c2724':'#eef2ed', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}`, boxShadow:'0 6px 20px rgba(0,0,0,0.06)' }}>
-                      <svg viewBox="0 0 360 280" style={{ width:'100%', display:'block' }}>
-                        <defs>
-                          <linearGradient id="paceGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#00ff88" />
-                            <stop offset="25%" stopColor="#f6ff00" />
-                            <stop offset="50%" stopColor="#ff7a00" />
-                            <stop offset="75%" stopColor="#ff2d6e" />
-                            <stop offset="100%" stopColor="#00ff88" />
-                          </linearGradient>
-                          <filter id="routeShadow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="2.5" />
-                          </filter>
-                          <radialGradient id="startGlow">
-                            <stop offset="0%" stopColor="#00ff88" stopOpacity="0.6" />
-                            <stop offset="100%" stopColor="#00ff88" stopOpacity="0" />
-                          </radialGradient>
-                        </defs>
-
-                        {/* park (green area) */}
-                        <path d="M 30 130 Q 50 100 90 105 Q 130 110 145 150 Q 140 195 100 205 Q 50 200 30 170 Z" fill={dark?'rgba(74,162,107,0.18)':'rgba(155,205,170,0.55)'} />
-                        {/* tree dots */}
-                        <g fill={dark?'rgba(74,162,107,0.5)':'rgba(95,160,115,0.65)'}>
-                          <circle cx="55" cy="145" r="3" />
-                          <circle cx="72" cy="160" r="3" />
-                          <circle cx="90" cy="135" r="3" />
-                          <circle cx="115" cy="155" r="3" />
-                          <circle cx="100" cy="180" r="3" />
-                          <circle cx="60" cy="180" r="3" />
-                        </g>
-
-                        {/* river */}
-                        <path d="M 310 -10 Q 320 60 335 130 Q 348 200 340 290" fill="none" stroke={dark?'rgba(120,180,220,0.35)':'rgba(150,200,235,0.6)'} strokeWidth="22" strokeLinecap="round" />
-                        <path d="M 310 -10 Q 320 60 335 130 Q 348 200 340 290" fill="none" stroke={dark?'rgba(180,215,235,0.15)':'rgba(255,255,255,0.4)'} strokeWidth="2" strokeLinecap="round" />
-
-                        {/* main roads (wide) */}
-                        <g stroke={dark?'rgba(255,255,255,0.12)':'#fff'} strokeWidth="14" strokeLinecap="round">
-                          <line x1="0" y1="78" x2="360" y2="80" />
-                          <line x1="0" y1="220" x2="360" y2="222" />
-                          <line x1="180" y1="0" x2="178" y2="280" />
-                        </g>
-                        <g stroke={dark?'rgba(255,255,255,0.25)':'#dbe0dc'} strokeWidth="14" strokeLinecap="round" strokeDasharray="0,0" fill="none" opacity="0">
-                          <line x1="0" y1="78" x2="360" y2="80" />
-                        </g>
-                        {/* center lines */}
-                        <g stroke={dark?'rgba(255,200,80,0.4)':'rgba(255,180,50,0.6)'} strokeWidth="0.8" strokeDasharray="4 4">
-                          <line x1="0" y1="78" x2="360" y2="80" />
-                          <line x1="0" y1="220" x2="360" y2="222" />
-                          <line x1="179" y1="0" x2="178" y2="280" />
-                        </g>
-
-                        {/* medium roads */}
-                        <g stroke={dark?'rgba(255,255,255,0.07)':'#f1f4f1'} strokeWidth="7" strokeLinecap="round">
-                          <line x1="0" y1="38" x2="360" y2="40" />
-                          <line x1="0" y1="160" x2="360" y2="160" />
-                          <line x1="60" y1="0" x2="58" y2="280" />
-                          <line x1="240" y1="0" x2="242" y2="280" />
-                          <line x1="300" y1="0" x2="298" y2="280" />
-                        </g>
-
-                        {/* small alleys */}
-                        <g stroke={dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)'} strokeWidth="2.5">
-                          <line x1="0" y1="115" x2="170" y2="118" />
-                          <line x1="190" y1="55" x2="360" y2="56" />
-                          <line x1="0" y1="195" x2="170" y2="198" />
-                          <line x1="120" y1="78" x2="122" y2="220" />
-                          <line x1="220" y1="40" x2="218" y2="160" />
-                          <line x1="270" y1="78" x2="268" y2="220" />
-                        </g>
-
-                        {/* buildings */}
-                        <g fill={dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.08)'}>
-                          <rect x="190" y="92" width="22" height="14" rx="2" />
-                          <rect x="216" y="92" width="16" height="14" rx="2" />
-                          <rect x="248" y="92" width="18" height="14" rx="2" />
-                          <rect x="190" y="115" width="14" height="38" rx="2" />
-                          <rect x="208" y="115" width="22" height="38" rx="2" />
-                          <rect x="248" y="115" width="20" height="22" rx="2" />
-                          <rect x="272" y="115" width="20" height="22" rx="2" />
-                          <rect x="248" y="140" width="44" height="16" rx="2" />
-                          <rect x="190" y="170" width="20" height="14" rx="2" />
-                          <rect x="215" y="170" width="22" height="14" rx="2" />
-                          <rect x="190" y="188" width="44" height="22" rx="2" />
-                          <rect x="248" y="170" width="20" height="40" rx="2" />
-                          <rect x="272" y="170" width="20" height="18" rx="2" />
-                          <rect x="272" y="192" width="20" height="18" rx="2" />
-                          <rect x="0" y="40" width="48" height="12" rx="2" />
-                          <rect x="0" y="55" width="20" height="18" rx="2" />
-                          <rect x="24" y="55" width="22" height="18" rx="2" />
-                          <rect x="0" y="226" width="20" height="18" rx="2" />
-                          <rect x="24" y="226" width="22" height="18" rx="2" />
-                        </g>
-
-                        {/* street labels */}
-                        <g fontFamily="Pretendard" fontWeight="500" fill={dark?'rgba(255,255,255,0.32)':'rgba(0,0,0,0.32)'}>
-                          <text x="20" y="76" fontSize="8.5">한천로</text>
-                          <text x="186" y="40" fontSize="8.5" transform="rotate(90, 186, 40)">정원로</text>
-                          <text x="280" y="218" fontSize="8.5">한강대로</text>
-                          <text x="65" y="170" fontSize="8.5" fill={dark?'rgba(120,180,140,0.7)':'rgba(80,140,100,0.65)'}>한강공원</text>
-                          <text x="14" y="115" fontSize="7" opacity="0.7">정원로45길</text>
-                          <text x="14" y="195" fontSize="7" opacity="0.7">동작이로</text>
-                        </g>
-
-                        {/* route shadow (blur) — rectangular loop */}
-                        <path d="M 180 215 L 60 215 L 60 80 L 280 80 L 280 215 L 195 215" fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" filter="url(#routeShadow)" opacity="0.7" />
-
-                        {/* white route base */}
-                        <path d="M 180 215 L 60 215 L 60 80 L 280 80 L 280 215 L 195 215" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-
-                        {/* route colored by speed - rectangular segments */}
-                        <g fill="none" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="180,215 120,215" stroke="#00ff88" />
-                          <polyline points="120,215 60,215" stroke="#00ff88" />
-                          <polyline points="60,215 60,150" stroke="#f6ff00" />
-                          <polyline points="60,150 60,80" stroke="#ff7a00" />
-                          <polyline points="60,80 140,80" stroke="#ff2d6e" />
-                          <polyline points="140,80 220,80" stroke="#ff2d6e" />
-                          <polyline points="220,80 280,80" stroke="#ff7a00" />
-                          <polyline points="280,80 280,150" stroke="#f6ff00" />
-                          <polyline points="280,150 280,215" stroke="#00ff88" />
-                          <polyline points="280,215 210,215" stroke="#f6ff00" />
-                          <polyline points="210,215 195,215" stroke="#00ff88" />
-                        </g>
-
-                        {/* 1km marker */}
-                        <g>
-                          <circle cx="230" cy="80" r="9" fill="#fff" stroke={dark?'rgba(0,0,0,0.4)':'rgba(0,0,0,0.18)'} strokeWidth="1.2" />
-                          <text x="230" y="84" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#222">1</text>
-                        </g>
-
-                        {/* START - pulsing */}
-                        <circle cx="180" cy="215" r="14" fill="url(#startGlow)" />
-                        <circle cx="180" cy="215" r="7" fill="#00ff88" stroke="#fff" strokeWidth="2.5" />
-                        <g>
-                          <rect x="153" y="228" width="54" height="18" rx="9" fill="#222" />
-                          <text x="180" y="240" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff" letterSpacing="0.05em">START</text>
-                        </g>
-                        {/* FINISH */}
-                        <g>
-                          <rect x="167" y="192" width="56" height="18" rx="9" fill="#3b82f6" />
-                          <text x="195" y="204" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff" letterSpacing="0.05em">FINISH</text>
-                          <polygon points="195,210 191,214 199,214" fill="#3b82f6" />
-                        </g>
-                        {/* BEST */}
-                        <g>
-                          <rect x="144" y="52" width="52" height="18" rx="9" fill="#3b82f6" />
-                          <text x="170" y="64" textAnchor="middle" fontFamily="Pretendard" fontSize="10" fontWeight="800" fill="#fff">👍 BEST</text>
-                        </g>
-
-                        {/* compass */}
-                        <g transform="translate(330, 26)">
-                          <circle r="14" fill={dark?'rgba(0,0,0,0.55)':'rgba(255,255,255,0.92)'} stroke={dark?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.08)'} strokeWidth="0.8" />
-                          <polygon points="0,-8 3,2 0,0 -3,2" fill="#ff2d6e" />
-                          <polygon points="0,8 3,-2 0,0 -3,-2" fill={dark?'#fff':'#444'} />
-                          <text y="-15" textAnchor="middle" fontFamily="Pretendard" fontSize="7" fontWeight="800" fill={dark?'#fff':'#333'}>N</text>
-                        </g>
-
-                        {/* scale bar */}
-                        <g transform="translate(20, 260)">
-                          <line x1="0" y1="0" x2="40" y2="0" stroke={dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)'} strokeWidth="2" />
-                          <line x1="0" y1="-3" x2="0" y2="3" stroke={dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)'} strokeWidth="2" />
-                          <line x1="40" y1="-3" x2="40" y2="3" stroke={dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)'} strokeWidth="2" />
-                          <text x="20" y="14" textAnchor="middle" fontFamily="Pretendard" fontSize="8" fontWeight="600" fill={dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)'}>200m</text>
-                        </g>
-                      </svg>
-
-                      {/* zoom controls */}
-                      <div style={{ position:'absolute', top:50, right:10, display:'flex', flexDirection:'column', gap:1, borderRadius:8, overflow:'hidden', boxShadow:'0 2px 6px rgba(0,0,0,0.15)' }}>
-                        <div style={{ width:28, height:28, background:dark?'rgba(0,0,0,0.55)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Pretendard', fontWeight:800, fontSize:16, color: dark?'#fff':'#333' }}>+</div>
-                        <div style={{ width:28, height:28, background:dark?'rgba(0,0,0,0.55)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Pretendard', fontWeight:800, fontSize:16, color: dark?'#fff':'#333' }}>−</div>
+                {/* 선택된 시간대 상세 기록 */}
+                {(() => {
+                  const sel = combinedReadings.find(r => r.time === selectedReadingTime);
+                  if (!sel || !sel.recorded) return null;
+                  const reminder = VITAL_REMINDERS.find(r => r.time === sel.time);
+                  const subLabel = sel.extra ? 'Mezoo 동기화' : (reminder ? reminder.label : '');
+                  const items = [
+                    { label:'혈압',       val: sel.bp,   unit:'mmHg'  },
+                    { label:'맥박',       val: sel.hr,   unit:'bpm'   },
+                    { label:'산소포화도', val: sel.spo2, unit:'%'     },
+                    { label:'체온',       val: sel.temp, unit:'°C'    },
+                    { label:'호흡 수',    val: sel.rr,   unit:'회/분' },
+                  ];
+                  return (
+                    <div style={{ borderRadius:14, padding:'12px 14px', marginBottom:14, background: dark?'#1a2624':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)'}`, boxShadow:'0 2px 10px rgba(0,0,0,0.05)' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+                        <span style={{ fontFamily:'Poppins', fontWeight:800, fontSize:13, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{sel.time}</span>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em' }}>· {subLabel}</span>
+                        <span style={{ marginLeft:'auto', padding:'2px 8px', borderRadius:6, background: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)', fontFamily:'Pretendard', fontWeight:700, fontSize:10, color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)', letterSpacing:'-0.01em' }}>측정 완료</span>
                       </div>
-                      <div style={{ position:'absolute', left:10, bottom:6, fontFamily:'Poppins', fontWeight:700, fontSize:11, letterSpacing:'-0.01em' }}>
-                        <span style={{ color:'#4285F4' }}>G</span><span style={{ color:'#EA4335' }}>o</span><span style={{ color:'#FBBC05' }}>o</span><span style={{ color:'#4285F4' }}>g</span><span style={{ color:'#34A853' }}>l</span><span style={{ color:'#EA4335' }}>e</span>
-                      </div>
-
-                      {/* speed legend overlay */}
-                      <div style={{ position:'absolute', top:10, left:10, padding:'6px 10px', borderRadius:10, background: dark?'rgba(0,0,0,0.55)':'rgba(255,255,255,0.92)', boxShadow:'0 2px 6px rgba(0,0,0,0.1)', backdropFilter:'blur(4px)', WebkitBackdropFilter:'blur(4px)' }}>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:9, color: dark?'#fff':'#444', marginBottom:4, letterSpacing:'-0.01em' }}>속도</div>
-                        <div style={{ display:'flex', alignItems:'center', gap:4 }}>
-                          <div style={{ width:60, height:6, borderRadius:3, background:'linear-gradient(90deg, #00ff88, #f6ff00, #ff7a00, #ff2d6e)' }} />
-                        </div>
-                        <div style={{ display:'flex', justifyContent:'space-between', marginTop:3, fontFamily:'Pretendard', fontSize:8, fontWeight:500, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.5)' }}>
-                          <span>느림</span>
-                          <span>빠름</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* primary stats */}
-                    <div style={{ padding:'18px 14px 16px', borderRadius:18, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}`, boxShadow:'0 4px 12px rgba(0,0,0,0.04)' }}>
-                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:14 }}>
-                        <div>
-                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:11, letterSpacing:'-0.01em', color:C.main, marginBottom:3 }}>전체 시간</div>
-                          <div style={{ display:'flex', alignItems:'baseline', gap:6 }}>
-                            <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:34, color: dark?'#fff':'#000', letterSpacing:'-0.04em', lineHeight:1 }}>21:12</span>
-                            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>min</span>
-                          </div>
-                        </div>
-                        <div style={{ textAlign:'right' }}>
-                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:11, letterSpacing:'-0.01em', color:C.main, marginBottom:3 }}>총 거리</div>
-                          <div style={{ display:'flex', alignItems:'baseline', gap:4, justifyContent:'flex-end' }}>
-                            <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:34, color: dark?'#fff':'#000', letterSpacing:'-0.04em', lineHeight:1 }}>1.68</span>
-                            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>km</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* divider */}
-                      <div style={{ height:1, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)', margin:'4px 0 12px' }} />
-
-                      {/* sub stats row */}
-                      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10 }}>
-                        {[
-                          { icon:'⏱️', val:"12'34\"", label:'평균 페이스', sub:'/km' },
-                          { icon:'👣', val:'2,587', label:'걸음 수', sub:'steps' },
-                          { icon:'🔥', val:'82', label:'칼로리', sub:'kcal' },
-                        ].map((s, i) => (
-                          <div key={i} style={{ textAlign:'center' }}>
-                            <div style={{ fontSize:16, marginBottom:3 }}>{s.icon}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:17, color: dark?'#fff':'#000', letterSpacing:'-0.02em', lineHeight:1.1 }}>{s.val}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:9.5, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginTop:1 }}>{s.sub}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', marginTop:3 }}>{s.label}</div>
+                      <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:6 }}>
+                        {items.map((it, i) => (
+                          <div key={i} style={{ textAlign:'center', padding:'8px 4px', borderRadius:10, background: dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.025)', border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}` }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em', marginBottom:3 }}>{it.label}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:14, color: dark?'#fff':'#000', letterSpacing:'-0.02em', lineHeight:1.1 }}>{it.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:8.5, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginTop:2 }}>{it.unit}</div>
                           </div>
                         ))}
                       </div>
                     </div>
+                  );
+                })()}
 
-                    {/* pace chart */}
-                    <div style={{ padding:'14px 16px', borderRadius:16, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` }}>
-                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>구간별 페이스</div>
-                        <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>1km 단위</div>
+                <button style={{ display:'flex', alignItems:'center', gap:8, padding:'12px 14px', borderRadius:12, marginBottom:20, width:'100%', textAlign:'left', cursor:'default', background: dark?'#1a2624':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)'}`, boxShadow:'0 2px 10px rgba(0,0,0,0.05)' }}>
+                  <span style={{ fontSize:14 }}>🔔</span>
+                  <div style={{ flex:1, fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.78)':'rgba(0,0,0,0.68)', letterSpacing:'-0.01em' }}>
+                    다음 측정 알림 <span style={{ fontWeight:800, color: dark?'#fff':'#000' }}>{VITAL_NEXT_REMINDER.time}</span> · {VITAL_NEXT_REMINDER.label}
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke={dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+
+                {/* 활력징후 카드들 */}
+                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                  {VITALS.map(v => {
+                    const series = combinedReadings.map(r => {
+                      if (!r.recorded) return null;
+                      if (v.key === 'bp') return r.bpSys;
+                      return r[v.key];
+                    });
+                    const diaSeries = v.key === 'bp' ? combinedReadings.map(r => r.recorded ? r.bpDia : null) : null;
+                    const times = combinedReadings.map(r => r.time);
+                    const selReading = combinedReadings.find(r => r.time === selectedReadingTime);
+                    const fallback = [...VITAL_READINGS_TODAY].reverse().find(r => r.recorded) || VITAL_READINGS_TODAY[0];
+                    const reading = selReading && selReading.recorded ? selReading : fallback;
+                    let current;
+                    if (v.key === 'bp') current = reading.recorded ? reading.bp : '–';
+                    else current = reading.recorded ? reading[v.key] : '–';
+                    const recordedCount = combinedReadings.filter(r => r.recorded).length;
+                    const selectedIdxInCombined = combinedReadings.findIndex(r => r.time === selectedReadingTime);
+                    return (
+                      <div key={v.key} style={{
+                        borderRadius:16, padding:'14px 16px',
+                        background: dark?'rgba(255,255,255,0.04)':'#fff',
+                        border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
+                        boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
+                      }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+                          <span style={{ fontSize:16 }}>{v.icon}</span>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{v.label}</span>
+                          <span style={{ marginLeft:'auto', padding:'2px 8px', borderRadius:6, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)', fontFamily:'Pretendard', fontWeight:700, fontSize:10, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>정상 {v.normal}</span>
+                        </div>
+                        <div style={{ display:'flex', alignItems:'baseline', gap:5, marginBottom:6 }}>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:26, color: dark?'#fff':'#000', letterSpacing:'-0.03em', lineHeight:1 }}>{current}</span>
+                          <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>{v.unit}</span>
+                          <span style={{ marginLeft:'auto', fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>
+                            {reading.recorded ? `${reading.time} 측정` : `오늘 ${recordedCount}회 측정`}
+                          </span>
+                        </div>
+                        {v.key === 'bp' && (
+                          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:6 }}>
+                            <span style={{ display:'flex', alignItems:'center', gap:5, fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>
+                              <span style={{ display:'inline-block', width:14, height:2, borderRadius:1, background:v.accent }} />
+                              수축기
+                            </span>
+                            <span style={{ display:'flex', alignItems:'center', gap:5, fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>
+                              <svg width="14" height="2"><line x1="0" y1="1" x2="14" y2="1" stroke={v.accent} strokeOpacity="0.65" strokeWidth="2" strokeDasharray="4 3" strokeLinecap="round" /></svg>
+                              이완기
+                            </span>
+                          </div>
+                        )}
+                        <VitalSparkline values={series} accent={v.accent} dark={dark}
+                          yMin={v.yMin} yMax={v.yMax} times={times}
+                          normalLow={v.normalLow} normalHigh={v.normalHigh}
+                          selectedIdx={selReading && selReading.recorded ? selectedIdxInCombined : null}
+                          secondary={diaSeries ? { values: diaSeries, normalLow: v.diaNormalLow, normalHigh: v.diaNormalHigh } : null} />
                       </div>
-                      <svg viewBox="0 0 320 90" style={{ width:'100%', display:'block' }}>
-                        <defs>
-                          <linearGradient id="paceFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={C.main} stopOpacity="0.4" />
-                            <stop offset="100%" stopColor={C.main} stopOpacity="0" />
-                          </linearGradient>
-                        </defs>
-                        {/* grid */}
-                        <g stroke={dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'} strokeDasharray="2 3">
-                          <line x1="0" y1="20" x2="320" y2="20" />
-                          <line x1="0" y1="45" x2="320" y2="45" />
-                          <line x1="0" y1="70" x2="320" y2="70" />
-                        </g>
-                        {/* area */}
-                        <path d="M 10 55 L 50 38 L 90 25 L 130 18 L 170 22 L 210 35 L 250 50 L 290 60 L 310 65 L 310 80 L 10 80 Z" fill="url(#paceFill)" />
-                        {/* line */}
-                        <path d="M 10 55 L 50 38 L 90 25 L 130 18 L 170 22 L 210 35 L 250 50 L 290 60 L 310 65" fill="none" stroke={C.main} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                        {/* dots */}
-                        <g fill={C.main} stroke={dark?'#1a2c28':'#fff'} strokeWidth="2">
-                          <circle cx="10" cy="55" r="3.5" />
-                          <circle cx="90" cy="25" r="3.5" />
-                          <circle cx="170" cy="22" r="3.5" />
-                          <circle cx="250" cy="50" r="3.5" />
-                          <circle cx="310" cy="65" r="3.5" />
-                        </g>
-                        {/* x labels */}
-                        <g fontFamily="Poppins" fontWeight="600" fontSize="8" fill={dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)'}>
-                          <text x="10" y="89" textAnchor="middle">0.0</text>
-                          <text x="90" y="89" textAnchor="middle">0.5</text>
-                          <text x="170" y="89" textAnchor="middle">1.0</text>
-                          <text x="250" y="89" textAnchor="middle">1.5</text>
-                          <text x="310" y="89" textAnchor="middle">1.68km</text>
-                        </g>
-                      </svg>
-                    </div>
+                    );
+                  })}
+                </div>
 
-                    {/* secondary stats grid */}
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap:10 }}>
-                      {[
-                        { icon:'⚡', label:'최고 페이스', val:"9'48\"", unit:'/km', accent:'#ff7a00' },
-                        { icon:'⛰️', label:'상승 고도', val:'12', unit:'m', accent:'#7d50f0' },
-                      ].map((s, i) => (
-                        <div key={i} style={{ padding:'12px 14px', borderRadius:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)'}`, display:'flex', alignItems:'center', gap:11 }}>
-                          <div style={{ width:34, height:34, borderRadius:11, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.04)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, flexShrink:0 }}>{s.icon}</div>
-                          <div style={{ flex:1, minWidth:0 }}>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', marginBottom:2 }}>{s.label}</div>
-                            <div style={{ display:'flex', alignItems:'baseline', gap:3 }}>
-                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>{s.val}</span>
-                              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>{s.unit}</span>
+                {/* 측정하기 버튼 */}
+                <button onClick={() => {
+                  setMezooSync('syncing');
+                  setTimeout(() => {
+                    const now = new Date();
+                    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+                    const j = (lo, hi) => Math.round((Math.random() * (hi - lo) + lo) * 10) / 10;
+                    const sys = Math.round(j(118, 132));
+                    const dia = Math.round(j(74, 86));
+                    const newR = {
+                      time, recorded:true, extra:true,
+                      bp:`${sys}/${dia}`, bpSys:sys, bpDia:dia,
+                      hr: Math.round(j(70, 86)),
+                      spo2: Math.round(j(96, 99)),
+                      temp: j(36.3, 37.0),
+                      rr: Math.round(j(14, 19)),
+                    };
+                    setExtraReadings(prev => [...prev, newR]);
+                    setSelectedReadingTime(newR.time);
+                    setMezooSync('success');
+                  }, 1800);
+                }} style={{ width:'100%', height:54, marginTop:18, borderRadius:16, border:'none', cursor:'pointer', background: dark?'#fff':'#0d1614', color: dark?'#000':'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 6px 18px rgba(0,0,0,0.15)' }}>지금 측정 기록하기</button>
+                <div style={{ height:12 }} />
+
+                {/* Mezoo 동기화 오버레이 */}
+                {mezooSync && (
+                  <div onClick={() => mezooSync === 'success' && setMezooSync(null)} style={{
+                    position:'absolute', inset:0, zIndex:200, display:'flex', alignItems:'center', justifyContent:'center',
+                    background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)', WebkitBackdropFilter:'blur(4px)',
+                    borderTopLeftRadius:28, borderTopRightRadius:28,
+                  }}>
+                    <div onClick={e => e.stopPropagation()} style={{
+                      width:'min(86%, 320px)', borderRadius:22, padding:'28px 22px 22px',
+                      background: dark?'#1a2624':'#fff', boxShadow:'0 12px 40px rgba(0,0,0,0.25)',
+                      textAlign:'center',
+                    }}>
+                      {/* Mezoo brand */}
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, marginBottom:18 }}>
+                        <div style={{ width:22, height:22, borderRadius:6, background: 'linear-gradient(135deg, #1a2c28, #2dbfa0)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, color:'#fff', fontWeight:800, fontFamily:'Poppins' }}>M</div>
+                        <span style={{ fontFamily:'Poppins', fontWeight:800, fontSize:14, letterSpacing:'-0.02em', color: dark?'#fff':'#000' }}>Mezoo</span>
+                        <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>웨어러블</span>
+                      </div>
+
+                      {mezooSync === 'syncing' && (
+                        <>
+                          {/* Pulsing device illustration */}
+                          <div style={{ position:'relative', width:120, height:120, margin:'0 auto 18px' }}>
+                            <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:`2px solid ${dark?'rgba(45,191,160,0.55)':'rgba(45,191,160,0.5)'}`, animation:'mezooPulse 1.6s ease-out infinite' }} />
+                            <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:`2px solid ${dark?'rgba(45,191,160,0.35)':'rgba(45,191,160,0.3)'}`, animation:'mezooPulse 1.6s ease-out 0.5s infinite' }} />
+                            <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:`2px solid ${dark?'rgba(45,191,160,0.18)':'rgba(45,191,160,0.15)'}`, animation:'mezooPulse 1.6s ease-out 1s infinite' }} />
+                            {/* center device puck */}
+                            <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:54, height:54, borderRadius:14, background:'linear-gradient(135deg, #1a2c28, #2dbfa0)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 6px 20px rgba(45,191,160,0.4)' }}>
+                              <span style={{ fontSize:22 }}>📡</span>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:16, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:6 }}>Mezoo와 동기화 중…</div>
+                          <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.55 }}>
+                            웨어러블 디바이스에서<br/>혈압·맥박·산소포화도·체온·호흡 수를 받아오는 중
+                          </div>
+                          <div style={{ marginTop:18, height:4, borderRadius:2, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)', overflow:'hidden' }}>
+                            <div style={{ height:'100%', width:'40%', background:'linear-gradient(90deg, #1a2c28, #2dbfa0)', animation:'mezooBar 1.6s ease-in-out infinite' }} />
+                          </div>
+                        </>
+                      )}
 
-                    {/* AI insight */}
-                    <div style={{ padding:'14px 16px', borderRadius:16, background: dark?'rgba(65,210,180,0.08)':'rgba(65,210,180,0.07)', border:`1px solid ${dark?'rgba(65,210,180,0.22)':'rgba(65,210,180,0.18)'}` }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:6 }}>
-                        <span style={{ fontSize:14 }}>✨</span>
-                        <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:12, color:C.main, letterSpacing:'-0.01em' }}>AI 인사이트</span>
-                      </div>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12.5, color: dark?'rgba(255,255,255,0.78)':'rgba(0,0,0,0.7)', lineHeight:1.55 }}>
-                        오늘 걷기는 평소보다 <b style={{ color:C.main }}>12% 빠른 페이스</b>를 유지했어요. 항암 치료 중 안전한 강도 범위 내에서 잘 운동하고 계십니다. 다음엔 휴식 구간을 1~2번 짧게 가져보세요.
-                      </div>
+                      {mezooSync === 'success' && (() => {
+                        const last = extraReadings[extraReadings.length - 1];
+                        if (!last) return null;
+                        return (
+                          <>
+                            <div style={{ width:64, height:64, margin:'0 auto 14px', borderRadius:'50%', background:'linear-gradient(135deg, #1a2c28, #2dbfa0)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 6px 18px rgba(45,191,160,0.35)' }}>
+                              <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12l5 5 9-11" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:16, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:4 }}>동기화 완료</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', marginBottom:16 }}>
+                              <span style={{ fontFamily:'Poppins', fontWeight:800 }}>{last.time}</span> 측정값이 추가됐어요
+                            </div>
+                            <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:5, marginBottom:18, padding:'10px 8px', borderRadius:12, background: dark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.025)', border:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}` }}>
+                              {[
+                                { l:'혈압', v:last.bp, u:'mmHg' },
+                                { l:'맥박', v:last.hr, u:'bpm' },
+                                { l:'SpO₂', v:last.spo2, u:'%' },
+                                { l:'체온', v:last.temp, u:'°C' },
+                                { l:'호흡', v:last.rr, u:'/분' },
+                              ].map((it, i) => (
+                                <div key={i} style={{ textAlign:'center' }}>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', marginBottom:2 }}>{it.l}</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:13, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>{it.v}</div>
+                                  <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:8.5, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', marginTop:1 }}>{it.u}</div>
+                                </div>
+                              ))}
+                            </div>
+                            <button onClick={() => setMezooSync(null)} style={{
+                              width:'100%', height:46, borderRadius:12, border:'none', cursor:'pointer',
+                              background: dark?'#fff':'#0d1614', color: dark?'#000':'#fff',
+                              fontFamily:'Pretendard', fontWeight:800, fontSize:14, letterSpacing:'-0.01em',
+                            }}>확인</button>
+                          </>
+                        );
+                      })()}
                     </div>
-
-                    <button onClick={closeSheet} style={{ width:'100%', height:54, marginTop:6, borderRadius:16, border:'none', cursor:'pointer', background:`linear-gradient(135deg, ${C.main}, #2dbfa0)`, color:'#fff', fontFamily:'Pretendard', fontWeight:800, fontSize:15, letterSpacing:'-0.01em', boxShadow:'0 8px 22px rgba(65,210,180,0.4)' }}>저장</button>
                   </div>
                 )}
               </>
@@ -3711,7 +3646,7 @@ function PROScreen({ tweaks, setTweak }) {
 
                     {/* tab bar */}
                     <div style={{ display:'flex', gap:4, marginBottom:20, padding:'3px', borderRadius:12, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)' }}>
-                      {[{key:'상담', label:'진료실 상담 기록'}, {key:'검사', label:'검사 결과 분석'}].map(t => (
+                      {[{key:'상담', label:'진료실 상담 기록'}, {key:'검사', label:'검사 결과 분석'}, {key:'수술', label:'나의 수술 기록'}].map(t => (
                         <button key={t.key} onClick={() => setRecordTab(t.key)} style={{
                           flex:1, padding:'9px 0', borderRadius:9, border:'none',
                           background: recordTab === t.key ? (dark?'rgba(255,255,255,0.18)':'#fff') : 'transparent',
@@ -3839,6 +3774,157 @@ function PROScreen({ tweaks, setTweak }) {
                         })()}
                       </>
                     )}
+
+                    {/* 나의 수술 기록 */}
+                    {recordTab === '수술' && (() => {
+                      const s = SURGERY_RECORD;
+                      const lnPct = Math.round((s.lymph.positive / s.lymph.harvested) * 100);
+                      const durRatio = Math.min(1, s.duration.min / (s.duration.avgMin * 1.5));
+                      const lossRatio = Math.min(1, s.bloodLoss.mL / (s.bloodLoss.avgML * 1.5));
+                      const drainMax = Math.max(...s.drain.map(d => d.val));
+                      return (
+                        <>
+                          {/* AI 인사이트 */}
+                          <div style={{
+                            borderRadius:16, padding:'14px 16px', marginBottom:18,
+                            background: dark?'rgba(125,80,240,0.12)':'rgba(125,80,240,0.07)',
+                            border:`1px solid ${dark?'rgba(125,80,240,0.25)':'rgba(125,80,240,0.18)'}`,
+                          }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:7 }}>
+                              <span style={{ fontSize:14 }}>✨</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:12, color:C.purple, letterSpacing:'-0.01em' }}>AI 인사이트</span>
+                            </div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color: dark?'rgba(255,255,255,0.82)':'rgba(0,0,0,0.72)', lineHeight:1.7 }}>{s.ai}</div>
+                          </div>
+
+                          {/* 수술 개요 */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>🏥 {s.procedure}</div>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{s.date}</div>
+                            </div>
+                            <div style={{ fontFamily:'Poppins', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', marginBottom:10, letterSpacing:'-0.01em' }}>{s.procedureEn}</div>
+                            <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                              {[s.approach, s.reconstruction, s.margins].map((t, i) => (
+                                <span key={i} style={{ padding:'4px 10px', borderRadius:8, fontFamily:'Pretendard', fontWeight:600, fontSize:11, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)', color: dark?'rgba(255,255,255,0.75)':'rgba(0,0,0,0.65)', letterSpacing:'-0.01em' }}>{t}</span>
+                              ))}
+                            </div>
+                            <div style={{ marginTop:10, paddingTop:10, borderTop:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>{s.hospital}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>👨‍⚕️ {s.surgeon}</span>
+                            </div>
+                          </div>
+
+                          {/* 암 병기 */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:10, letterSpacing:'-0.01em' }}>암 병기 (TNM)</div>
+                            <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+                              <div style={{ width:72, height:72, borderRadius:18, background: dark?'#1f2a28':'#0d1614', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                                <div style={{ fontFamily:'Poppins', fontWeight:300, fontSize:9, color:'rgba(255,255,255,0.55)', letterSpacing:'0.18em' }}>STAGE</div>
+                                <div style={{ fontFamily:'Poppins', fontWeight:800, fontSize:24, color:'#fff', letterSpacing:'-0.04em', lineHeight:1 }}>{s.stage.overall}</div>
+                              </div>
+                              <div style={{ flex:1 }}>
+                                <div style={{ fontFamily:'Poppins', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:4 }}>{s.stage.tnm}</div>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', lineHeight:1.5 }}>{s.stage.desc}</div>
+                              </div>
+                            </div>
+                            <div style={{ display:'flex', gap:4, marginTop:14 }}>
+                              {['I','II','III','IV'].map(stg => {
+                                const active = s.stage.overall.startsWith(stg);
+                                return (
+                                  <div key={stg} style={{ flex:1, padding:'6px 0', borderRadius:8, textAlign:'center', background: active ? (dark?'#1f2a28':'#0d1614') : (dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'), fontFamily:'Poppins', fontWeight:800, fontSize:11, color: active ? '#fff' : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)'), letterSpacing:'-0.01em' }}>{stg}</div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* 림프절 전이 */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>림프절 전이 수</div>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>전이율 {lnPct}%</div>
+                            </div>
+                            <div style={{ display:'flex', alignItems:'baseline', gap:6, marginBottom:10 }}>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:30, color: dark?'#fff':'#000', letterSpacing:'-0.03em', lineHeight:1 }}>{s.lymph.positive}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:14, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)' }}>/ {s.lymph.harvested}개</span>
+                              <span style={{ marginLeft:'auto', padding:'3px 10px', borderRadius:8, fontFamily:'Pretendard', fontWeight:700, fontSize:11, background: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)', color: dark?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.6)', letterSpacing:'-0.01em' }}>N1</span>
+                            </div>
+                            <div style={{ display:'grid', gridTemplateColumns:'repeat(16, 1fr)', gap:3 }}>
+                              {Array.from({length:s.lymph.harvested}).map((_, i) => {
+                                const pos = i < s.lymph.positive;
+                                return (
+                                  <div key={i} style={{ aspectRatio:'1 / 1', borderRadius:3, background: pos ? (dark?'#fff':'#0d1614') : (dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)') }} />
+                                );
+                              })}
+                            </div>
+                            <div style={{ marginTop:10, display:'flex', alignItems:'center', gap:12, fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>
+                              <span style={{ display:'flex', alignItems:'center', gap:5 }}>
+                                <span style={{ width:9, height:9, borderRadius:2, background: dark?'#fff':'#0d1614' }} /> 전이 양성
+                              </span>
+                              <span style={{ display:'flex', alignItems:'center', gap:5 }}>
+                                <span style={{ width:9, height:9, borderRadius:2, background: dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)' }} /> 전이 음성
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* 수술 시간 / 출혈량 */}
+                          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:14 }}>
+                            {[
+                              { label:'수술 시간', val:`${s.duration.min}`, unit:'분', sub:`평균 ${s.duration.avgMin}분`, ratio:durRatio, below:s.duration.min<s.duration.avgMin },
+                              { label:'예상 출혈량', val:`${s.bloodLoss.mL}`, unit:'mL', sub:`평균 ${s.bloodLoss.avgML} mL`, ratio:lossRatio, below:s.bloodLoss.mL<s.bloodLoss.avgML },
+                            ].map((m, i) => (
+                              <div key={i} style={{ borderRadius:16, padding:'14px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', marginBottom:8, letterSpacing:'-0.01em' }}>{m.label}</div>
+                                <div style={{ display:'flex', alignItems:'baseline', gap:4, marginBottom:8 }}>
+                                  <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:24, color: dark?'#fff':'#000', letterSpacing:'-0.03em', lineHeight:1 }}>{m.val}</span>
+                                  <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>{m.unit}</span>
+                                </div>
+                                <div style={{ height:6, borderRadius:3, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)', overflow:'hidden', marginBottom:5, position:'relative' }}>
+                                  <div style={{ height:'100%', width:`${m.ratio*100}%`, background: dark?'#fff':'#0d1614', borderRadius:3 }} />
+                                  <div style={{ position:'absolute', left:`${(1/1.5)*100}%`, top:-2, bottom:-2, width:1, background: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.3)' }} />
+                                </div>
+                                <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)' }}>
+                                  {m.sub} · {m.below ? '평균 이하' : '평균 이상'}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* 수술 후 배액량 (POD chart) */}
+                          <div style={{ borderRadius:16, padding:'16px 18px', marginBottom:14, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>수술 후 배액량 (POD 1–6)</div>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)' }}>총 {s.drain.reduce((a,b)=>a+b.val,0)} mL</div>
+                            </div>
+                            <div style={{ display:'flex', alignItems:'flex-end', gap:8, height:120, marginBottom:6, padding:'0 4px' }}>
+                              {s.drain.map((d, i) => {
+                                const h = (d.val / drainMax) * 100;
+                                return (
+                                  <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:5 }}>
+                                    <div style={{ fontFamily:'Poppins', fontWeight:700, fontSize:10, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)' }}>{d.val}</div>
+                                    <div style={{ width:'100%', height:`${h}%`, minHeight:4, borderRadius:'6px 6px 2px 2px', background: dark?'linear-gradient(180deg, #fff, rgba(255,255,255,0.55))':'linear-gradient(180deg, #0d1614, rgba(13,22,20,0.55))' }} />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div style={{ display:'flex', gap:8, padding:'0 4px' }}>
+                              {s.drain.map((d, i) => (
+                                <div key={i} style={{ flex:1, textAlign:'center', fontFamily:'Poppins', fontWeight:600, fontSize:9, color: dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>{d.day}</div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 입원일 · 요약 */}
+                          <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:24, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', letterSpacing:'-0.01em' }}>총 입원 기간</div>
+                            <div>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em' }}>{s.hospitalDays}</span>
+                              <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:12, color: dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', marginLeft:3 }}>일</span>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </>
                 )}
 
@@ -3869,7 +3955,7 @@ function PROScreen({ tweaks, setTweak }) {
 
                     {/* tab bar — segmented control */}
                     <div style={{ display:'flex', gap:4, marginBottom:20, padding:'3px', borderRadius:12, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)' }}>
-                      {['문진','체중','식단','운동'].map(tab => (
+                      {['문진','체중','식단','활력'].map(tab => (
                         <button key={tab} onClick={() => setReportTab(tab)} style={{
                           flex:1, padding:'7px 0', borderRadius:9,
                           border:'none',
@@ -3954,16 +4040,16 @@ function PROScreen({ tweaks, setTweak }) {
                           <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:C.main, flexShrink:0 }}>{day.kcal} kcal</span>
                         </div>
                       ))}
-                      {reportTab === '운동' && REPORT_EXERCISE_DIARY.map(day => (
+                      {reportTab === '활력' && REPORT_VITAL_DIARY.map(day => (
                         <div key={day.date} style={{ borderRadius:14, padding:'12px 16px', background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                           <div>
                             <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
-                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: day.done ? C.purple : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)') }}>{day.date}</div>
-                              <span style={{ fontSize:10, padding:'2px 7px', borderRadius:8, fontFamily:'Pretendard', fontWeight:600, background: day.done ? (dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.12)') : (dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)'), color: day.done ? C.main : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)') }}>{day.done ? '운동함' : '휴식'}</span>
+                              <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: C.purple }}>{day.date}</div>
+                              <span style={{ fontSize:10, padding:'2px 7px', borderRadius:8, fontFamily:'Pretendard', fontWeight:600, background: dark?'rgba(65,210,180,0.18)':'rgba(65,210,180,0.12)', color: C.main }}>{day.count}회 측정</span>
+                              {day.flag && <span style={{ fontSize:10, padding:'2px 7px', borderRadius:8, fontFamily:'Pretendard', fontWeight:700, background: dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.14)', color: C.red }}>{day.flag}</span>}
                             </div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', maxWidth:200 }}>{day.summary}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', maxWidth:240 }}>{day.summary}</div>
                           </div>
-                          {day.done && <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:C.main, flexShrink:0 }}>{day.kcal} kcal</span>}
                         </div>
                       ))}
                     </div>
@@ -4040,17 +4126,42 @@ function PROScreen({ tweaks, setTweak }) {
                       </div>
                     </div>
 
-                    {/* Exercise monthly summary */}
-                    <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>운동 월간 요약</div>
-                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:24, background: dark?'rgba(238,63,96,0.08)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.2)':'rgba(238,63,96,0.14)'}` }}>
-                      <div style={{ display:'flex', gap:0 }}>
-                        {[{label:'운동 완료', val:'11일'},{label:'총 소모 칼로리', val:'4,555 kcal'},{label:'평균 소모', val:'414 kcal'}].map((item,i) => (
-                          <div key={i} style={{ flex:1, textAlign:'center', borderRight: i<2 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:C.red, letterSpacing:'-0.02em', marginBottom:3 }}>{item.val}</div>
-                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:11, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.label}</div>
+                    {/* Vital signs monthly summary */}
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>❤️ 활력징후 월간 요약</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color:C.red, letterSpacing:'-0.01em' }}>{VITAL_MONTHLY_SUMMARY.totalDays.val} · {VITAL_MONTHLY_SUMMARY.totalReads.val}</div>
+                    </div>
+                    <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:12, background: dark?'rgba(238,63,96,0.08)':'rgba(238,63,96,0.06)', border:`1px solid ${dark?'rgba(238,63,96,0.2)':'rgba(238,63,96,0.14)'}` }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'-0.01em', marginBottom:8 }}>월간 평균값</div>
+                      <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:0 }}>
+                        {[VITAL_MONTHLY_SUMMARY.avgBP, VITAL_MONTHLY_SUMMARY.avgHR, VITAL_MONTHLY_SUMMARY.avgSpO2, VITAL_MONTHLY_SUMMARY.avgTemp, VITAL_MONTHLY_SUMMARY.avgRR].map((item,i) => (
+                          <div key={i} style={{ textAlign:'center', padding:'0 2px', borderRight: i<4 ? `1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` : 'none' }}>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:14, color:C.red, letterSpacing:'-0.02em', marginBottom:1 }}>{item.val}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:9.5, color: dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)' }}>{item.unit}</div>
+                            <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:10.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', marginTop:3, lineHeight:1.2 }}>{item.label.replace('평균 ','')}</div>
                           </div>
                         ))}
                       </div>
+                      <div style={{ height:1, background: dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)', margin:'12px 0' }} />
+                      <div style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'-0.01em', marginBottom:8 }}>월간 측정 범위</div>
+                      <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+                        {[VITAL_MONTHLY_SUMMARY.bpRange, VITAL_MONTHLY_SUMMARY.hrRange, VITAL_MONTHLY_SUMMARY.spo2Range, VITAL_MONTHLY_SUMMARY.tempRange, VITAL_MONTHLY_SUMMARY.rrRange].map((item, i) => (
+                          <div key={i} style={{ display:'flex', alignItems:'baseline', gap:6 }}>
+                            <span style={{ flex:'0 0 84px', fontFamily:'Pretendard', fontWeight:500, fontSize:11, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)' }}>{item.label}</span>
+                            <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{item.val}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Vital signs monthly notes / 특이점 */}
+                    <div style={{ borderRadius:14, padding:'12px 14px', marginBottom:24, background: dark?'rgba(255,255,255,0.04)':'#fff', border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}` }}>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:C.red, marginBottom:8, letterSpacing:'-0.01em' }}>월간 특이점</div>
+                      <ul style={{ margin:0, paddingLeft:16, fontFamily:'Pretendard', fontWeight:400, fontSize:12, lineHeight:1.7, color: dark?'rgba(255,255,255,0.78)':'rgba(0,0,0,0.7)' }}>
+                        {VITAL_MONTHLY_NOTES.map((n, i) => (
+                          <li key={i} style={{ marginBottom: i<VITAL_MONTHLY_NOTES.length-1 ? 3 : 0 }}>{n}</li>
+                        ))}
+                      </ul>
                     </div>
 
                     {/* 부작용 보고 (이상증세 기록) */}
@@ -4098,17 +4209,13 @@ function PROScreen({ tweaks, setTweak }) {
                       onClick={() => alert('의료진에게 리포트가 전달되었습니다.')}
                       style={{
                         width:'100%', height:56, minHeight:56, flexShrink:0, borderRadius:14, border:'none', cursor:'pointer',
-                        background:`linear-gradient(135deg, ${C.red} 0%, ${C.purple} 100%)`,
-                        color:'#fff',
+                        background: dark?'#fff':'#0d1614',
+                        color: dark?'#000':'#fff',
                         fontFamily:'Pretendard', fontWeight:700, fontSize:14, letterSpacing:'-0.01em',
-                        boxShadow:`0 10px 24px ${dark?'rgba(238,63,96,0.35)':'rgba(238,63,96,0.25)'}, 0 2px 6px rgba(0,0,0,0.06)`,
-                        display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                        boxShadow:'0 6px 18px rgba(0,0,0,0.15)',
                         transition:'all 0.2s ease',
                       }}
-                    >
-                      <span style={{ fontSize:16 }}>📤</span>
-                      <span>의료진에게 리포트 전달하기</span>
-                    </button>
+                    >의료진에게 리포트 전달하기</button>
 
                     <div style={{ height:24 }} />
                   </>
@@ -4254,7 +4361,7 @@ function PROScreen({ tweaks, setTweak }) {
                 {chemoTab === '최신 논문' && (
                   <>
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', letterSpacing:'-0.01em' }}>대장암 치료 큐레이션</div>
+                      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color:dark?'rgba(255,255,255,0.85)':'rgba(0,0,0,0.78)', letterSpacing:'-0.01em' }}>위암 치료 큐레이션</div>
                       <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:11, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>총 {RESEARCH_PAPERS.length}건</div>
                     </div>
                     <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
