@@ -745,8 +745,9 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
             </button>
           )}
 
-          {/* 2 × 2 grid */}
+          {/* 2 × 2 grid + MINVENT */}
           {(vpepMode === 'live' || captured) && (
+          <>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
             {[
               { label:'PIP',  value:'18',  unit:'cmH₂O', tone:'ok',   trend:'steady', statusText:'기준 ±2' },
@@ -798,6 +799,7 @@ function Home({ showAgent = false, onAgentClose, onWorry }) {
               }}>다시 촬영하기</button>
             )}
           </div>
+          </>
           )}
 
         </div>
