@@ -442,7 +442,7 @@ function AgentPopup({ onClose, onCapture }) {
 }
 
 function OCRCapture({ onClose, onCaptured }) {
-  const [phase, setPhase] = React.useState('aim'); // aim → capturing → done
+  const [phase, setPhase] = React.useState('aim'); // aim → capturing → (auto-close)
   const [scanY, setScanY] = React.useState(0);
 
   React.useEffect(() => {
@@ -453,11 +453,11 @@ function OCRCapture({ onClose, onCaptured }) {
       const p = Math.min(1, (t - start) / 1800);
       setScanY(p);
       if (p < 1) raf = requestAnimationFrame(tick);
-      else setPhase('done');
+      else if (onCaptured) onCaptured();
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [phase]);
+  }, [phase, onCaptured]);
 
   const handleShutter = () => {
     if (phase === 'aim') setPhase('capturing');
@@ -499,17 +499,16 @@ function OCRCapture({ onClose, onCaptured }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <div style={{
-            width: '78%', maxWidth: 280, aspectRatio: '4 / 3.4',
+            position: 'absolute', left: '8%', right: '8%', top: '20%', bottom: '20%',
             background: 'linear-gradient(180deg, #0c1018 0%, #050709 100%)',
             border: '1px solid rgba(255,255,255,0.06)',
             borderRadius: 8,
-            padding: '12px 14px',
-            display: 'flex', flexDirection: 'column', gap: 8,
+            padding: '14px 16px',
+            display: 'flex', flexDirection: 'column', gap: 10,
             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-            transform: 'perspective(800px) rotateY(-2deg) rotateX(1deg)',
             boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
           }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, flex: 1 }}>
               {[
                 { l: 'PIP',  v: '18',  u: 'cmH₂O' },
                 { l: 'VTE',  v: '142', u: 'mL' },
@@ -517,30 +516,31 @@ function OCRCapture({ onClose, onCaptured }) {
                 { l: 'LEAK', v: '19',  u: 'L/min' },
               ].map(m => (
                 <div key={m.l} style={{
-                  padding: '5px 8px',
+                  padding: '8px 12px',
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.05)',
-                  borderRadius: 4,
+                  borderRadius: 6,
+                  display: 'flex', flexDirection: 'column', justifyContent: 'center',
                 }}>
-                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>{m.l}</div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: '#fff', lineHeight: 1.1, marginTop: 2 }}>{m.v}</div>
-                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>{m.u}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: 1.2 }}>{m.l}</div>
+                  <div style={{ fontSize: 30, fontWeight: 700, color: '#fff', lineHeight: 1.05, marginTop: 4 }}>{m.v}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{m.u}</div>
                 </div>
               ))}
             </div>
             {/* MINVENT footer row */}
             <div style={{
-              padding: '6px 10px',
+              padding: '8px 12px',
               background: 'rgba(255,255,255,0.03)',
               border: '1px solid rgba(255,255,255,0.05)',
-              borderRadius: 4,
+              borderRadius: 6,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <div>
-                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>MINVENT</div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginTop: 1 }}>
-                  <span style={{ fontSize: 20, fontWeight: 700, color: '#fff', lineHeight: 1.1 }}>3.97</span>
-                  <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)' }}>L/min</span>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: 1.2 }}>MINVENT</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 3 }}>
+                  <span style={{ fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.05 }}>3.97</span>
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>L/min</span>
                 </div>
               </div>
             </div>
@@ -604,34 +604,7 @@ function OCRCapture({ onClose, onCaptured }) {
           }}>
             {phase === 'aim' && '벤틸레이터 화면을 사각형 안에 맞춰주세요'}
             {phase === 'capturing' && 'OCR로 수치를 읽는 중...'}
-            {phase === 'done' && '인식 완료'}
           </div>
-
-          {/* 인식된 값 표시 */}
-          {phase === 'done' && (
-            <div style={{
-              position: 'absolute', left: 0, right: 0, bottom: -56,
-              display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap',
-            }}>
-              {[
-                { l: 'PIP',     v: '18 cmH₂O' },
-                { l: 'VTE',     v: '142 mL' },
-                { l: 'RR',      v: '28 bpm' },
-                { l: 'LEAK',    v: '19 L/min' },
-                { l: 'MinVent', v: '3.97 L/min' },
-              ].map(t => (
-                <div key={t.l} style={{
-                  padding: '4px 9px', borderRadius: 100,
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                  fontSize: 10.5, fontWeight: 700,
-                  color: '#fff', letterSpacing: -0.1,
-                }}>
-                  {t.l} {t.v}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -639,46 +612,20 @@ function OCRCapture({ onClose, onCaptured }) {
       <div style={{
         padding: '20px 24px 30px',
         background: 'rgba(0,0,0,0.5)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <div style={{ width: 44, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
-          {phase === 'done' && '재촬영'}
-        </div>
-
-        {phase !== 'done' ? (
-          <button onClick={handleShutter} disabled={phase !== 'aim'} style={{
-            width: 64, height: 64, borderRadius: '50%',
-            background: 'transparent', border: '3px solid rgba(255,255,255,0.9)',
-            cursor: phase === 'aim' ? 'pointer' : 'default',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 0,
-          }}>
-            <div style={{
-              width: 50, height: 50, borderRadius: '50%',
-              background: phase === 'capturing' ? '#4B3BE0' : '#fff',
-              transition: 'background 0.2s',
-            }}/>
-          </button>
-        ) : (
-          <button onClick={() => { onCaptured && onCaptured(); }} style={{
-            padding: '14px 28px', borderRadius: 100, border: 'none', cursor: 'pointer',
-            background: '#fff', color: C.ink,
-            fontSize: 13.5, fontWeight: 700, letterSpacing: -0.2,
-          }}>
-            분석 시작
-          </button>
-        )}
-
-        <button onClick={phase === 'done' ? () => setPhase('aim') : undefined} style={{
-          width: 44, height: 44, borderRadius: '50%',
-          background: 'rgba(255,255,255,0.08)', border: 'none',
-          cursor: phase === 'done' ? 'pointer' : 'default',
+        <button onClick={handleShutter} disabled={phase !== 'aim'} style={{
+          width: 64, height: 64, borderRadius: '50%',
+          background: 'transparent', border: '3px solid rgba(255,255,255,0.9)',
+          cursor: phase === 'aim' ? 'pointer' : 'default',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          opacity: phase === 'done' ? 1 : 0.3,
+          padding: 0,
         }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M4 10V6a2 2 0 012-2h4M14 4h4a2 2 0 012 2v4M20 14v4a2 2 0 01-2 2h-4M10 20H6a2 2 0 01-2-2v-4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
+          <div style={{
+            width: 50, height: 50, borderRadius: '50%',
+            background: phase === 'capturing' ? '#4B3BE0' : '#fff',
+            transition: 'background 0.2s',
+          }}/>
         </button>
       </div>
     </div>
