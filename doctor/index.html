@@ -333,7 +333,42 @@ const PATIENTS = [
       '재택 PRO 7일 평균: 통증 1.2/10, 식이·배변 정상 범위 유지',
       '응급상황 발생 0 회 (퇴원 후 14일)',
       '웨어러블 활동량: 일평균 5,400 보 / 중강도 운동 주 2.5h — 회복기 권장치 충족',
-    ] },
+    ],
+    emr: {
+      basic: {
+        height: '162 cm',
+        weight: '54 kg',
+        bmi:    '20.6',
+        bp:     '118 / 76 mmHg',
+        pulse:  '72 bpm',
+        ecog:   '0 (제한 없음)',
+      },
+      tests: [
+        { name: '혈액검사 (CBC · Chemistry)', date: '2026.03.20',
+          result: 'WBC 5.8 · Hb 12.1 · PLT 232 · ALB 4.1 — 정상 범위' },
+        { name: '종양 표지자',                date: '2026.03.20',
+          result: 'CEA 2.8 ng/mL (정상) · CA 19-9 12 U/mL (정상)' },
+        { name: 'CT (복부·골반, contrast)',   date: '2026.03.18',
+          result: 'No evidence of recurrence or distant metastasis' },
+        { name: 'PET-CT',                     date: '2026.02.20',
+          result: 'Negative for FDG-avid lesion' },
+        { name: 'MRI (간)',                   date: '2026.02.22',
+          result: 'No focal liver lesion' },
+        { name: '조직검사',                   date: '2025.11.18',
+          result: 'Adenocarcinoma, moderately differentiated, pT3N1aM0 (Stage IIIa)' },
+      ],
+      chemo: {
+        regimen:       'FOLFOX (5-FU + Leucovorin + Oxaliplatin)',
+        cycle:         '6 / 6 주기 완료 (보조 화학요법)',
+        lastStartDate: '2026.02.28 (마지막 주기)',
+      },
+      surgery: {
+        date:    '2025.11.15',
+        method:  '복강경 우측 결장 절제술 (Laparoscopic right hemicolectomy)',
+        surgeon: '이예나 교수',
+        stage:   'Stage IIIa (pT3N1aM0)',
+      },
+    } },
   { name:'이서준', id:'970504', gender:'M', age:29, time:'09:03', tags:['도착','문진중'],   recurrence: [] },
   { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착','분석중'],   recurrence: [] },
   { name:'이수현', id:'780922', gender:'F', age:47, time:'09:03', tags:['대기','문진완료'], recurrence: [] },
@@ -828,7 +863,7 @@ function CenterPanel({ patient }) {
   );
 }
 
-/* ───────── 우측 패널 — 템플릿/OCR ───────── */
+/* ───────── 우측 패널 — EMR / 재택 관리 플랜 ───────── */
 const CATEGORIES = [
   '전체',
   '즐겨찾기',
@@ -846,41 +881,104 @@ const TEMPLATES = [
   { name:'내시경 초음파 검사 전...', cat:'시술·수술 및 검사 전 안내', fav:false, sel:false },
 ];
 
-function RightPanel() {
-  const [tab, setTab] = useState('template');
-  const [catIdx, setCatIdx] = useState(0);
-  const [items, setItems] = useState(TEMPLATES);
-  const [previewIdx, setPreviewIdx] = useState(0);
-
-  const toggleSel = (i) => setItems(items.map((it, idx) => idx === i ? { ...it, sel: !it.sel } : it));
-  const toggleFav = (i) => setItems(items.map((it, idx) => idx === i ? { ...it, fav: !it.fav } : it));
-
-  const selected = items.filter(it => it.sel);
-
+/* ─── EMR 보조 컴포넌트들 ─── */
+function EMRSection({ title, children }) {
   return (
-    <section style={{
-      flex: 1, minWidth: 0, background: C.surface,
-      borderRadius: 12, border: `1px solid ${C.border}`,
-      display:'flex', flexDirection:'column', overflow:'hidden',
-    }}>
-      {/* 탭 */}
-      <div style={{ display:'flex', borderBottom: `1px solid ${C.border}`, padding: '0 20px' }}>
-        {[
-          { k:'ocr',      l:'환자 첨부 서류 (OCR)' },
-          { k:'template', l:'템플릿' },
-        ].map(t => {
-          const active = tab === t.k;
-          return (
-            <button key={t.k} onClick={() => setTab(t.k)} style={{
-              height: 50, padding: '0 18px',
-              fontSize: 14, fontWeight: active ? 700 : 500,
-              color: active ? C.text : C.textSub,
-              borderBottom: active ? `2px solid ${C.text}` : '2px solid transparent',
-            }}>{t.l}</button>
-          );
-        })}
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 8 }}>
+        {title}
       </div>
+      <div style={{
+        background: '#FAFBFC', borderRadius: 10,
+        border: `1px solid ${C.borderSoft}`, padding: '12px 14px',
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+function KVGrid({ items, cols = 2 }) {
+  return (
+    <div style={{
+      display:'grid',
+      gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      columnGap: 18, rowGap: 8,
+    }}>
+      {items.map(([k, v], i) => (
+        <div key={i} style={{ display:'flex', gap: 8, fontSize: 12.5, alignItems:'baseline' }}>
+          <div style={{ width: 84, color: C.textSub, flexShrink: 0 }}>{k}</div>
+          <div style={{ color: C.text, fontWeight: 500, flex: 1 }}>{v}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+function ExamRow({ name, date, result, last }) {
+  return (
+    <div style={{ padding: '8px 0', borderBottom: last ? 'none' : `1px dashed ${C.borderSoft}` }}>
+      <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom: 3 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>{name}</div>
+        <div style={{ fontSize: 11.5, color: C.textSub }}>{date}</div>
+      </div>
+      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.55 }}>{result}</div>
+    </div>
+  );
+}
 
+function EMRPanel({ emr }) {
+  if (!emr) {
+    return (
+      <div style={{
+        flex: 1, display:'flex', alignItems:'center', justifyContent:'center',
+        padding: 24, color: C.textSub, fontSize: 13,
+      }}>
+        등록된 치료 정보가 없습니다.
+      </div>
+    );
+  }
+  return (
+    <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '16px 20px 20px' }}>
+      <EMRSection title="기본 정보">
+        <KVGrid items={[
+          ['신장',    emr.basic.height],
+          ['체중',    emr.basic.weight],
+          ['BMI',     emr.basic.bmi],
+          ['혈압',    emr.basic.bp],
+          ['맥박',    emr.basic.pulse],
+          ['ECOG',    emr.basic.ecog],
+        ]}/>
+      </EMRSection>
+
+      <EMRSection title="검사 기록지 결과">
+        {emr.tests.map((t, i) => (
+          <ExamRow key={i} {...t} last={i === emr.tests.length - 1}/>
+        ))}
+      </EMRSection>
+
+      <EMRSection title="항암 치료 정보">
+        <KVGrid cols={1} items={[
+          ['레지멘',       emr.chemo.regimen],
+          ['진행 상태',    emr.chemo.cycle],
+          ['이번 주기 시작일', emr.chemo.lastStartDate],
+        ]}/>
+      </EMRSection>
+
+      <EMRSection title="최근 수술 이력">
+        <KVGrid cols={1} items={[
+          ['수술일',    emr.surgery.date],
+          ['수술 방법', emr.surgery.method],
+          ['집도의',    emr.surgery.surgeon],
+          ['병기',      emr.surgery.stage],
+        ]}/>
+      </EMRSection>
+    </div>
+  );
+}
+
+/* ─── 재택 관리 플랜 (구 템플릿) 컨텐츠 ─── */
+function PlanPanel({ catIdx, setCatIdx, items, previewIdx, setPreviewIdx, toggleSel, toggleFav }) {
+  return (
+    <>
       {/* 검색 & 정렬 */}
       <div style={{ display:'flex', alignItems:'center', gap: 10, padding: '14px 20px' }}>
         <div style={{
@@ -906,11 +1004,9 @@ function RightPanel() {
 
       {/* 3-컬럼: 카테고리 / 템플릿 / 미리보기 */}
       <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
-        {/* 카테고리 */}
         <div className="scroll" style={{
           width: 168, overflowY: 'auto',
-          borderRight: `1px solid ${C.borderSoft}`,
-          padding: '6px 0',
+          borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
         }}>
           {CATEGORIES.map((c, i) => {
             const active = i === catIdx;
@@ -927,30 +1023,25 @@ function RightPanel() {
           })}
         </div>
 
-        {/* 템플릿 리스트 */}
         <div className="scroll" style={{
           width: 200, overflowY:'auto',
-          borderRight: `1px solid ${C.borderSoft}`,
-          padding: '10px',
+          borderRight: `1px solid ${C.borderSoft}`, padding: '10px',
         }}>
           {items.map((it, i) => {
             const active = previewIdx === i;
             return (
-              <div key={i}
-                onClick={() => setPreviewIdx(i)}
-                style={{
-                  background: active ? C.accentSoft : C.surface,
-                  border: `1.5px solid ${active ? C.accent : C.border}`,
-                  borderRadius: 10, padding: '10px 12px',
-                  marginBottom: 8, cursor: 'pointer',
-                }}>
+              <div key={i} onClick={() => setPreviewIdx(i)} style={{
+                background: active ? C.accentSoft : C.surface,
+                border: `1.5px solid ${active ? C.accent : C.border}`,
+                borderRadius: 10, padding: '10px 12px',
+                marginBottom: 8, cursor: 'pointer',
+              }}>
                 <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
                   <button onClick={(e) => { e.stopPropagation(); toggleSel(i); }} style={{
                     width: 16, height: 16, borderRadius: 4,
                     background: it.sel ? C.accent : C.surface,
                     border: `1.5px solid ${it.sel ? C.accent : '#C7CCD6'}`,
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                    flexShrink: 0,
+                    display:'flex', alignItems:'center', justifyContent:'center', flexShrink: 0,
                   }}>
                     {it.sel && <Icon name="check" size={10} color="#fff"/>}
                   </button>
@@ -972,14 +1063,10 @@ function RightPanel() {
           })}
         </div>
 
-        {/* 미리보기 */}
         <div className="scroll" style={{
           flex: 1, minWidth: 0, overflowY:'auto', padding: '14px 16px',
         }}>
-          <div style={{
-            display:'flex', alignItems:'center', justifyContent:'space-between',
-            marginBottom: 10,
-          }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 10 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
               미리보기 <span style={{ color: C.textSub, fontWeight: 500, fontSize: 12, marginLeft: 4 }}>1개 선택</span>
             </div>
@@ -995,12 +1082,8 @@ function RightPanel() {
             border: `1px solid ${C.borderSoft}`, padding: '14px 16px',
             fontSize: 12, color: C.text, lineHeight: 1.7,
           }}>
-            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>
-              위내시경 검사 전 안내
-            </div>
-            <div>
-              안녕하세요 #(name)님, 위내시경 검사는 식도, 위, 십이지장의 질환을 정확히 진단하고 필요한 경우 조직검사까지 가능한 검사입니다. 편안한 검사를 위해 아래 안내사항을 잘 따라주세요.
-            </div>
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>위내시경 검사 전 안내</div>
+            <div>안녕하세요 #(name)님, 위내시경 검사는 식도, 위, 십이지장의 질환을 정확히 진단하고 필요한 경우 조직검사까지 가능한 검사입니다. 편안한 검사를 위해 아래 안내사항을 잘 따라주세요.</div>
             <div style={{ marginTop: 10, fontWeight: 700 }}>Q1. 검사 전 금식은 어떻게 하나요?</div>
             <div>검사 전 최소 8시간 이상 금식이 필요합니다. 물도 포함하여 완전 금식해 주셔야 해요.</div>
             <div style={{ marginTop: 8, fontWeight: 700 }}>Q2. 복용 중인 약은 어떻게 하나요?</div>
@@ -1010,47 +1093,90 @@ function RightPanel() {
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+function RightPanel({ patient }) {
+  const [tab, setTab] = useState('emr');           // 'emr' | 'plan'
+  const [catIdx, setCatIdx] = useState(0);
+  const [items, setItems] = useState(TEMPLATES);
+  const [previewIdx, setPreviewIdx] = useState(0);
+
+  const toggleSel = (i) => setItems(items.map((it, idx) => idx === i ? { ...it, sel: !it.sel } : it));
+  const toggleFav = (i) => setItems(items.map((it, idx) => idx === i ? { ...it, fav: !it.fav } : it));
+  const selected = items.filter(it => it.sel);
+
+  return (
+    <section style={{
+      flex: 1, minWidth: 0, background: C.surface,
+      borderRadius: 12, border: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', overflow:'hidden',
+    }}>
+      {/* 탭 */}
+      <div style={{ display:'flex', borderBottom: `1px solid ${C.border}`, padding: '0 20px' }}>
+        {[
+          { k:'emr',  l:'환자 치료 정보 (EMR)' },
+          { k:'plan', l:'재택 관리 플랜 생성' },
+        ].map(t => {
+          const active = tab === t.k;
+          return (
+            <button key={t.k} onClick={() => setTab(t.k)} style={{
+              height: 50, padding: '0 18px',
+              fontSize: 14, fontWeight: active ? 700 : 500,
+              color: active ? C.text : C.textSub,
+              borderBottom: active ? `2px solid ${C.text}` : '2px solid transparent',
+            }}>{t.l}</button>
+          );
+        })}
+      </div>
+
+      {tab === 'emr' ? (
+        <EMRPanel emr={patient.emr}/>
+      ) : (
+        <PlanPanel
+          catIdx={catIdx} setCatIdx={setCatIdx}
+          items={items} previewIdx={previewIdx} setPreviewIdx={setPreviewIdx}
+          toggleSel={toggleSel} toggleFav={toggleFav}
+        />
+      )}
 
       {/* 하단 액션 바 */}
-      <div style={{
-        borderTop: `1px solid ${C.border}`,
-        padding: '12px 20px',
-      }}>
-        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-          <button style={{
-            display:'flex', alignItems:'center', gap: 4,
-            fontSize: 12.5, color: C.textSub, fontWeight: 500,
-            padding: '4px 6px',
-          }}>
-            <Icon name="refresh" size={13}/> 초기화
-          </button>
-          <div style={{ display:'flex', gap: 6, flexWrap:'wrap', flex:1 }}>
-            {selected.map((it, i) => (
-              <div key={i} style={{
-                display:'inline-flex', alignItems:'center', gap: 6,
-                height: 26, padding: '0 8px 0 10px',
-                borderRadius: 6, background: C.accentSoft,
-                fontSize: 12, color: C.text, fontWeight: 500,
-              }}>
-                {it.name.length > 12 ? it.name.slice(0, 11) + '…' : it.name}
-                <button onClick={() => toggleSel(items.indexOf(it))} style={{ color: C.textSub }}>
-                  <Icon name="x" size={11}/>
-                </button>
-              </div>
-            ))}
+      <div style={{ borderTop: `1px solid ${C.border}`, padding: '12px 20px' }}>
+        {tab === 'plan' && (
+          <div style={{ display:'flex', alignItems:'center', gap: 8, marginBottom: 10 }}>
+            <button style={{
+              display:'flex', alignItems:'center', gap: 4,
+              fontSize: 12.5, color: C.textSub, fontWeight: 500, padding: '4px 6px',
+            }}>
+              <Icon name="refresh" size={13}/> 초기화
+            </button>
+            <div style={{ display:'flex', gap: 6, flexWrap:'wrap', flex:1 }}>
+              {selected.map((it, i) => (
+                <div key={i} style={{
+                  display:'inline-flex', alignItems:'center', gap: 6,
+                  height: 26, padding: '0 8px 0 10px',
+                  borderRadius: 6, background: C.accentSoft,
+                  fontSize: 12, color: C.text, fontWeight: 500,
+                }}>
+                  {it.name.length > 12 ? it.name.slice(0, 11) + '…' : it.name}
+                  <button onClick={() => toggleSel(items.indexOf(it))} style={{ color: C.textSub }}>
+                    <Icon name="x" size={11}/>
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div style={{ display:'flex', gap: 8, marginTop: 10, justifyContent:'flex-end' }}>
+        )}
+        <div style={{ display:'flex', justifyContent:'flex-end' }}>
           <button style={{
-            height: 40, padding: '0 22px', borderRadius: 8,
-            border: `1px solid ${C.border}`, background: C.surface,
-            fontSize: 14, fontWeight: 600, color: C.text,
-          }}>진료 보류</button>
-          <button style={{
-            height: 40, padding: '0 28px', borderRadius: 8,
+            display:'flex', alignItems:'center', gap: 8,
+            height: 42, padding: '0 24px', borderRadius: 8,
             background: C.primary, color: '#fff',
             fontSize: 14, fontWeight: 700,
-          }}>진료 저장</button>
+          }}>
+            <Icon name="send" size={14} color="#fff"/> 환자 앱으로 내보내기
+          </button>
         </div>
       </div>
     </section>
@@ -1073,7 +1199,7 @@ function App() {
         }}>
           <PatientList selectedIdx={selectedIdx} setSelectedIdx={setSelectedIdx}/>
           <CenterPanel patient={patient}/>
-          <RightPanel/>
+          <RightPanel patient={patient}/>
         </div>
       </div>
     </div>
