@@ -149,13 +149,10 @@ function Header() {
         <div style={{ display:'flex', alignItems:'center', gap: 24, marginLeft: 4 }}>
           {tab('진료')}
           <div style={{ width:1, height:18, background:'rgba(255,255,255,0.3)' }}/>
-          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>내과 이예나 교수님</span>
+          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>대장항문외과 이예나 교수님</span>
         </div>
       </div>
       <div style={{ display:'flex', alignItems:'center' }}>
-        {navItem('phone','미니모드')}
-        {navItem('link','사전문진')}
-        {navItem('cal2','진료일정')}
         {navItem('search','환자검색')}
       </div>
     </header>
@@ -479,9 +476,9 @@ function RightPanel() {
 
   return (
     <section style={{
-      width: 560, background: C.surface,
+      flex: 1, minWidth: 0, background: C.surface,
       borderRadius: 12, border: `1px solid ${C.border}`,
-      display:'flex', flexDirection:'column', flexShrink: 0, overflow:'hidden',
+      display:'flex', flexDirection:'column', overflow:'hidden',
     }}>
       {/* 탭 */}
       <div style={{ display:'flex', borderBottom: `1px solid ${C.border}`, padding: '0 20px' }}>
