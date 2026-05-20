@@ -70,69 +70,85 @@ const Icon = ({ name, size = 22, color = 'currentColor' }) => {
     case 'list': return (<svg {...props}><path d="M4 6h16M4 12h16M4 18h16"/></svg>);
     case 'doc':  return (<svg {...props}><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg>);
     case 'colon':  return (
-      <svg {...props} strokeWidth="1.7">
-        {/* 상부(횡행결장) — 위로 5개 haustra 불룩 */}
-        <path d="M4 8.5c.6-2.2 2.4-2.2 3 0c.6-2.2 2.4-2.2 3 0c.6-2.2 2.4-2.2 3 0c.6-2.2 2.4-2.2 3 0c.6-2.2 2.4-2.2 3 0"/>
-        {/* 우측(상행결장) — 오른쪽으로 3개 haustra */}
-        <path d="M19 8.5c2.2.6 2.2 2.4 0 3c2.2.6 2.2 2.4 0 3c2.2.6 2.2 2.4 0 3"/>
-        {/* 맹장(cecum) + 충수 */}
-        <path d="M19 17.5c2 .6 2 2.4 0 3v2"/>
-        {/* S상결장 — 우→좌 물결치며 내려옴 */}
-        <path d="M19 20.5c-1.6.6-2.4-.6-3-1c-.7-.5-1.6-.5-2.5 0c-1 .6-2 .6-3 0c-1-.6-2-.6-2.5.5c-.4 1-1.5 1.4-2.5 1"/>
-        {/* 직장(rectum) — 가운데 아래로 */}
-        <path d="M8.5 21v2.5"/>
-        {/* 좌측(하행결장) — 왼쪽으로 3개 haustra */}
-        <path d="M5 8.5c-2.2.6-2.2 2.4 0 3c-2.2.6-2.2 2.4 0 3c-2.2.6-2.2 2.4 0 3"/>
+      <svg {...props} strokeWidth="1.6">
+        {/* 외곽선 — Π 프레임 따라 동글동글한 haustra outline, 내부는 비어있음(fill 없음) */}
+        {/* 상부(횡행결장) 외측 불룩 - 5 bumps 위로 */}
+        <path d="M3.5 8
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0"/>
+        {/* 우측(상행결장) 외측 불룩 - 3 bumps 오른쪽으로 */}
+        <path d="M21.5 8
+                 a1.75 1.75 0 0 1 0 3
+                 a1.75 1.75 0 0 1 0 3
+                 a1.75 1.75 0 0 1 0 3"/>
+        {/* 맹장 곡선 + 충수 튜브 */}
+        <path d="M21.5 17c0 2-1 3-2.5 3 l 0 3"/>
+        {/* S상결장 - 우→좌 물결 */}
+        <path d="M19 20
+                 c-1.3 0-1.7-1.3-3-1.3
+                 c-1.3 0-1.7 1.3-3 1.3
+                 c-1.3 0-1.7-1.3-3-1.3
+                 c-1.3 0-1.7 1.3-3 1.3"/>
+        {/* 직장 튜브 */}
+        <path d="M7 20 v 3"/>
+        {/* 좌측(하행결장) 외측 불룩 - 3 bumps 왼쪽으로 */}
+        <path d="M2.5 17
+                 a1.75 1.75 0 0 1 0 -3
+                 a1.75 1.75 0 0 1 0 -3
+                 a1.75 1.75 0 0 1 0 -3"/>
       </svg>
     );
     case 'stomach': return (
       <svg {...props} strokeWidth="1.7">
-        {/* 식도 — 위로 열린 작은 튜브 */}
-        <path d="M9 3v4"/>
-        <path d="M11.5 3v3"/>
-        {/* 위 본체 outline — fundus → 체부 → 유문 → 십이지장 */}
-        <path d="M9 7
-                 c-1 .3-2 1.2-2.5 2.5
-                 c-1 0-2 1-2 2
-                 c0 1 .8 1.7 2 1.8
-                 c.3 3.5 3 7 7.5 7
-                 c4 0 7-2.5 7-6
-                 c0-3-2-5-5-5
-                 c-1 0-1.5-.4-2-1
-                 c-.6-.7-1.3-1-2-1.3
-                 c-1-.4-2-.5-3-0"/>
+        {/* 식도 — 좌측에 위로 열린 긴 튜브 */}
+        <path d="M9 2 v 6"/>
+        <path d="M11.5 2 v 5"/>
+        {/* 위 본체 outline (좌우 반전: fundus 우측, pylorus 좌측) */}
+        <path d="M11.5 7
+                 c1 .8 2 1.2 3 1.2
+                 c3 0 5 1.8 5.5 4.5
+                 c .5 3 -1 6 -4 7
+                 c -3 1 -7 .5 -9 -1.5
+                 c -2 -2 -2.5 -5 -1 -7
+                 c 1 -1.3 2.5 -1.7 4 -1.7"/>
         {/* 분문 곡선 (식도→위 입구) */}
-        <path d="M11.5 6c.8 1 1.4 1.5 2.3 1.5"/>
-        {/* 십이지장 — 오른쪽 아래로 살짝 휘어짐 */}
-        <path d="M16 19.5c2 .5 3.5-.5 3-2.5"/>
+        <path d="M9 8 c .5 1 1.7 1.5 2.5 .5"/>
+        {/* 십이지장 — 좌측 아래로 긴 튜브 */}
+        <path d="M5.5 16
+                 c -1 1.5 -.5 3.5 1 4
+                 c 1 .3 1.7 -.5 1 -1.5"/>
       </svg>
     );
     case 'lung':   return (
       <svg {...props} strokeWidth="1.7">
-        {/* 기관(trachea) — 위로 열린 짧은 튜브 */}
-        <path d="M10.5 3v4"/>
-        <path d="M13.5 3v4"/>
-        {/* 기관 분기부 (carina) → 좌·우 주기관지 V */}
-        <path d="M10.5 7c-1 .8-2 1.5-3 2"/>
-        <path d="M13.5 7c1 .8 2 1.5 3 2"/>
-        {/* 좌측 폐 — 외측 convex, 하부 넓음, 내측 vertical */}
-        <path d="M7.5 9
-                 c-3 1-5 4-5 8
-                 c0 2 1 4 3 4
-                 h5
-                 c.5 0 1-.5 1-1
-                 V10
-                 c0-.5-.3-1-1-1z"/>
-        {/* 우측 폐 */}
-        <path d="M16.5 9
-                 c3 1 5 4 5 8
-                 c0 2-1 4-3 4
-                 h-5
-                 c-.5 0-1-.5-1-1
-                 V10
-                 c0-.5 .3-1 1-1z"/>
-        {/* 가운데 심장 자리 살짝 들어간 곡선 */}
-        <path d="M11 13c.7-.7 1.3-.7 2 0"/>
+        {/* 기관(trachea) — 위로 열린 튜브 */}
+        <path d="M11 2 v 6"/>
+        <path d="M13 2 v 6"/>
+        {/* 기관 분기부 — 양쪽으로 더 벌어짐 (gap 확대) */}
+        <path d="M11 8 L 8.5 10.5"/>
+        <path d="M13 8 L 15.5 10.5"/>
+        {/* 좌측 폐 — 내측 edge x=10 (이전 11.5 → gap 확대) */}
+        <path d="M8.5 10.5
+                 c-3 .8 -5.5 3.5 -6 7
+                 c-.4 2.5 .8 4.5 3 4.5
+                 h4.5
+                 c.6 0 1 -.5 1 -1.2
+                 V 11.5
+                 c0 -.6 -.4 -1 -1 -1
+                 z"/>
+        {/* 우측 폐 — 내측 edge x=14 */}
+        <path d="M15.5 10.5
+                 c3 .8 5.5 3.5 6 7
+                 c.4 2.5 -.8 4.5 -3 4.5
+                 h-4.5
+                 c-.6 0 -1 -.5 -1 -1.2
+                 V 11.5
+                 c0 -.6 .4 -1 1 -1
+                 z"/>
       </svg>
     );
     case 'gear': return (<svg {...props}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>);
@@ -290,7 +306,14 @@ function PatientCard({ p, selected, onClick }) {
 
 const PATIENTS = [
   { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중','문진중'],
-    recurrence: [{ date:'2026.03.25', score: 24, note:'퇴원' }] },
+    recurrence: [{ date:'2026.03.25', score: 24, note:'퇴원' }],
+    analysis: [
+      '병기 결장암 stage IIIa (T3N1M0), 영상 검사상 원격 전이 없음',
+      '근치적 절제술 후 FOLFOX 항암화학요법 6 회차 완료',
+      '재택 PRO 7일 평균: 통증 1.2/10, 식이·배변 정상 범위 유지',
+      '응급상황 발생 0 회 (퇴원 후 14일)',
+      '웨어러블 활동량: 일평균 5,400 보 / 중강도 운동 주 2.5h — 회복기 권장치 충족',
+    ] },
   { name:'이서준', id:'970504', gender:'M', age:29, time:'09:03', tags:['도착','문진중'],   recurrence: [] },
   { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착','분석중'],   recurrence: [] },
   { name:'이수현', id:'780922', gender:'F', age:47, time:'09:03', tags:['대기','문진완료'], recurrence: [] },
@@ -391,103 +414,69 @@ function SummaryRow({ label, copyable, children, valueStyle }) {
 }
 
 /* ───────── 환자 재택 관리 경과 보고 카드 ───────── */
-function HomeReportCard({ collapsed, onExpand }) {
+function HomeReportCard() {
   const [status, setStatus] = useState('none');     // 'none' | 'sent'
   const [code, setCode] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const genCode = () => 'MX' + Math.floor(1000 + Math.random() * 9000);
-
   const onClickSend = () => {
     if (status === 'sent') return;
     setCode(genCode());
     setShowModal(true);
   };
-
   const onConfirmSend = () => {
     setStatus('sent');
     setShowModal(false);
   };
-
   const sent = status === 'sent';
 
-  const sendBtn = (size = 'lg') => (
-    <button
-      onClick={(e) => { e.stopPropagation(); onClickSend(); }}
-      disabled={sent}
-      style={{
-        display:'flex', alignItems:'center', gap: 8,
-        height: size === 'lg' ? 44 : 36,
-        padding: size === 'lg' ? '0 22px' : '0 16px',
-        borderRadius: size === 'lg' ? 10 : 8,
-        background: sent ? C.graySoft : C.primary,
-        color: sent ? C.textSub : '#fff',
-        fontSize: size === 'lg' ? 14 : 13,
-        fontWeight: 700,
-        cursor: sent ? 'not-allowed' : 'pointer',
-        border: 'none',
-      }}>
-      {sent
-        ? (<><Icon name="check" size={size === 'lg' ? 14 : 13} color={C.textSub}/> 환자 코드 전송 완료</>)
-        : (<><Icon name="send" size={size === 'lg' ? 15 : 13} color="#fff"/> 환자 코드 전송</>)}
-    </button>
-  );
-
-  // 접힌 상태 — 헤더 바만 표시
-  if (collapsed) {
-    return (
-      <>
-        <div onClick={onExpand} style={{
-          background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
-          padding: '14px 22px', flexShrink: 0, cursor: 'pointer',
-          display:'flex', alignItems:'center', justifyContent:'space-between',
-        }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
-            환자 재택 관리 경과 보고
-          </div>
-          {sendBtn('sm')}
-        </div>
-        {showModal && (
-          <SendCodeModal code={code} onClose={() => setShowModal(false)} onConfirm={onConfirmSend}/>
-        )}
-      </>
-    );
-  }
-
-  // 펼쳐진 상태 — 빈 상태 + CTA
   return (
     <div style={{ flex: 1, minHeight: 0, display:'flex', flexDirection:'column' }}>
       <div style={{
         flex: 1, minHeight: 0,
         background: C.surface, borderRadius: 12,
-        border: `1px solid ${C.border}`, padding: '18px 22px',
+        border: `1px solid ${C.border}`, padding: '16px 20px',
         display:'flex', flexDirection:'column',
       }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 6 }}>
           환자 재택 관리 경과 보고
         </div>
-
         <div style={{
           flex: 1, display:'flex', flexDirection:'column',
-          alignItems:'center', justifyContent:'center', gap: 18,
-          padding: '24px 12px',
+          alignItems:'center', justifyContent:'center', gap: 14,
+          padding: '8px',
         }}>
           <div style={{
-            width: 72, height: 72, borderRadius: 36,
+            width: 56, height: 56, borderRadius: 28,
             background: C.bg,
             display:'flex', alignItems:'center', justifyContent:'center',
             color: C.textMute,
           }}>
-            <Icon name="inbox" size={32}/>
+            <Icon name="inbox" size={26}/>
           </div>
-          <div style={{ fontSize: 13.5, color: C.textSub, textAlign:'center', lineHeight: 1.6 }}>
+          <div style={{ fontSize: 12.5, color: C.textSub, textAlign:'center', lineHeight: 1.5 }}>
             아직 환자가 보낸 재택 관리 데이터가 없습니다.<br/>
             환자에게 코드를 전송해 시작하세요.
           </div>
-          {sendBtn('lg')}
+          <button
+            onClick={onClickSend}
+            disabled={sent}
+            style={{
+              display:'flex', alignItems:'center', gap: 8,
+              height: 40, padding: '0 20px', borderRadius: 10,
+              background: sent ? C.graySoft : C.primary,
+              color: sent ? C.textSub : '#fff',
+              fontSize: 13.5, fontWeight: 700,
+              cursor: sent ? 'not-allowed' : 'pointer',
+              border: 'none',
+            }}>
+            {sent
+              ? (<><Icon name="check" size={13} color={C.textSub}/> 환자 코드 전송 완료</>)
+              : (<><Icon name="send" size={14} color="#fff"/> 환자 코드 전송</>)}
+          </button>
         </div>
       </div>
-
       {showModal && (
         <SendCodeModal code={code} onClose={() => setShowModal(false)} onConfirm={onConfirmSend}/>
       )}
@@ -644,64 +633,28 @@ function RiskBadge({ score }) {
   );
 }
 
-function RecurrenceCard({ collapsed, onExpand, points }) {
-  // collapsed: 헤더 바만 / expanded: 차트 영역까지
-  if (collapsed) {
-    return (
-      <div onClick={onExpand} style={{
-        background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
-        padding: '14px 22px', flexShrink: 0, cursor: 'pointer',
-        display:'flex', alignItems:'center', justifyContent:'space-between',
-      }}>
-        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
-          <span style={{
-            display:'inline-flex', alignItems:'center', height: 20,
-            padding: '0 8px', borderRadius: 4,
-            background: C.accentSoft, color: C.accent,
-            fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
-          }}>AI</span>
-        </div>
-        <button onClick={(e) => e.stopPropagation()} style={{
-          display:'flex', alignItems:'center', gap: 6,
-          height: 36, padding: '0 18px', borderRadius: 8,
-          background: C.primary, color: '#fff', fontSize: 13.5, fontWeight: 600,
-        }}>
-          <Icon name="mic" size={15} color="#fff"/> 시작
-        </button>
-      </div>
-    );
-  }
-
+function RecurrenceCard({ points, analysis }) {
   const latest = points[points.length - 1];
 
   return (
     <div style={{
       flex: 1, minHeight: 0,
       background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
-      padding: '18px 22px', display:'flex', flexDirection:'column',
+      padding: '16px 20px', display:'flex', flexDirection:'column',
     }}>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 10 }}>
-        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
-          <span style={{
-            display:'inline-flex', alignItems:'center', height: 20,
-            padding: '0 8px', borderRadius: 4,
-            background: C.accentSoft, color: C.accent,
-            fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
-          }}>AI</span>
-        </div>
+      <div style={{ display:'flex', alignItems:'center', gap: 8, marginBottom: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
+        <span style={{
+          display:'inline-flex', alignItems:'center', height: 20,
+          padding: '0 8px', borderRadius: 4,
+          background: C.accentSoft, color: C.accent,
+          fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
+        }}>AI</span>
       </div>
 
-      {/* 최신 스코어 요약 */}
       {latest && (
-        <div style={{
-          display:'flex', alignItems:'baseline', gap: 12,
-          padding: '8px 0 14px',
-        }}>
-          <div style={{ fontSize: 36, fontWeight: 800, color: C.text, lineHeight: 1 }}>
-            {latest.score}
-          </div>
+        <div style={{ display:'flex', alignItems:'baseline', gap: 10, padding: '4px 0 8px' }}>
+          <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1 }}>{latest.score}</div>
           <div style={{ fontSize: 12, color: C.textSub }}>/ 100</div>
           <RiskBadge score={latest.score}/>
           <div style={{ marginLeft: 'auto', fontSize: 12, color: C.textSub }}>
@@ -711,15 +664,36 @@ function RecurrenceCard({ collapsed, onExpand, points }) {
       )}
 
       {/* 꺾은선 그래프 */}
-      <div style={{ flex: 1, minHeight: 0, overflow:'hidden' }}>
+      <div className="scroll" style={{ overflow:'auto', maxHeight: '100%' }}>
         <RecurrenceChart points={points}/>
+
+        {/* AI 분석 — 점수 산출 근거 */}
+        {analysis && (
+          <div style={{
+            marginTop: 10, padding: '12px 14px',
+            background: C.bg, borderRadius: 10,
+            border: `1px solid ${C.borderSoft}`,
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 6 }}>
+              <span style={{
+                display:'inline-flex', alignItems:'center', height: 18,
+                padding: '0 6px', borderRadius: 3,
+                background: C.accentSoft, color: C.accent,
+                fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
+              }}>AI</span>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>스코어 산출 근거</div>
+            </div>
+            <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
+              {analysis.map((line, i) => <li key={i}>{line}</li>)}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 function CenterPanel({ patient }) {
-  const [activePanel, setActivePanel] = useState('report');  // 'report' | 'recurrence'
   return (
     <section style={{
       flex: 1, minWidth: 0,
@@ -746,14 +720,10 @@ function CenterPanel({ patient }) {
         </button>
       </div>
 
-      <HomeReportCard
-        collapsed={activePanel !== 'report'}
-        onExpand={() => setActivePanel('report')}
-      />
+      <HomeReportCard/>
       <RecurrenceCard
-        collapsed={activePanel !== 'recurrence'}
-        onExpand={() => setActivePanel('recurrence')}
         points={patient.recurrence || []}
+        analysis={patient.analysis}
       />
     </section>
   );
