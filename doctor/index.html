@@ -883,11 +883,6 @@ function HomeReportCard({ patient, collapsed, active, onToggle }) {
               flex: 1, minWidth: 0, overflowY:'auto',
               padding: '14px 18px 18px',
             }}>
-              {section !== 'ai' && (
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 10 }}>
-                  {HOME_REPORT_SECTIONS.find(s => s.k === section).l}
-                </div>
-              )}
               {sectionContent}
             </div>
           </div>
