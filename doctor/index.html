@@ -129,6 +129,8 @@ const Icon = ({ name, size = 22, color = 'currentColor' }) => {
     case 'x':    return (<svg {...props}><path d="M6 6l12 12M18 6L6 18"/></svg>);
     case 'edit': return (<svg {...props}><path d="M4 20h4l10-10-4-4L4 16v4z"/></svg>);
     case 'note': return (<svg {...props}><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/></svg>);
+    case 'send': return (<svg {...props}><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>);
+    case 'inbox':return (<svg {...props}><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 6h13a1 1 0 0 1 .9.6L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6L4.6 6.6A1 1 0 0 1 5.5 6z"/></svg>);
     default: return null;
   }
 };
@@ -365,6 +367,168 @@ function SummaryRow({ label, copyable, children, valueStyle }) {
   );
 }
 
+/* ───────── 환자 재택 관리 경과 보고 카드 ───────── */
+function HomeReportCard() {
+  const [status, setStatus] = useState('none');     // 'none' | 'sent'
+  const [code, setCode] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const genCode = () => 'MX' + Math.floor(1000 + Math.random() * 9000);
+
+  const onClickSend = () => {
+    if (status === 'sent') return;
+    setCode(genCode());
+    setShowModal(true);
+  };
+
+  const onConfirmSend = () => {
+    setStatus('sent');
+    setShowModal(false);
+  };
+
+  const sent = status === 'sent';
+
+  return (
+    <div style={{ flex: 1, minHeight: 0, display:'flex', flexDirection:'column' }}>
+      <div style={{
+        flex: 1, minHeight: 0,
+        background: C.surface, borderRadius: 12,
+        border: `1px solid ${C.border}`, padding: '18px 22px',
+        display:'flex', flexDirection:'column',
+      }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 6 }}>
+          환자 재택 관리 경과 보고
+        </div>
+
+        {/* 빈 상태 */}
+        <div style={{
+          flex: 1, display:'flex', flexDirection:'column',
+          alignItems:'center', justifyContent:'center', gap: 18,
+          padding: '24px 12px',
+        }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 36,
+            background: C.bg,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            color: C.textMute,
+          }}>
+            <Icon name="inbox" size={32}/>
+          </div>
+          <div style={{ fontSize: 13.5, color: C.textSub, textAlign:'center', lineHeight: 1.6 }}>
+            아직 환자가 보낸 재택 관리 데이터가 없습니다.<br/>
+            환자에게 코드를 전송해 시작하세요.
+          </div>
+          <button
+            onClick={onClickSend}
+            disabled={sent}
+            style={{
+              display:'flex', alignItems:'center', gap: 8,
+              height: 44, padding: '0 22px', borderRadius: 10,
+              background: sent ? C.graySoft : C.primary,
+              color: sent ? C.textSub : '#fff',
+              fontSize: 14, fontWeight: 700,
+              cursor: sent ? 'not-allowed' : 'pointer',
+              border: 'none',
+            }}>
+            {sent
+              ? (<><Icon name="check" size={14} color={C.textSub}/> 환자 코드 전송 완료</>)
+              : (<><Icon name="send" size={15} color="#fff"/> 환자 코드 전송</>)}
+          </button>
+        </div>
+      </div>
+
+      {showModal && (
+        <SendCodeModal code={code} onClose={() => setShowModal(false)} onConfirm={onConfirmSend}/>
+      )}
+    </div>
+  );
+}
+
+function SendCodeModal({ code, onClose, onConfirm }) {
+  const [phone, setPhone] = useState('010-1234-5678');
+  const smsBody = `[닥터앤서] 환자 코드 ${code}\n닥터앤서 앱에 접속하여 위 코드를 입력해 재택 관리를 시작해 주세요.\nhttps://minjoooolee.github.io/dr.answer-pro/6/`;
+
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.45)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 100,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 440, maxWidth:'92vw',
+        background: C.surface, borderRadius: 16, padding: 26,
+        boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 18 }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>환자에게 코드 전송</div>
+          <button onClick={onClose} style={{ color: C.textSub }}>
+            <Icon name="x" size={20}/>
+          </button>
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: C.textSub, marginBottom: 6, fontWeight: 600 }}>
+            생성된 환자 코드
+          </div>
+          <div style={{
+            padding: '16px', borderRadius: 10, background: C.bg,
+            border: `1px solid ${C.border}`,
+            fontSize: 28, fontWeight: 800, color: C.primary,
+            letterSpacing: 4, textAlign:'center',
+            fontFamily: '"SF Mono", Menlo, monospace',
+          }}>
+            {code}
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 12, color: C.textSub, marginBottom: 6, fontWeight: 600 }}>
+            환자 휴대폰 번호
+          </div>
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="010-0000-0000"
+            style={{
+              width:'100%', height: 42, padding: '0 14px', borderRadius: 8,
+              border: `1px solid ${C.border}`, background: C.surface,
+              fontSize: 14, color: C.text, outline: 'none', boxSizing:'border-box',
+            }}/>
+        </div>
+
+        <div style={{
+          padding: '12px 14px', borderRadius: 10, background: C.bg,
+          border: `1px solid ${C.borderSoft}`, marginBottom: 22,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.textSub, marginBottom: 4 }}>
+            전송될 문자 내용 미리보기
+          </div>
+          <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.6, whiteSpace:'pre-line' }}>
+            {smsBody}
+          </div>
+        </div>
+
+        <div style={{ display:'flex', gap: 8 }}>
+          <button onClick={onClose} style={{
+            flex: 1, height: 44, borderRadius: 10,
+            border: `1px solid ${C.border}`, background: C.surface,
+            fontSize: 14, fontWeight: 600, color: C.text,
+          }}>
+            취소
+          </button>
+          <button onClick={onConfirm} style={{
+            flex: 1, height: 44, borderRadius: 10,
+            background: C.primary, color: '#fff',
+            fontSize: 14, fontWeight: 700,
+            display:'flex', alignItems:'center', justifyContent:'center', gap: 6,
+          }}>
+            <Icon name="send" size={14} color="#fff"/> 문자 전송
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CenterPanel({ patient }) {
   return (
     <section style={{
@@ -392,58 +556,8 @@ function CenterPanel({ patient }) {
         </button>
       </div>
 
-      {/* 문진 요약 카드 */}
-      <div className="scroll" style={{ flex: 1, overflowY:'auto', minHeight: 0 }}>
-        <div style={{
-          background: C.surface, borderRadius: 12,
-          border: `1px solid ${C.border}`, padding: '18px 22px',
-        }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 6 }}>
-            <div style={{ display:'flex', alignItems:'center', gap: 6 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>문진 요약</div>
-              <button style={{ color: C.textMute }}><Icon name="note" size={14}/></button>
-            </div>
-            <button style={{
-              display:'flex', alignItems:'center', gap: 4,
-              height: 28, padding: '0 10px', borderRadius: 6,
-              border: `1px solid ${C.border}`, background: C.surface,
-              fontSize: 12, fontWeight: 600, color: C.textSub,
-            }}>
-              <Icon name="copy" size={12}/> 전체 복사
-            </button>
-          </div>
-
-          <SummaryRow label="Site">
-            <div style={{ display:'flex', gap: 6, alignItems:'center' }}>
-              <BodyDiagram/>
-              <BodyDiagram/>
-              <HeadDiagram/>
-              <HeadDiagram/>
-            </div>
-          </SummaryRow>
-
-          <SummaryRow label="C.C." copyable>상복부 통증</SummaryRow>
-          <SummaryRow label="Onset" copyable>3일 전 발생</SummaryRow>
-
-          <SummaryRow label="P.I." copyable>
-            <div>상복부 통증 (+, 쓰림/작열감, 더부룩함)</div>
-            <div>식사 연관 (+, 공복 시 악화 / 식후 완화)</div>
-            <div>속쓰림/신물 역류 (+)</div>
-            <div>구역감 (+), 구토 (-)</div>
-            <div>흑색변/토혈 (-)</div>
-            <div>NSAIDs 복용 (+)</div>
-          </SummaryRow>
-
-          <SummaryRow label="PHx." copyable>
-            <div>흡연 (+, 3년)</div>
-            <div>음주 (+, 1주일에 2번)</div>
-          </SummaryRow>
-
-          <SummaryRow label="etc." copyable>
-            기존 병원에서 약 3일치 처방받아 복용했으나 호전 없음
-          </SummaryRow>
-        </div>
-      </div>
+      {/* 환자 재택 관리 경과 보고 카드 */}
+      <HomeReportCard/>
 
       {/* 진료녹음 카드 */}
       <div style={{
