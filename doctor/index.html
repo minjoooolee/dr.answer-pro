@@ -868,6 +868,7 @@ const PLAN_SECTIONS = [
   { k:'measure',  l:'자기측정처방' },
   { k:'triage',   l:'트리아제 트리거' },
   { k:'next',     l:'다음 외래 일정' },
+  { k:'custom',   l:'의료진 직접 처방' },
 ];
 const FREQ_OPTIONS = ['매일', '주 5회', '주 3회', '주 2회', '주 1회', '미실시'];
 const PRO_DAILY  = ['통증', '메스꺼움', '설사', '변비', '피로'];
@@ -921,6 +922,7 @@ const DEFAULT_PLAN = {
       '응급상황 발생 횟수': true,
     },
   },
+  custom: '',
 };
 
 /* ─── EMR 보조 컴포넌트들 ─── */
@@ -1502,6 +1504,26 @@ function NextVisitSection({ n, set }) {
   );
 }
 
+function CustomSection({ value, set }) {
+  return (
+    <Card>
+      <SubHeader>의료진 직접 처방</SubHeader>
+      <div style={{ fontSize: 12.5, color: C.textSub, marginBottom: 10, lineHeight: 1.5 }}>
+        위 항목으로 표현하기 어려운 처방 / 안내 사항을 자유롭게 입력하세요. 입력한 내용은 환자용 요약 미리보기 마지막에 그대로 반영됩니다.
+      </div>
+      <textarea value={value} onChange={(e) => set(e.target.value)}
+        placeholder={'예) 수술 부위에 통증이 지속되면 처방받은 진통제를 8시간 간격으로 복용하세요.\n예) 외출 시 마스크 착용을 권장합니다.'}
+        style={{
+          width:'100%', minHeight: 160, padding: '12px 14px',
+          borderRadius: 8, border: `1px solid ${C.border}`, background: C.surface,
+          fontSize: 13.5, color: C.text, outline: 'none',
+          fontFamily: 'inherit', resize: 'vertical', boxSizing:'border-box',
+          lineHeight: 1.6,
+        }}/>
+    </Card>
+  );
+}
+
 /* ─── 미리보기 텍스트 생성 (환자 친화 톤) ─── */
 function buildDietText(d) {
   const lines = [];
@@ -1630,6 +1652,18 @@ function PlanPreviewModal({ plan, onClose }) {
             ))}
           </div>
           <PreviewBlock title="다음 방문" lines={buildNextText(plan.next)}/>
+          {plan.custom && plan.custom.trim() && (
+            <div style={{ marginBottom: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>의료진 직접 처방</div>
+              <div style={{
+                fontSize: 12.5, color: C.text, lineHeight: 1.65,
+                whiteSpace: 'pre-wrap',
+                background: C.bg, borderRadius: 8,
+                border: `1px solid ${C.borderSoft}`,
+                padding: '10px 12px',
+              }}>{plan.custom}</div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1645,6 +1679,7 @@ function PlanPanel({ plan, setPlan }) {
     measure:  <MeasureSection   m={plan.measure}  set={(m) => setPlan({ ...plan, measure: m })}/>,
     triage:   <TriageSection    t={plan.triage}   set={(t) => setPlan({ ...plan, triage: t })}/>,
     next:     <NextVisitSection n={plan.next}     set={(n) => setPlan({ ...plan, next: n })}/>,
+    custom:   <CustomSection    value={plan.custom} set={(v) => setPlan({ ...plan, custom: v })}/>,
   };
 
   const sectionsForAll = [
@@ -1653,6 +1688,7 @@ function PlanPanel({ plan, setPlan }) {
     { k:'measure',  l:'자기 측정 처방',    render: sectionsRender.measure },
     { k:'triage',   l:'트리아제 트리거',   render: sectionsRender.triage },
     { k:'next',     l:'다음 외래 일정',    render: sectionsRender.next },
+    { k:'custom',   l:'의료진 직접 처방',  render: sectionsRender.custom },
   ];
 
   return (
