@@ -336,6 +336,8 @@ const PATIENTS = [
     ],
     emr: {
       basic: {
+        age:    '만 32세',
+        gender: '여성',
         height: '162 cm',
         weight: '54 kg',
         bmi:    '20.6',
@@ -343,6 +345,12 @@ const PATIENTS = [
         pulse:  '72 bpm',
         ecog:   '0 (제한 없음)',
       },
+      comorbidities: {
+        '고혈압': false, '당뇨': false, '고지혈증': false, '심혈관 질환': false,
+        '만성 신질환': false, '만성 폐질환': false, '간 질환': false,
+        '갑상선 질환': true, '골다공증': false, '뇌혈관 질환': false,
+      },
+      comorbiditiesNote: '갑상선기능저하증 — Synthroid 50 mcg 복용 중',
       tests: [
         { name: '혈액검사 (CBC · Chemistry)', date: '2026.03.20',
           summary: '정상 범위 (이상치 없음)',
@@ -973,10 +981,15 @@ const REGIMENS = [
   'FOLFIRI + Cetuximab',
 ];
 const EMR_SECTIONS = [
-  { k:'basic',   l:'기본 정보' },
-  { k:'tests',   l:'검사 기록지 결과' },
-  { k:'chemo',   l:'항암 치료 정보' },
-  { k:'surgery', l:'수술 이력' },
+  { k:'basic',         l:'기본 정보' },
+  { k:'comorbidities', l:'동반 질환' },
+  { k:'chemo',         l:'항암 치료 정보' },
+  { k:'surgery',       l:'수술 이력' },
+];
+const COMORBIDITY_LIST = [
+  '고혈압', '당뇨', '고지혈증', '심혈관 질환',
+  '만성 신질환', '만성 폐질환', '간 질환',
+  '갑상선 질환', '골다공증', '뇌혈관 질환',
 ];
 
 function KVGrid({ items, cols = 2 }) {
@@ -1078,6 +1091,8 @@ function EMRPanel({ emr }) {
   const [section, setSection] = useState('basic');
   const [openTest, setOpenTest] = useState(0);
   const [chemo, setChemo] = useState(emr ? emr.chemo : null);
+  const [cobs,  setCobs]  = useState(emr ? emr.comorbidities : null);
+  const [cobsNote, setCobsNote] = useState(emr ? (emr.comorbiditiesNote || '') : '');
 
   if (!emr) {
     return (
@@ -1094,6 +1109,8 @@ function EMRPanel({ emr }) {
     if (section === 'basic') {
       return (
         <KVGrid cols={2} items={[
+          ['나이', emr.basic.age],
+          ['성별', emr.basic.gender],
           ['신장', emr.basic.height],
           ['체중', emr.basic.weight],
           ['BMI',  emr.basic.bmi],
@@ -1103,13 +1120,19 @@ function EMRPanel({ emr }) {
         ]}/>
       );
     }
-    if (section === 'tests') {
+    if (section === 'comorbidities') {
+      const toggle = (k) => setCobs({ ...(cobs || {}), [k]: !(cobs && cobs[k]) });
       return (
         <div>
-          {emr.tests.map((t, i) => (
-            <TestRow key={i} test={t} open={openTest === i}
-              onToggle={() => setOpenTest(openTest === i ? -1 : i)}/>
-          ))}
+          <SubHeader>기저질환 여부</SubHeader>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 4, marginBottom: 16 }}>
+            {COMORBIDITY_LIST.map(c => (
+              <CheckBox key={c} checked={!!(cobs && cobs[c])} onChange={() => toggle(c)} label={c}/>
+            ))}
+          </div>
+          <SubHeader>기타 / 메모</SubHeader>
+          <Textarea value={cobsNote} onChange={setCobsNote}
+            placeholder="동반 복용 약물, 알레르기, 특이사항 등"/>
         </div>
       );
     }
@@ -1258,82 +1281,115 @@ function Textarea({ value, onChange, placeholder }) {
       }}/>
   );
 }
-function SectionTitle({ children, color }) {
+function SectionTitle({ children, num }) {
   return (
     <div style={{
-      display:'flex', alignItems:'center', gap: 8,
-      fontSize: 14, fontWeight: 700, color: C.text,
-      marginTop: 20, marginBottom: 12, paddingBottom: 6,
-      borderBottom: `2px solid ${color || C.accent}`,
+      display:'flex', alignItems:'center', gap: 10,
+      marginBottom: 14, paddingBottom: 10,
+      borderBottom: `1px solid ${C.border}`,
     }}>
-      <span style={{ width: 4, height: 14, borderRadius: 2, background: color || C.accent }}/>
-      {children}
+      {num != null && (
+        <span style={{
+          display:'inline-flex', alignItems:'center', justifyContent:'center',
+          width: 22, height: 22, borderRadius: 6,
+          background: C.primary, color: '#fff',
+          fontSize: 11.5, fontWeight: 800, lineHeight: 1,
+        }}>{num}</span>
+      )}
+      <div style={{
+        fontSize: 15.5, fontWeight: 800, color: C.text,
+        letterSpacing: -0.2, lineHeight: 1.2,
+      }}>
+        {children}
+      </div>
     </div>
   );
 }
 function SubHeader({ children, color }) {
   return (
     <div style={{
-      fontSize: 12, fontWeight: 700, color: color || C.textSub,
-      letterSpacing: 0.2, marginTop: 12, marginBottom: 6,
+      fontSize: 10.5, fontWeight: 800,
+      color: color || C.textMute,
+      letterSpacing: 1.4, textTransform: 'uppercase',
+      marginBottom: 8,
+    }}>
+      {children}
+    </div>
+  );
+}
+function Card({ children, style }) {
+  return (
+    <div style={{
+      background: '#FAFBFC',
+      borderRadius: 10, border: `1px solid ${C.borderSoft}`,
+      padding: '14px 16px', marginBottom: 10,
+      ...(style || {}),
     }}>
       {children}
     </div>
   );
 }
 function InlineHint({ children }) {
-  return <span style={{ fontSize: 13, color: C.textSub, marginLeft: 6 }}>{children}</span>;
+  return <span style={{ fontSize: 12.5, color: C.textSub, marginLeft: 4 }}>{children}</span>;
 }
 
 /* ─── 섹션 컴포넌트 ─── */
 function DietSection({ d, set }) {
   return (
     <div>
-      <SubHeader>권장</SubHeader>
-      <Field label="과일·채소">
-        <NumberInput value={d.fruitsVeg} onChange={(v) => set({ ...d, fruitsVeg: v })}/>
-        <InlineHint>servings/일 이상</InlineHint>
-      </Field>
-      <Field label="식이섬유">
-        <NumberInput value={d.fiber} onChange={(v) => set({ ...d, fiber: v })}/>
-        <InlineHint>g/일 이상</InlineHint>
-      </Field>
+      <Card>
+        <SubHeader>권장</SubHeader>
+        <Field label="과일·채소">
+          <NumberInput value={d.fruitsVeg} onChange={(v) => set({ ...d, fruitsVeg: v })}/>
+          <InlineHint>servings/일 이상</InlineHint>
+        </Field>
+        <Field label="식이섬유">
+          <NumberInput value={d.fiber} onChange={(v) => set({ ...d, fiber: v })}/>
+          <InlineHint>g/일 이상</InlineHint>
+        </Field>
+      </Card>
 
-      <SubHeader>제한</SubHeader>
-      <Field label="가공육">
-        <InlineHint>주</InlineHint>
-        <NumberInput value={d.processedMeat} onChange={(v) => set({ ...d, processedMeat: v })}/>
-        <InlineHint>회 이하</InlineHint>
-      </Field>
-      <Field label="붉은 육류">
-        <InlineHint>주</InlineHint>
-        <NumberInput value={d.redMeat} onChange={(v) => set({ ...d, redMeat: v })}/>
-        <InlineHint>회 이하</InlineHint>
-      </Field>
-      <Field label="튀김 · 패스트푸드">
-        <InlineHint>주</InlineHint>
-        <NumberInput value={d.fried} onChange={(v) => set({ ...d, fried: v })}/>
-        <InlineHint>회 이하</InlineHint>
-      </Field>
-      <Field label="가당 음료">
-        <InlineHint>일</InlineHint>
-        <NumberInput value={d.sugary} onChange={(v) => set({ ...d, sugary: v })}/>
-        <InlineHint>잔 이하</InlineHint>
-      </Field>
+      <Card>
+        <SubHeader>제한</SubHeader>
+        <Field label="가공육">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={d.processedMeat} onChange={(v) => set({ ...d, processedMeat: v })}/>
+          <InlineHint>회 이하</InlineHint>
+        </Field>
+        <Field label="붉은 육류">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={d.redMeat} onChange={(v) => set({ ...d, redMeat: v })}/>
+          <InlineHint>회 이하</InlineHint>
+        </Field>
+        <Field label="튀김 · 패스트푸드">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={d.fried} onChange={(v) => set({ ...d, fried: v })}/>
+          <InlineHint>회 이하</InlineHint>
+        </Field>
+        <Field label="가당 음료">
+          <InlineHint>일</InlineHint>
+          <NumberInput value={d.sugary} onChange={(v) => set({ ...d, sugary: v })}/>
+          <InlineHint>잔 이하</InlineHint>
+        </Field>
+      </Card>
 
-      <SubHeader>알코올 · 수분</SubHeader>
-      <Field label="알코올">
-        <Segment options={['금주', '절제 (주 2잔 이하)', '자유']}
-          value={d.alcohol} onChange={(v) => set({ ...d, alcohol: v })}/>
-      </Field>
-      <Field label="수분">
-        <NumberInput value={d.water} onChange={(v) => set({ ...d, water: v })}/>
-        <InlineHint>L/일 이상</InlineHint>
-      </Field>
+      <Card>
+        <SubHeader>알코올 · 수분</SubHeader>
+        <Field label="알코올">
+          <Segment options={['금주', '절제 (주 2잔 이하)', '자유']}
+            value={d.alcohol} onChange={(v) => set({ ...d, alcohol: v })}/>
+        </Field>
+        <Field label="수분">
+          <NumberInput value={d.water} onChange={(v) => set({ ...d, water: v })}/>
+          <InlineHint>L/일 이상</InlineHint>
+        </Field>
+      </Card>
 
-      <SubHeader>맞춤 메모</SubHeader>
-      <Textarea value={d.note} onChange={(v) => set({ ...d, note: v })}
-        placeholder='예) "장루 환자라 ○○ 주의"'/>
+      <Card>
+        <SubHeader>맞춤 메모</SubHeader>
+        <Textarea value={d.note} onChange={(v) => set({ ...d, note: v })}
+          placeholder='예) "장루 환자라 ○○ 주의"'/>
+      </Card>
     </div>
   );
 }
@@ -1341,38 +1397,42 @@ function DietSection({ d, set }) {
 function ExerciseSection({ e, set }) {
   return (
     <div>
-      <Field label="F · 빈도">
-        <InlineHint>주</InlineHint>
-        <NumberInput value={e.freq} onChange={(v) => set({ ...e, freq: v })}/>
-        <InlineHint>회</InlineHint>
-      </Field>
-      <Field label="I · 강도">
-        <Segment options={['저강도', '중강도', '고강도']}
-          value={e.intensity} onChange={(v) => set({ ...e, intensity: v })}/>
-      </Field>
-      <Field label="T · 시간">
-        <NumberInput value={e.timePerSession} onChange={(v) => set({ ...e, timePerSession: v })}/>
-        <InlineHint>분/회 · 주</InlineHint>
-        <NumberInput value={e.timePerWeek} onChange={(v) => set({ ...e, timePerWeek: v })}/>
-        <InlineHint>분</InlineHint>
-      </Field>
-      <Field label="T · 종류">
-        <div style={{ display:'flex', alignItems:'center', gap: 14, flexWrap:'wrap' }}>
-          <CheckBox checked={e.aerobic} onChange={(v) => set({ ...e, aerobic: v })} label="유산소"/>
-          <CheckBox checked={e.strength} onChange={(v) => set({ ...e, strength: v })} label="근력"/>
-          {e.strength && (
-            <span style={{ display:'inline-flex', alignItems:'center', gap: 6 }}>
-              <InlineHint>근력 주</InlineHint>
-              <NumberInput value={e.strengthFreq} onChange={(v) => set({ ...e, strengthFreq: v })}/>
-              <InlineHint>회</InlineHint>
-            </span>
-          )}
-        </div>
-      </Field>
-      <Field label="단계적 진행">
+      <Card>
+        <SubHeader>FITT 처방</SubHeader>
+        <Field label="F · 빈도">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={e.freq} onChange={(v) => set({ ...e, freq: v })}/>
+          <InlineHint>회</InlineHint>
+        </Field>
+        <Field label="I · 강도">
+          <Segment options={['저강도', '중강도', '고강도']}
+            value={e.intensity} onChange={(v) => set({ ...e, intensity: v })}/>
+        </Field>
+        <Field label="T · 시간">
+          <NumberInput value={e.timePerSession} onChange={(v) => set({ ...e, timePerSession: v })}/>
+          <InlineHint>분/회 · 주</InlineHint>
+          <NumberInput value={e.timePerWeek} onChange={(v) => set({ ...e, timePerWeek: v })}/>
+          <InlineHint>분</InlineHint>
+        </Field>
+        <Field label="T · 종류">
+          <div style={{ display:'flex', alignItems:'center', gap: 14, flexWrap:'wrap' }}>
+            <CheckBox checked={e.aerobic} onChange={(v) => set({ ...e, aerobic: v })} label="유산소"/>
+            <CheckBox checked={e.strength} onChange={(v) => set({ ...e, strength: v })} label="근력"/>
+            {e.strength && (
+              <span style={{ display:'inline-flex', alignItems:'center', gap: 6 }}>
+                <InlineHint>주</InlineHint>
+                <NumberInput value={e.strengthFreq} onChange={(v) => set({ ...e, strengthFreq: v })}/>
+                <InlineHint>회</InlineHint>
+              </span>
+            )}
+          </div>
+        </Field>
+      </Card>
+      <Card>
+        <SubHeader>단계적 진행</SubHeader>
         <CheckBox checked={e.progressive} onChange={(v) => set({ ...e, progressive: v })}
-          label="수술 후 회복기 첫 2주 저강도"/>
-      </Field>
+          label="수술 후 회복기 첫 2주는 저강도로 시작"/>
+      </Card>
     </div>
   );
 }
@@ -1389,95 +1449,113 @@ function MeasureSection({ m, set }) {
 
   return (
     <div>
-      <SubHeader>측정 주기</SubHeader>
-      {freqRow('weight',   '체중')}
-      {freqRow('bp',       '혈압')}
-      {freqRow('pain',     '통증 NRS')}
-      {freqRow('diet',     '식단')}
-      {freqRow('exercise', '운동')}
-
-      <SubHeader>증상 모니터링 (PRO-CTCAE)</SubHeader>
-      <Field label="매일 체크">
-        <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
-          {PRO_DAILY.map(it => (
-            <CheckBox key={it} checked={!!m.daily[it]} onChange={() => togDaily(it)} label={it}/>
-          ))}
-        </div>
-      </Field>
-      <Field label="주 1회 체크">
-        <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
-          {PRO_WEEKLY.map(it => (
-            <CheckBox key={it} checked={!!m.weekly[it]} onChange={() => togWeek(it)} label={it}/>
-          ))}
-        </div>
-      </Field>
-      <Field label="통증 임계값">
-        <NumberInput value={m.painThreshold} onChange={(v) => set({ ...m, painThreshold: v })}/>
-        <InlineHint>NRS 이상 시 자동 알람</InlineHint>
-      </Field>
+      <Card>
+        <SubHeader>측정 주기</SubHeader>
+        {freqRow('weight',   '체중')}
+        {freqRow('bp',       '혈압')}
+        {freqRow('pain',     '통증 NRS')}
+        {freqRow('diet',     '식단')}
+        {freqRow('exercise', '운동')}
+      </Card>
+      <Card>
+        <SubHeader>증상 모니터링 (PRO-CTCAE)</SubHeader>
+        <Field label="매일 체크">
+          <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
+            {PRO_DAILY.map(it => (
+              <CheckBox key={it} checked={!!m.daily[it]} onChange={() => togDaily(it)} label={it}/>
+            ))}
+          </div>
+        </Field>
+        <Field label="주 1회 체크">
+          <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
+            {PRO_WEEKLY.map(it => (
+              <CheckBox key={it} checked={!!m.weekly[it]} onChange={() => togWeek(it)} label={it}/>
+            ))}
+          </div>
+        </Field>
+      </Card>
+      <Card>
+        <SubHeader>자동 알람</SubHeader>
+        <Field label="통증 임계값">
+          <NumberInput value={m.painThreshold} onChange={(v) => set({ ...m, painThreshold: v })}/>
+          <InlineHint>NRS 이상 시 의료진 알림</InlineHint>
+        </Field>
+      </Card>
     </div>
   );
 }
 
 function TriageSection({ t, set }) {
-  const Tag = ({ color, bg, children }) => (
-    <span style={{
-      display:'inline-flex', alignItems:'center', height: 22, padding: '0 10px',
-      borderRadius: 4, background: bg, color, fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4,
-    }}>{children}</span>
+  const TriageCard = ({ tag, color, bg, desc, children }) => (
+    <div style={{
+      background: C.surface, borderRadius: 10,
+      border: `1px solid ${C.borderSoft}`, marginBottom: 10,
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        display:'flex', alignItems:'center', gap: 10,
+        padding: '12px 16px',
+        background: bg, borderBottom: `1px solid ${C.borderSoft}`,
+      }}>
+        <span style={{
+          display:'inline-flex', alignItems:'center', height: 22, padding: '0 10px',
+          borderRadius: 4, background: color, color: '#fff',
+          fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4,
+        }}>{tag}</span>
+        <div style={{ fontSize: 12.5, color: C.text, fontWeight: 500 }}>{desc}</div>
+      </div>
+      <div style={{ padding: '12px 16px' }}>{children}</div>
+    </div>
   );
 
   return (
     <div>
-      <div style={{ display:'flex', alignItems:'center', gap: 8, marginTop: 8, marginBottom: 6 }}>
-        <Tag color="#D63A3A" bg="#FBE6E6">RED</Tag>
-        <div style={{ fontSize: 12.5, color: C.textSub }}>즉시 응급실 — 트리거 시 즉시 알림</div>
-      </div>
-      <Field label="발열">
-        <CheckBox checked={t.redFever} onChange={(v) => set({ ...t, redFever: v })} label="발열 이상"/>
-        <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
-          <InlineHint>≥</InlineHint>
-          <NumberInput value={t.redFeverTemp} onChange={(v) => set({ ...t, redFeverTemp: v })}/>
-          <InlineHint>°C</InlineHint>
-        </span>
-      </Field>
-      <Field label="기타">
-        <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
-          <CheckBox checked={t.redBlood}         onChange={(v) => set({ ...t, redBlood: v })}         label="혈변"/>
-          <CheckBox checked={t.redAbdominalPain} onChange={(v) => set({ ...t, redAbdominalPain: v })} label="심한 복통"/>
-          <CheckBox checked={t.redConsciousness} onChange={(v) => set({ ...t, redConsciousness: v })} label="의식 변화"/>
+      <TriageCard tag="RED" color="#D63A3A" bg="#FBE6E6" desc="즉시 응급실 — 트리거 시 즉시 알림">
+        <Field label="발열">
+          <CheckBox checked={t.redFever} onChange={(v) => set({ ...t, redFever: v })} label="발열 이상"/>
+          <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
+            <InlineHint>≥</InlineHint>
+            <NumberInput value={t.redFeverTemp} onChange={(v) => set({ ...t, redFeverTemp: v })}/>
+            <InlineHint>°C</InlineHint>
+          </span>
+        </Field>
+        <Field label="기타">
+          <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
+            <CheckBox checked={t.redBlood}         onChange={(v) => set({ ...t, redBlood: v })}         label="혈변"/>
+            <CheckBox checked={t.redAbdominalPain} onChange={(v) => set({ ...t, redAbdominalPain: v })} label="심한 복통"/>
+            <CheckBox checked={t.redConsciousness} onChange={(v) => set({ ...t, redConsciousness: v })} label="의식 변화"/>
+          </div>
+        </Field>
+      </TriageCard>
+
+      <TriageCard tag="YELLOW" color="#D08221" bg="#FFF1DC" desc="24시간 내 외래 연락">
+        <Field label="발열">
+          <CheckBox checked={t.yellowFever} onChange={(v) => set({ ...t, yellowFever: v })} label="발열 이상"/>
+          <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
+            <InlineHint>≥</InlineHint>
+            <NumberInput value={t.yellowFeverTemp} onChange={(v) => set({ ...t, yellowFeverTemp: v })}/>
+            <InlineHint>°C</InlineHint>
+          </span>
+        </Field>
+        <Field label="설사">
+          <CheckBox checked={t.yellowDiarrhea} onChange={(v) => set({ ...t, yellowDiarrhea: v })} label="빈도 이상"/>
+          <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
+            <InlineHint>≥</InlineHint>
+            <NumberInput value={t.yellowDiarrheaFreq} onChange={(v) => set({ ...t, yellowDiarrheaFreq: v })}/>
+            <InlineHint>회/일</InlineHint>
+          </span>
+        </Field>
+        <Field label="기타">
+          <CheckBox checked={t.yellowDehydration} onChange={(v) => set({ ...t, yellowDehydration: v })}
+            label="수분 섭취 불가"/>
+        </Field>
+      </TriageCard>
+
+      <TriageCard tag="GREEN" color="#16A769" bg="#E7F6EE" desc="경미한 변화 — 다음 외래 시 보고">
+        <div style={{ fontSize: 12.5, color: C.textSub, lineHeight: 1.6 }}>
+          별도 트리거 없이 다음 외래일에 보고합니다.
         </div>
-      </Field>
-
-      <div style={{ display:'flex', alignItems:'center', gap: 8, marginTop: 18, marginBottom: 6 }}>
-        <Tag color="#D08221" bg="#FFF1DC">YELLOW</Tag>
-        <div style={{ fontSize: 12.5, color: C.textSub }}>24시간 내 외래 연락</div>
-      </div>
-      <Field label="발열">
-        <CheckBox checked={t.yellowFever} onChange={(v) => set({ ...t, yellowFever: v })} label="발열 이상"/>
-        <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
-          <InlineHint>≥</InlineHint>
-          <NumberInput value={t.yellowFeverTemp} onChange={(v) => set({ ...t, yellowFeverTemp: v })}/>
-          <InlineHint>°C</InlineHint>
-        </span>
-      </Field>
-      <Field label="설사">
-        <CheckBox checked={t.yellowDiarrhea} onChange={(v) => set({ ...t, yellowDiarrhea: v })} label="설사 빈도 이상"/>
-        <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
-          <InlineHint>≥</InlineHint>
-          <NumberInput value={t.yellowDiarrheaFreq} onChange={(v) => set({ ...t, yellowDiarrheaFreq: v })}/>
-          <InlineHint>회/일</InlineHint>
-        </span>
-      </Field>
-      <Field label="기타">
-        <CheckBox checked={t.yellowDehydration} onChange={(v) => set({ ...t, yellowDehydration: v })}
-          label="수분 섭취 불가"/>
-      </Field>
-
-      <div style={{ display:'flex', alignItems:'center', gap: 8, marginTop: 18, marginBottom: 6 }}>
-        <Tag color="#16A769" bg="#E7F6EE">GREEN</Tag>
-        <div style={{ fontSize: 12.5, color: C.textSub }}>경미한 변화 — 다음 외래 시 보고</div>
-      </div>
+      </TriageCard>
     </div>
   );
 }
@@ -1486,21 +1564,26 @@ function NextVisitSection({ n, set }) {
   const toggle = (k) => set({ ...n, metrics: { ...n.metrics, [k]: !n.metrics[k] } });
   return (
     <div>
-      <Field label="중간 점검일">
-        <TextInput value={n.checkDate} placeholder="YYYY.MM.DD" width={180}
-          onChange={(v) => set({ ...n, checkDate: v })}/>
-        <InlineHint>(앱 푸시 알림)</InlineHint>
-      </Field>
-      <Field label="다음 외래일">
-        <TextInput value={n.nextVisit} placeholder="YYYY.MM.DD" width={180}
-          onChange={(v) => set({ ...n, nextVisit: v })}/>
-      </Field>
-      <SubHeader>재평가 시 확인할 지표</SubHeader>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 6 }}>
-        {NEXT_METRICS.map(it => (
-          <CheckBox key={it} checked={!!n.metrics[it]} onChange={() => toggle(it)} label={it}/>
-        ))}
-      </div>
+      <Card>
+        <SubHeader>일정</SubHeader>
+        <Field label="중간 점검일">
+          <TextInput value={n.checkDate} placeholder="YYYY.MM.DD" width={160}
+            onChange={(v) => set({ ...n, checkDate: v })}/>
+          <InlineHint>앱 푸시 알림</InlineHint>
+        </Field>
+        <Field label="다음 외래일">
+          <TextInput value={n.nextVisit} placeholder="YYYY.MM.DD" width={160}
+            onChange={(v) => set({ ...n, nextVisit: v })}/>
+        </Field>
+      </Card>
+      <Card>
+        <SubHeader>재평가 시 확인할 지표</SubHeader>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 4 }}>
+          {NEXT_METRICS.map(it => (
+            <CheckBox key={it} checked={!!n.metrics[it]} onChange={() => toggle(it)} label={it}/>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
@@ -1577,59 +1660,70 @@ function PreviewBlock({ title, lines }) {
   );
 }
 
-function PlanPreview({ plan }) {
+function PlanPreviewModal({ plan, onClose }) {
   const triage = buildTriageText(plan.triage);
   return (
-    <div className="scroll" style={{
-      width: 250, flexShrink: 0,
-      borderLeft: `1px solid ${C.borderSoft}`,
-      overflowY:'auto', padding: '14px 16px 18px',
-      background: '#FAFBFC',
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.45)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 100,
     }}>
-      <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 4 }}>
-        <span style={{
-          display:'inline-flex', alignItems:'center', height: 18,
-          padding: '0 6px', borderRadius: 3,
-          background: C.accentSoft, color: C.accent,
-          fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
-        }}>AI</span>
-        <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>환자용 요약</div>
-      </div>
-      <div style={{ fontSize: 11.5, color: C.textSub, marginBottom: 14, lineHeight: 1.5 }}>
-        의사가 입력한 내용을 환자가 이해하기 쉽게 풀어 씁니다. 환자 앱으로 이대로 전송됩니다.
-      </div>
-
-      <PreviewBlock title="식이"      lines={buildDietText(plan.diet)}/>
-      <PreviewBlock title="운동"      lines={buildExerciseText(plan.exercise)}/>
-      <PreviewBlock title="자기 측정" lines={buildMeasureText(plan.measure)}/>
-
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>응급 대응</div>
-        {triage.map((t, i) => (
-          <div key={i} style={{
-            background: t.bg, borderRadius: 8, padding: '8px 10px',
-            marginBottom: 6, fontSize: 12, color: C.text, lineHeight: 1.55,
-            display:'flex', gap: 8,
-          }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 540, maxWidth:'92vw', maxHeight:'86vh',
+        background: C.surface, borderRadius: 16,
+        boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+        display:'flex', flexDirection:'column', overflow:'hidden',
+      }}>
+        <div style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding: '18px 22px', borderBottom: `1px solid ${C.borderSoft}`,
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
             <span style={{
-              flexShrink: 0, alignSelf:'flex-start',
-              padding: '1px 6px', borderRadius: 3,
-              background: t.color, color: '#fff',
-              fontSize: 10, fontWeight: 800, letterSpacing: 0.4,
-            }}>{t.tag}</span>
-            <span>{t.text}</span>
+              display:'inline-flex', alignItems:'center', height: 20,
+              padding: '0 8px', borderRadius: 4,
+              background: C.accentSoft, color: C.accent,
+              fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
+            }}>AI</span>
+            <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>환자용 요약 미리보기</div>
           </div>
-        ))}
+          <button onClick={onClose} style={{ color: C.textSub, padding: 4, display:'flex' }}>
+            <Icon name="x" size={20}/>
+          </button>
+        </div>
+        <div style={{ fontSize: 12.5, color: C.textSub, padding: '12px 22px 0', lineHeight: 1.5 }}>
+          입력하신 처방을 환자가 이해하기 쉽게 풀어 쓴 내용입니다. 환자 앱으로 이대로 전송됩니다.
+        </div>
+        <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '14px 22px 22px' }}>
+          <PreviewBlock title="식이"      lines={buildDietText(plan.diet)}/>
+          <PreviewBlock title="운동"      lines={buildExerciseText(plan.exercise)}/>
+          <PreviewBlock title="자기 측정" lines={buildMeasureText(plan.measure)}/>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>응급 대응</div>
+            {triage.map((t, i) => (
+              <div key={i} style={{
+                background: t.bg, borderRadius: 8, padding: '10px 12px',
+                marginBottom: 6, fontSize: 12.5, color: C.text, lineHeight: 1.55,
+                display:'flex', gap: 8,
+              }}>
+                <span style={{
+                  flexShrink: 0, alignSelf:'flex-start',
+                  padding: '2px 7px', borderRadius: 3,
+                  background: t.color, color: '#fff',
+                  fontSize: 10, fontWeight: 800, letterSpacing: 0.4,
+                }}>{t.tag}</span>
+                <span>{t.text}</span>
+              </div>
+            ))}
+          </div>
+          <PreviewBlock title="다음 방문" lines={buildNextText(plan.next)}/>
+        </div>
       </div>
-
-      <PreviewBlock title="다음 방문" lines={buildNextText(plan.next)}/>
     </div>
   );
 }
 
-function PlanPanel() {
+function PlanPanel({ plan, setPlan }) {
   const [section, setSection] = useState('all');
-  const [plan, setPlan] = useState(DEFAULT_PLAN);
 
   const sectionsRender = {
     diet:     <DietSection      d={plan.diet}     set={(d) => setPlan({ ...plan, diet: d })}/>,
@@ -1639,19 +1733,27 @@ function PlanPanel() {
     next:     <NextVisitSection n={plan.next}     set={(n) => setPlan({ ...plan, next: n })}/>,
   };
 
+  const sectionsForAll = [
+    { k:'diet',     l:'식이 처방',         render: sectionsRender.diet },
+    { k:'exercise', l:'운동 처방 (FITT)',  render: sectionsRender.exercise },
+    { k:'measure',  l:'자기 측정 처방',    render: sectionsRender.measure },
+    { k:'triage',   l:'트리아제 트리거',   render: sectionsRender.triage },
+    { k:'next',     l:'다음 외래 일정',    render: sectionsRender.next },
+  ];
+
   return (
     <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
       {/* 좌측 섹션 사이드바 */}
       <div className="scroll" style={{
-        width: 140, flexShrink: 0, overflowY:'auto',
-        borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
+        width: 152, flexShrink: 0, overflowY:'auto',
+        borderRight: `1px solid ${C.borderSoft}`, padding: '8px 0',
       }}>
         {PLAN_SECTIONS.map(s => {
           const active = section === s.k;
           return (
             <button key={s.k} onClick={() => setSection(s.k)} style={{
               width:'100%', textAlign:'left',
-              padding: '10px 14px', fontSize: 12.5,
+              padding: '11px 16px', fontSize: 13,
               color: active ? C.text : C.textSub,
               fontWeight: active ? 700 : 500,
               background: active ? C.bg : 'transparent',
@@ -1660,33 +1762,32 @@ function PlanPanel() {
           );
         })}
       </div>
-      {/* 가운데 폼 */}
-      <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '14px 20px 20px' }}>
+      {/* 우측 폼 (preview 컬럼 제거) */}
+      <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '18px 24px 24px' }}>
         {section === 'all' ? (
-          <>
-            <SectionTitle>식이 처방 (Diet Rx)</SectionTitle>{sectionsRender.diet}
-            <SectionTitle>운동 처방 (FITT)</SectionTitle>{sectionsRender.exercise}
-            <SectionTitle>자기 측정 처방</SectionTitle>{sectionsRender.measure}
-            <SectionTitle>트리아제 트리거</SectionTitle>{sectionsRender.triage}
-            <SectionTitle>다음 외래 일정</SectionTitle>{sectionsRender.next}
-          </>
+          sectionsForAll.map((s, i) => (
+            <div key={s.k} style={{ marginBottom: i === sectionsForAll.length - 1 ? 0 : 22 }}>
+              <SectionTitle num={i + 1}>{s.l}</SectionTitle>
+              {s.render}
+            </div>
+          ))
         ) : (
           <>
-            <SectionTitle>
+            <SectionTitle num={PLAN_SECTIONS.findIndex(s => s.k === section)}>
               {PLAN_SECTIONS.find(s => s.k === section).l}
             </SectionTitle>
             {sectionsRender[section]}
           </>
         )}
       </div>
-      {/* 우측 미리보기 */}
-      <PlanPreview plan={plan}/>
     </div>
   );
 }
 
 function RightPanel({ patient }) {
-  const [tab, setTab] = useState('emr');           // 'emr' | 'plan'
+  const [tab, setTab] = useState('emr');               // 'emr' | 'plan'
+  const [plan, setPlan] = useState(DEFAULT_PLAN);
+  const [showPreview, setShowPreview] = useState(false);
 
   return (
     <section style={{
@@ -1712,11 +1813,23 @@ function RightPanel({ patient }) {
         })}
       </div>
 
-      {tab === 'emr' ? <EMRPanel emr={patient.emr}/> : <PlanPanel/>}
+      {tab === 'emr'
+        ? <EMRPanel emr={patient.emr}/>
+        : <PlanPanel plan={plan} setPlan={setPlan}/>}
 
       {/* 하단 액션 바 */}
       <div style={{ borderTop: `1px solid ${C.border}`, padding: '12px 20px',
-                    display:'flex', justifyContent:'flex-end' }}>
+                    display:'flex', justifyContent:'flex-end', gap: 8 }}>
+        {tab === 'plan' && (
+          <button onClick={() => setShowPreview(true)} style={{
+            display:'flex', alignItems:'center', gap: 6,
+            height: 42, padding: '0 18px', borderRadius: 8,
+            border: `1px solid ${C.border}`, background: C.surface,
+            fontSize: 14, fontWeight: 600, color: C.text,
+          }}>
+            <Icon name="note" size={14} color={C.text}/> 미리보기
+          </button>
+        )}
         <button style={{
           display:'flex', alignItems:'center', gap: 8,
           height: 42, padding: '0 24px', borderRadius: 8,
@@ -1726,6 +1839,10 @@ function RightPanel({ patient }) {
           <Icon name="send" size={14} color="#fff"/> 환자 앱으로 내보내기
         </button>
       </div>
+
+      {showPreview && (
+        <PlanPreviewModal plan={plan} onClose={() => setShowPreview(false)}/>
+      )}
     </section>
   );
 }
