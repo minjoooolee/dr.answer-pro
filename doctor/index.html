@@ -351,52 +351,6 @@ const PATIENTS = [
         '갑상선 질환': true, '골다공증': false, '뇌혈관 질환': false,
       },
       comorbiditiesNote: '갑상선기능저하증 — Synthroid 50 mcg 복용 중',
-      tests: [
-        { name: '혈액검사 (CBC · Chemistry)', date: '2026.03.20',
-          summary: '정상 범위 (이상치 없음)',
-          detail: [
-            'WBC 5.8 ×10⁹/L (3.5 – 10.0)',
-            'Hb 12.1 g/dL (12.0 – 16.0)',
-            'PLT 232 ×10⁹/L (150 – 400)',
-            'Neutrophil 60% / Lymphocyte 32%',
-            'ALB 4.1 g/dL · AST 22 / ALT 18 U/L · Cr 0.7 mg/dL — 모두 정상',
-          ] },
-        { name: '종양 표지자',                date: '2026.03.20',
-          summary: 'CEA / CA 19-9 모두 정상 범위',
-          detail: [
-            'CEA 2.8 ng/mL (정상치 < 5.0)',
-            'CA 19-9 12 U/mL (정상치 < 37)',
-            '직전(2025.12.18) 검사 대비 큰 변화 없음',
-          ] },
-        { name: 'CT (복부·골반, contrast)',   date: '2026.03.18',
-          summary: 'No evidence of recurrence or distant metastasis',
-          detail: [
-            '간/폐/복막/림프절 — 재발 소견 없음',
-            '문합부 정상, 수술 후 변화만 관찰됨',
-            '복수 없음, 장 폐색 소견 없음',
-          ] },
-        { name: 'PET-CT',                     date: '2026.02.20',
-          summary: 'Negative for FDG-avid lesion',
-          detail: [
-            '전신 FDG 섭취 증가 병변 관찰되지 않음',
-            'SUVmax 정상 범위 유지',
-          ] },
-        { name: 'MRI (간)',                   date: '2026.02.22',
-          summary: 'No focal liver lesion',
-          detail: [
-            'T1/T2 신호 정상',
-            'DWI 제한 병변 없음',
-            'gadoxetate 강조 후 결손 영역 없음',
-          ] },
-        { name: '조직검사',                   date: '2025.11.18',
-          summary: 'Adenocarcinoma, moderately differentiated, pT3N1aM0',
-          detail: [
-            'pT3 — 고유근층 침범, 장막 노출 없음',
-            'pN1a — 림프절 1개 양성 / 총 24개 절제',
-            'Lymphovascular invasion (+) / Perineural invasion (–)',
-            'MMR proficient (MSS) / KRAS wild-type / BRAF wild-type',
-          ] },
-      ],
       chemo: {
         regimen:       'FOLFOX',
         cycleNum:      6,
@@ -741,8 +695,8 @@ function RecurrenceChart({ points }) {
         const y = yToPx(p.score);
         return (
           <g key={i}>
-            <circle cx={x} cy={y} r="6" fill="#fff" stroke={C.accent} strokeWidth="2.5"/>
-            <text x={x} y={y - 14} textAnchor="middle" fontSize="12" fontWeight="700"
+            <circle cx={x} cy={y} r="4" fill="#fff" stroke={C.accent} strokeWidth="2"/>
+            <text x={x} y={y - 11} textAnchor="middle" fontSize="11.5" fontWeight="700"
                   fill={C.text} fontFamily="Pretendard">{p.score}</text>
             <text x={x} y={H - PAD.bottom + 18} textAnchor="middle" fontSize="11"
                   fill={C.textSub} fontFamily="Pretendard">{p.date}</text>
@@ -1048,48 +1002,8 @@ function TextInput({ value, onChange, placeholder, width }) {
   );
 }
 
-function TestRow({ test, open, onToggle }) {
-  return (
-    <div style={{
-      border: `1px solid ${C.border}`, borderRadius: 10,
-      marginBottom: 8, background: C.surface, overflow:'hidden',
-    }}>
-      <button onClick={onToggle} style={{
-        width:'100%', padding: '12px 14px', textAlign:'left',
-        display:'flex', alignItems:'center', justifyContent:'space-between', gap: 10,
-        background: open ? C.bg : C.surface,
-      }}>
-        <div style={{ display:'flex', flexDirection:'column', gap: 2, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.text,
-                        overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-            {test.name}
-          </div>
-          <div style={{ fontSize: 12, color: C.textSub,
-                        overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-            {test.summary}
-          </div>
-        </div>
-        <div style={{ display:'flex', alignItems:'center', gap: 8, flexShrink: 0 }}>
-          <div style={{ fontSize: 11.5, color: C.textSub }}>{test.date}</div>
-          <div style={{ color: C.textSub, transform: open ? 'rotate(180deg)' : 'none', display:'flex' }}>
-            <Icon name="chevD" size={14}/>
-          </div>
-        </div>
-      </button>
-      {open && (
-        <div style={{ padding: '12px 14px', borderTop: `1px solid ${C.borderSoft}` }}>
-          <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12.5, color: C.text, lineHeight: 1.7 }}>
-            {test.detail.map((d, i) => <li key={i} style={{ marginBottom: 2 }}>{d}</li>)}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function EMRPanel({ emr }) {
   const [section, setSection] = useState('basic');
-  const [openTest, setOpenTest] = useState(0);
   const [chemo, setChemo] = useState(emr ? emr.chemo : null);
   const [cobs,  setCobs]  = useState(emr ? emr.comorbidities : null);
   const [cobsNote, setCobsNote] = useState(emr ? (emr.comorbiditiesNote || '') : '');
