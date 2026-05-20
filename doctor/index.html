@@ -179,6 +179,21 @@ const Icon = ({ name, size = 22, color = 'currentColor' }) => {
         <path d="M9 20H4v-5"/>
       </svg>
     );
+    case 'trendUp': return (
+      <svg {...props}><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+    );
+    case 'alert': return (
+      <svg {...props}>
+        <path d="M10.3 3.86l-8.16 14a2 2 0 0 0 1.72 3h16.3a2 2 0 0 0 1.72-3l-8.16-14a2 2 0 0 0-3.42 0z"/>
+        <path d="M12 9v4"/><path d="M12 17.5v.01"/>
+      </svg>
+    );
+    case 'info': return (
+      <svg {...props}><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8v.01"/></svg>
+    );
+    case 'moon': return (
+      <svg {...props}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    );
     case 'collapse': return (
       <svg {...props}>
         {/* 우상단 → 안쪽으로 향하는 화살표 */}
@@ -430,12 +445,14 @@ const SAMPLE_EMR_LONG = {
 /* ── 이서준의 재택 관리 경과 데이터 ── */
 const SAMPLE_HOME_REPORT_LONG = {
   ai: [
-    '지난 2개월간 통증 NRS 평균 **2.1**로 안정적이나 **변비 빈도 증가** 추세',
-    '신체 활동량 일평균 **3,200 보** — 권장치 (5,000보) 미달',
-    '체중 **-1.2 kg 감소** (66.2 → 65.0 kg)',
-    '식이 순응도 보통 — **가공식품 섭취 빈도 권장치 초과**',
-    '**응급상황 1 회 발생** (2026.03.18 경도 복통, 자가 호전)',
-    '재발률 예측 스코어 **32 → 38 상승**, 생활 습관 강화 권고',
+    { label:'전반적 추세', tone:'positive',
+      body:'통증·기분 지표가 5월 들어 뚜렷한 개선 추세를 보입니다. 환자 주관적 컨디션도 안정적으로 회복 중입니다.' },
+    { label:'특이점', tone:'warning',
+      body:'5월 9일 복합 이상 반응(통증 1점·피로 1점·신경증상 이상)이 단기적으로 나타났습니다. 치료 반응 모니터링이 필요합니다.' },
+    { label:'소화 지표', tone:'neutral',
+      body:'월 평균 3.6으로 안정 범위이나 간헐적 소화 불량이 3회 반복되었습니다. 식이 상담을 권장합니다.' },
+    { label:'피로·수면', tone:'attention',
+      body:'월 평균 3.1로 다른 항목 대비 상대적으로 낮습니다. 수면 위생 점검과 생활 패턴 조정이 필요합니다.' },
   ],
   symptoms: [
     { date:'2026.04.10', symptom:'변비', severity:'중', action:'고섬유 식이 권장',    resolved:'지속 관찰' },
@@ -632,11 +649,63 @@ function ReportTable({ head, rows }) {
   );
 }
 
+const AI_TONES = {
+  positive:  { color:'#16A769', bg:'#E7F6EE', icon:'trendUp', badge:'개선' },
+  warning:   { color:'#D63A3A', bg:'#FBE6E6', icon:'alert',   badge:'특이' },
+  neutral:   { color:'#3D55E8', bg:'#E6EAFE', icon:'info',    badge:'안정' },
+  attention: { color:'#D08221', bg:'#FFF1DC', icon:'moon',    badge:'주의' },
+};
+
 function ReportAi({ items }) {
   return (
-    <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 13, color: C.text, lineHeight: 1.75 }}>
-      {items.map((line, i) => <li key={i} style={{ marginBottom: 4 }}>{renderRich(line)}</li>)}
-    </ul>
+    <div style={{ display:'flex', flexDirection:'column', gap: 10 }}>
+      {items.map((it, i) => {
+        const tone = AI_TONES[it.tone] || AI_TONES.neutral;
+        return (
+          <div key={i} style={{
+            position: 'relative',
+            background: '#fff',
+            border: `1px solid ${C.borderSoft}`,
+            borderRadius: 12,
+            padding: '12px 14px 12px 18px',
+            display:'flex', gap: 12,
+            overflow: 'hidden',
+          }}>
+            {/* 좌측 accent bar */}
+            <div style={{
+              position:'absolute', left: 0, top: 0, bottom: 0,
+              width: 4, background: tone.color,
+            }}/>
+            {/* tone 아이콘 칩 */}
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: tone.bg, color: tone.color,
+              display:'flex', alignItems:'center', justifyContent:'center',
+              flexShrink: 0,
+            }}>
+              <Icon name={tone.icon} size={16}/>
+            </div>
+            {/* 본문 */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display:'flex', alignItems:'center', gap: 8, marginBottom: 6 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>
+                  {it.label}
+                </div>
+                <span style={{
+                  display:'inline-flex', alignItems:'center', height: 18,
+                  padding:'0 7px', borderRadius: 4,
+                  background: tone.bg, color: tone.color,
+                  fontSize: 10.5, fontWeight: 800, letterSpacing: 0.4,
+                }}>{tone.badge}</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
+                {it.body}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 function ReportSymptoms({ items }) {
