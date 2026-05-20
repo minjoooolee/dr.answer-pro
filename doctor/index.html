@@ -327,10 +327,10 @@ function PatientCard({ p, selected, onClick }) {
 /* ── 김류아 (퇴원 시점) ── */
 const SAMPLE_RECURRENCE = [{ date:'2026.03.25', score: 24, note:'퇴원' }];
 const SAMPLE_ANALYSIS = [
-  '병기 결장암 stage IIIa (pT3N1aM0) — 영상 검사상 원격 전이 없음',
-  '복강경 우측 결장 절제술 시행 (2025.11.15) — 절제연 음성, 림프절 24개 중 1개 양성',
+  '병기 결장암 **stage IIIa (pT3N1aM0)** — 영상 검사상 **원격 전이 없음**',
+  '복강경 우측 결장 절제술 시행 (2025.11.15) — 절제연 음성, **림프절 24개 중 1개 양성**',
   '술 후 합병증 없이 회복 경과 양호',
-  'FOLFOX 보조 화학요법 6 회차 완료 (2026.02.28) — 큰 이상반응 없이 종료',
+  '**FOLFOX 보조 화학요법 6 회차 완료** (2026.02.28) — 큰 이상반응 없이 종료',
 ];
 const SAMPLE_EMR = {
   basic: {
@@ -375,13 +375,13 @@ const SAMPLE_RECURRENCE_LONG = [
   { date:'2026.04.15', score: 38, note:'재진' },
 ];
 const SAMPLE_ANALYSIS_LONG = [
-  '병기 결장암 stage IIIc (T4N2M0), 영상 검사상 원격 전이 없음',
+  '병기 결장암 **stage IIIc (T4N2M0)**, 영상 검사상 원격 전이 없음',
   '근치적 절제술 후 FOLFOX 보조 화학요법 12 회차 완료 (2025.05)',
   '현재 추적 관찰 단계 — 2개월 간격 외래 방문 중',
-  '재택 PRO 7일 평균: 통증 2.1/10, 변비 빈도 증가, 식이 순응도 보통',
-  '응급상황 발생 1 회 (지난 2개월 — 경도 복통, 자가 호전)',
-  '웨어러블 활동량: 일평균 3,200 보 / 중강도 운동 주 0.8h — 권장치 미달',
-  '직전 평가 대비 스코어 32→38, 추이 재평가 및 생활 습관 강화 필요',
+  '재택 PRO 7일 평균: 통증 2.1/10, **변비 빈도 증가**, 식이 순응도 보통',
+  '**응급상황 발생 1 회** (지난 2개월 — 경도 복통, 자가 호전)',
+  '웨어러블 활동량: 일평균 3,200 보 / 중강도 운동 **주 0.8h — 권장치 미달**',
+  '**직전 평가 대비 스코어 32 → 38**, 추이 재평가 및 생활 습관 강화 필요',
 ];
 const SAMPLE_EMR_LONG = {
   basic: {
@@ -762,6 +762,15 @@ function RecurrenceChart({ points }) {
   );
 }
 
+/* "**critical**" 마커를 굵게 강조해서 렌더링 */
+function renderRich(text) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
+    p.startsWith('**') && p.endsWith('**')
+      ? <strong key={i} style={{ fontWeight: 800, color: C.accent }}>{p.slice(2, -2)}</strong>
+      : <React.Fragment key={i}>{p}</React.Fragment>
+  );
+}
+
 function RiskBadge({ score }) {
   let bg = C.greenSoft, fg = C.green, label = '낮음';
   if (score >= 70)      { bg = '#FBE6E6'; fg = '#D63A3A'; label = '높음'; }
@@ -857,7 +866,7 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
             <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>스코어 산출 근거</div>
           </div>
           <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12.5, color: C.text, lineHeight: 1.7 }}>
-            {analysis.map((line, i) => <li key={i} style={{ marginBottom: 2 }}>{line}</li>)}
+            {analysis.map((line, i) => <li key={i} style={{ marginBottom: 2 }}>{renderRich(line)}</li>)}
           </ul>
         </div>
       )}
