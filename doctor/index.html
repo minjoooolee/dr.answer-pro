@@ -442,13 +442,13 @@ const SAMPLE_EMR_LONG = {
 /* ── 이서준의 재택 관리 경과 데이터 ── */
 const SAMPLE_HOME_REPORT_LONG = {
   ai: [
-    { label:'전반적 추세', tone:'positive',
+    { label:'전반적 추세', tone:'안정',
       body:'통증·기분 지표 5월 개선 추세. 컨디션 회복 중.' },
-    { label:'특이점',     tone:'warning',
+    { label:'특이점',     tone:'위험',
       body:'5/9 복합 이상 반응 (통증·피로·신경증상). 모니터링 필요.' },
-    { label:'소화 지표',  tone:'neutral',
+    { label:'소화 지표',  tone:'안정',
       body:'월 평균 3.6 안정, 소화 불량 3회 반복. 식이 상담 권장.' },
-    { label:'피로·수면',  tone:'attention',
+    { label:'피로·수면',  tone:'주의',
       body:'월 평균 3.1로 상대적 낮음. 수면 위생 점검 필요.' },
   ],
   symptoms: [
@@ -647,57 +647,46 @@ function ReportTable({ head, rows }) {
 }
 
 const AI_TONES = {
-  positive:  { color:'#16A769', bg:'#E7F6EE', icon:'trendUp', badge:'개선' },
-  warning:   { color:'#D63A3A', bg:'#FBE6E6', icon:'alert',   badge:'특이' },
-  neutral:   { color:'#3D55E8', bg:'#E6EAFE', icon:'info',    badge:'안정' },
-  attention: { color:'#D08221', bg:'#FFF1DC', icon:'moon',    badge:'주의' },
+  '위험': { color:'#D63A3A', bg:'#FBE6E6' },
+  '안정': { color:'#16A769', bg:'#E7F6EE' },
+  '주의': { color:'#D08221', bg:'#FFF1DC' },
 };
 
 function ReportAi({ items }) {
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap: 10 }}>
+    <div style={{ display:'flex', flexDirection:'column', gap: 8 }}>
       {items.map((it, i) => {
-        const tone = AI_TONES[it.tone] || AI_TONES.neutral;
+        const tone = AI_TONES[it.tone] || AI_TONES['안정'];
         return (
           <div key={i} style={{
             position: 'relative',
             background: '#fff',
             border: `1px solid ${C.borderSoft}`,
-            borderRadius: 12,
-            padding: '12px 14px 12px 18px',
-            display:'flex', gap: 12,
+            borderRadius: 10,
+            padding: '11px 14px 11px 18px',
             overflow: 'hidden',
           }}>
             {/* 좌측 accent bar */}
             <div style={{
               position:'absolute', left: 0, top: 0, bottom: 0,
-              width: 4, background: tone.color,
+              width: 3, background: tone.color,
             }}/>
-            {/* tone 아이콘 칩 */}
             <div style={{
-              width: 32, height: 32, borderRadius: 8,
-              background: tone.bg, color: tone.color,
-              display:'flex', alignItems:'center', justifyContent:'center',
-              flexShrink: 0,
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              marginBottom: 5,
             }}>
-              <Icon name={tone.icon} size={16}/>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+                {it.label}
+              </div>
+              <span style={{
+                display:'inline-flex', alignItems:'center', height: 20,
+                padding:'0 8px', borderRadius: 4,
+                background: tone.bg, color: tone.color,
+                fontSize: 11, fontWeight: 800, letterSpacing: 0.4,
+              }}>{it.tone}</span>
             </div>
-            {/* 본문 */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display:'flex', alignItems:'center', gap: 8, marginBottom: 6 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>
-                  {it.label}
-                </div>
-                <span style={{
-                  display:'inline-flex', alignItems:'center', height: 18,
-                  padding:'0 7px', borderRadius: 4,
-                  background: tone.bg, color: tone.color,
-                  fontSize: 10.5, fontWeight: 800, letterSpacing: 0.4,
-                }}>{tone.badge}</span>
-              </div>
-              <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
-                {it.body}
-              </div>
+            <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.6 }}>
+              {it.body}
             </div>
           </div>
         );
