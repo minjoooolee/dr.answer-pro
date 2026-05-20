@@ -325,7 +325,7 @@ function PatientCard({ p, selected, onClick }) {
 }
 
 const PATIENTS = [
-  { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중','문진중'],
+  { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중'],
     recurrence: [{ date:'2026.03.25', score: 24, note:'퇴원' }],
     analysis: [
       '병기 결장암 stage IIIa (T3N1M0), 영상 검사상 원격 전이 없음',
@@ -404,11 +404,11 @@ const PATIENTS = [
         stage:   'Stage IIIa (pT3N1aM0)',
       },
     } },
-  { name:'이서준', id:'970504', gender:'M', age:29, time:'09:03', tags:['도착','문진중'],   recurrence: [] },
-  { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착','분석중'],   recurrence: [] },
-  { name:'이수현', id:'780922', gender:'F', age:47, time:'09:03', tags:['대기','문진완료'], recurrence: [] },
-  { name:'김민재', id:'840218', gender:'M', age:41, time:'09:03', tags:['진료보류','문진생략'], recurrence: [] },
-  { name:'윤지안', id:'880730', gender:'F', age:37, time:'09:03', tags:['템플릿 발송 완료'],   recurrence: [] },
+  { name:'이서준', id:'970504', gender:'M', age:29, time:'09:03', tags:['도착'],     recurrence: [] },
+  { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
+  { name:'이수현', id:'780922', gender:'F', age:47, time:'09:03', tags:['대기'],     recurrence: [] },
+  { name:'김민재', id:'840218', gender:'M', age:41, time:'09:03', tags:['진료보류'], recurrence: [] },
+  { name:'윤지안', id:'880730', gender:'F', age:37, time:'09:03', tags:[],           recurrence: [] },
 ];
 
 function PatientList({ selectedIdx, setSelectedIdx }) {
