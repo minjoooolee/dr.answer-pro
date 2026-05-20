@@ -1505,6 +1505,128 @@ function NextVisitSection({ n, set }) {
   );
 }
 
+/* ─── 미리보기 텍스트 생성 (환자 친화 톤) ─── */
+function buildDietText(d) {
+  const lines = [];
+  lines.push(`매일 과일·채소 ${d.fruitsVeg}인분 이상, 식이섬유 ${d.fiber}g 이상 챙겨 드세요.`);
+  lines.push(`가공육은 주 ${d.processedMeat}회, 붉은 육류는 주 ${d.redMeat}회, 튀김·패스트푸드는 주 ${d.fried}회, 가당 음료는 하루 ${d.sugary}잔 이하로 줄여 주세요.`);
+  lines.push(`알코올은 ${d.alcohol}, 수분은 하루 ${d.water}L 이상 드세요.`);
+  if (d.note) lines.push(`참고 사항 — ${d.note}`);
+  return lines;
+}
+function buildExerciseText(e) {
+  const lines = [];
+  lines.push(`주 ${e.freq}회, ${e.intensity}로 회당 ${e.timePerSession}분씩 (주 ${e.timePerWeek}분) 운동하세요.`);
+  const types = [];
+  if (e.aerobic)  types.push('유산소');
+  if (e.strength) types.push(`근력(주 ${e.strengthFreq}회)`);
+  if (types.length) lines.push(`구성: ${types.join(' + ')}.`);
+  if (e.progressive) lines.push('수술 후 회복기 첫 2주는 저강도로 시작해 점차 늘려 갑니다.');
+  return lines;
+}
+function buildMeasureText(m) {
+  const lines = [];
+  lines.push(`체중 ${m.weight}, 혈압 ${m.bp}, 통증 NRS ${m.pain}, 식단 ${m.diet}, 운동 ${m.exercise} 으로 기록해 주세요.`);
+  const daily  = Object.keys(m.daily).filter(k => m.daily[k]);
+  const weekly = Object.keys(m.weekly).filter(k => m.weekly[k]);
+  if (daily.length)  lines.push(`매일 체크: ${daily.join(', ')}.`);
+  if (weekly.length) lines.push(`주 1회 체크: ${weekly.join(', ')}.`);
+  lines.push(`통증이 ${m.painThreshold}점 이상이면 자동으로 의료진에게 알림이 갑니다.`);
+  return lines;
+}
+function buildTriageText(t) {
+  const red = [];
+  if (t.redFever)         red.push(`${t.redFeverTemp}°C 이상 발열`);
+  if (t.redBlood)         red.push('혈변');
+  if (t.redAbdominalPain) red.push('심한 복통');
+  if (t.redConsciousness) red.push('의식 변화');
+  const yellow = [];
+  if (t.yellowFever)       yellow.push(`${t.yellowFeverTemp}°C 이상 발열`);
+  if (t.yellowDiarrhea)    yellow.push(`하루 ${t.yellowDiarrheaFreq}회 이상 설사`);
+  if (t.yellowDehydration) yellow.push('수분 섭취 불가');
+  return [
+    { tag:'RED',    color:'#D63A3A', bg:'#FBE6E6',
+      text: red.length    ? `즉시 응급실로 가야 하는 증상 — ${red.join(', ')}.`
+                          : '즉시 응급실 트리거가 비어 있습니다.' },
+    { tag:'YELLOW', color:'#D08221', bg:'#FFF1DC',
+      text: yellow.length ? `24시간 안에 외래로 연락 — ${yellow.join(', ')}.`
+                          : '24시간 트리거가 비어 있습니다.' },
+    { tag:'GREEN',  color:'#16A769', bg:'#E7F6EE',
+      text: '경미한 변화는 다음 외래 때 보고해 주세요.' },
+  ];
+}
+function buildNextText(n) {
+  const metrics = Object.keys(n.metrics).filter(k => n.metrics[k]);
+  const lines = [];
+  lines.push(`중간 점검일은 ${n.checkDate}로 앱에서 알림이 갑니다.`);
+  lines.push(`다음 외래 방문일은 ${n.nextVisit}입니다.`);
+  if (metrics.length) lines.push(`다음 방문 시 함께 확인할 지표: ${metrics.join(', ')}.`);
+  return lines;
+}
+
+function PreviewBlock({ title, lines }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>
+        {title}
+      </div>
+      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
+        {lines.map((l, i) => <div key={i} style={{ marginBottom: 4 }}>{l}</div>)}
+      </div>
+    </div>
+  );
+}
+
+function PlanPreview({ plan }) {
+  const triage = buildTriageText(plan.triage);
+  return (
+    <div className="scroll" style={{
+      width: 250, flexShrink: 0,
+      borderLeft: `1px solid ${C.borderSoft}`,
+      overflowY:'auto', padding: '14px 16px 18px',
+      background: '#FAFBFC',
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 4 }}>
+        <span style={{
+          display:'inline-flex', alignItems:'center', height: 18,
+          padding: '0 6px', borderRadius: 3,
+          background: C.accentSoft, color: C.accent,
+          fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
+        }}>AI</span>
+        <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>환자용 요약</div>
+      </div>
+      <div style={{ fontSize: 11.5, color: C.textSub, marginBottom: 14, lineHeight: 1.5 }}>
+        의사가 입력한 내용을 환자가 이해하기 쉽게 풀어 씁니다. 환자 앱으로 이대로 전송됩니다.
+      </div>
+
+      <PreviewBlock title="식이"      lines={buildDietText(plan.diet)}/>
+      <PreviewBlock title="운동"      lines={buildExerciseText(plan.exercise)}/>
+      <PreviewBlock title="자기 측정" lines={buildMeasureText(plan.measure)}/>
+
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>응급 대응</div>
+        {triage.map((t, i) => (
+          <div key={i} style={{
+            background: t.bg, borderRadius: 8, padding: '8px 10px',
+            marginBottom: 6, fontSize: 12, color: C.text, lineHeight: 1.55,
+            display:'flex', gap: 8,
+          }}>
+            <span style={{
+              flexShrink: 0, alignSelf:'flex-start',
+              padding: '1px 6px', borderRadius: 3,
+              background: t.color, color: '#fff',
+              fontSize: 10, fontWeight: 800, letterSpacing: 0.4,
+            }}>{t.tag}</span>
+            <span>{t.text}</span>
+          </div>
+        ))}
+      </div>
+
+      <PreviewBlock title="다음 방문" lines={buildNextText(plan.next)}/>
+    </div>
+  );
+}
+
 function PlanPanel() {
   const [section, setSection] = useState('all');
   const [plan, setPlan] = useState(DEFAULT_PLAN);
@@ -1521,7 +1643,7 @@ function PlanPanel() {
     <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
       {/* 좌측 섹션 사이드바 */}
       <div className="scroll" style={{
-        width: 168, overflowY:'auto',
+        width: 140, flexShrink: 0, overflowY:'auto',
         borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
       }}>
         {PLAN_SECTIONS.map(s => {
@@ -1529,7 +1651,7 @@ function PlanPanel() {
           return (
             <button key={s.k} onClick={() => setSection(s.k)} style={{
               width:'100%', textAlign:'left',
-              padding: '10px 16px', fontSize: 13,
+              padding: '10px 14px', fontSize: 12.5,
               color: active ? C.text : C.textSub,
               fontWeight: active ? 700 : 500,
               background: active ? C.bg : 'transparent',
@@ -1538,8 +1660,8 @@ function PlanPanel() {
           );
         })}
       </div>
-      {/* 우측 콘텐츠 */}
-      <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '14px 22px 20px' }}>
+      {/* 가운데 폼 */}
+      <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '14px 20px 20px' }}>
         {section === 'all' ? (
           <>
             <SectionTitle>식이 처방 (Diet Rx)</SectionTitle>{sectionsRender.diet}
@@ -1557,6 +1679,8 @@ function PlanPanel() {
           </>
         )}
       </div>
+      {/* 우측 미리보기 */}
+      <PlanPreview plan={plan}/>
     </div>
   );
 }
