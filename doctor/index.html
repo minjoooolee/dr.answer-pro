@@ -243,8 +243,9 @@ function PatientList({ selectedIdx, setSelectedIdx }) {
   ];
   return (
     <section style={{
-      width: 250, background: C.surface, borderRight: `1px solid ${C.border}`,
-      display:'flex', flexDirection:'column', flexShrink: 0,
+      width: 250, background: C.surface,
+      borderRadius: 12, border: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', flexShrink: 0, overflow:'hidden',
     }}>
       <div style={{ padding: '14px 14px 8px' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
@@ -328,14 +329,15 @@ function SummaryRow({ label, copyable, children, valueStyle }) {
 function CenterPanel({ patient }) {
   return (
     <section style={{
-      flex: 1, minWidth: 0, background: C.bg,
-      display:'flex', flexDirection:'column',
+      flex: 1, minWidth: 0,
+      display:'flex', flexDirection:'column', gap: 10, minHeight: 0,
     }}>
-      {/* 환자 상단 정보 */}
+      {/* 환자 상단 정보 카드 */}
       <div style={{
-        padding: '16px 24px', background: C.surface,
-        borderBottom: `1px solid ${C.border}`,
+        padding: '16px 22px', background: C.surface,
+        borderRadius: 12, border: `1px solid ${C.border}`,
         display:'flex', alignItems:'center', justifyContent:'space-between',
+        flexShrink: 0,
       }}>
         <div style={{ display:'flex', alignItems:'baseline', gap: 8 }}>
           <div style={{ fontSize: 22, fontWeight: 700, color: C.text }}>{patient.name}</div>
@@ -351,8 +353,8 @@ function CenterPanel({ patient }) {
         </button>
       </div>
 
-      {/* 문진 요약 */}
-      <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '20px 24px' }}>
+      {/* 문진 요약 카드 */}
+      <div className="scroll" style={{ flex: 1, overflowY:'auto', minHeight: 0 }}>
         <div style={{
           background: C.surface, borderRadius: 12,
           border: `1px solid ${C.border}`, padding: '18px 22px',
@@ -404,10 +406,13 @@ function CenterPanel({ patient }) {
         </div>
       </div>
 
-      {/* 진료녹음 바 */}
+      {/* 진료녹음 카드 */}
       <div style={{
-        background: C.surface, borderTop: `1px solid ${C.border}`,
-        padding: '14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between',
+        background: C.surface,
+        borderRadius: 12, border: `1px solid ${C.border}`,
+        padding: '14px 22px',
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        flexShrink: 0,
       }}>
         <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>진료녹음</div>
         <button style={{
@@ -454,8 +459,9 @@ function RightPanel() {
 
   return (
     <section style={{
-      width: 560, background: C.surface, borderLeft: `1px solid ${C.border}`,
-      display:'flex', flexDirection:'column', flexShrink: 0,
+      width: 560, background: C.surface,
+      borderRadius: 12, border: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', flexShrink: 0, overflow:'hidden',
     }}>
       {/* 탭 */}
       <div style={{ display:'flex', borderBottom: `1px solid ${C.border}`, padding: '0 20px' }}>
@@ -659,11 +665,16 @@ function App() {
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column' }}>
       <Header/>
-      <div style={{ flex:1, display:'flex', minHeight: 0 }}>
+      <div style={{ flex:1, display:'flex', minHeight: 0, background: C.chrome }}>
         <Sidebar/>
-        <PatientList selectedIdx={selectedIdx} setSelectedIdx={setSelectedIdx}/>
-        <CenterPanel patient={patient}/>
-        <RightPanel/>
+        <div style={{
+          flex:1, display:'flex', gap: 10, padding: 10,
+          background: C.bg, minHeight: 0,
+        }}>
+          <PatientList selectedIdx={selectedIdx} setSelectedIdx={setSelectedIdx}/>
+          <CenterPanel patient={patient}/>
+          <RightPanel/>
+        </div>
       </div>
     </div>
   );
