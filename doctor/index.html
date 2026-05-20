@@ -1147,7 +1147,7 @@ function RecurrenceChart({ points }) {
       {/* line */}
       {points.length > 1 && (
         <polyline
-          fill="none" stroke={C.accent} strokeWidth="2.5"
+          fill="none" stroke={C.accent} strokeWidth="1.4"
           strokeLinejoin="round" strokeLinecap="round"
           points={points.map((p, i) => `${xToPx(i, points.length)},${yToPx(p.score)}`).join(' ')}
         />
