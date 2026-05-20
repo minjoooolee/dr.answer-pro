@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V.Doc.ai — 진료 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body, #root { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'Pretendard', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #F4F6F8;
+    color: #1B1F27;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+  input { font-family: inherit; }
+  input::placeholder { color: #A6ADBA; }
+  /* Hide scrollbars but keep scroll */
+  .scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scroll::-webkit-scrollbar-thumb { background: #D8DDE6; border-radius: 3px; }
+  .scroll::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+/* ───────── 색상 토큰 ───────── */
+const C = {
+  bg:        '#F4F6F8',
+  surface:   '#FFFFFF',
+  border:    '#E6E9EF',
+  borderSoft:'#EEF1F5',
+  text:      '#1B1F27',
+  textSub:   '#6B7280',
+  textMute:  '#9AA1AE',
+  primary:   '#2F3DDB',     // 진료 저장 navy/blue
+  primarySoft:'#EEF0FF',
+  accent:    '#5468FF',     // selected card
+  accentSoft:'#EEF1FF',
+  green:     '#1FB57A',
+  greenSoft: '#E4F6EE',
+  blue:      '#3D6BFF',
+  blueSoft:  '#E6ECFF',
+  gray:      '#6B7280',
+  graySoft:  '#EEF0F3',
+  dark:      '#2A2F3D',
+};
+
+/* ───────── 아이콘 (사이드바 등) ───────── */
+const Icon = ({ name, size = 22, color = 'currentColor' }) => {
+  const props = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: color, strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  switch (name) {
+    case 'mic': return (<svg {...props}><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0"/><path d="M12 18v3"/></svg>);
+    case 'cal': return (<svg {...props}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>);
+    case 'user': return (<svg {...props}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>);
+    case 'list': return (<svg {...props}><path d="M4 6h16M4 12h16M4 18h16"/></svg>);
+    case 'doc':  return (<svg {...props}><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg>);
+    case 'gear': return (<svg {...props}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>);
+    case 'phone':return (<svg {...props}><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>);
+    case 'link': return (<svg {...props}><path d="M10 14a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 10a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>);
+    case 'cal2': return (<svg {...props}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>);
+    case 'search':return (<svg {...props}><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>);
+    case 'chevL':return (<svg {...props}><path d="M15 6l-6 6 6 6"/></svg>);
+    case 'chevR':return (<svg {...props}><path d="M9 6l6 6-6 6"/></svg>);
+    case 'chevD':return (<svg {...props}><path d="M6 9l6 6 6-6"/></svg>);
+    case 'copy': return (<svg {...props}><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 012-2h10"/></svg>);
+    case 'star': return (<svg {...props}><path d="M12 3l2.7 5.5L20.5 9.4l-4.3 4.2 1 6L12 16.8 6.8 19.6l1-6-4.3-4.2 5.8-.9z"/></svg>);
+    case 'starF':return (<svg width="18" height="18" viewBox="0 0 24 24" fill={C.accent}><path d="M12 3l2.7 5.5L20.5 9.4l-4.3 4.2 1 6L12 16.8 6.8 19.6l1-6-4.3-4.2 5.8-.9z"/></svg>);
+    case 'check':return (<svg {...props} strokeWidth="3"><path d="M5 12l5 5 9-10"/></svg>);
+    case 'refresh':return (<svg {...props}><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>);
+    case 'x':    return (<svg {...props}><path d="M6 6l12 12M18 6L6 18"/></svg>);
+    case 'edit': return (<svg {...props}><path d="M4 20h4l10-10-4-4L4 16v4z"/></svg>);
+    case 'note': return (<svg {...props}><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/></svg>);
+    default: return null;
+  }
+};
+
+/* ───────── 로고 ───────── */
+const Logo = () => (
+  <div style={{
+    width: 60, height: 60, background: '#1F2937',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: '#fff', fontWeight: 800, fontSize: 11, letterSpacing: 0.3,
+    flexDirection: 'column', lineHeight: 1.05,
+  }}>
+    <div style={{ fontSize: 13, fontWeight: 800 }}>V.Doc</div>
+    <div style={{ fontSize: 9, opacity: 0.7, marginTop: 1 }}>ai</div>
+  </div>
+);
+
+/* ───────── 상단 헤더 ───────── */
+function Header() {
+  const tab = (label) => (
+    <button style={{
+      padding: '0 4px', height: 60, fontSize: 15, fontWeight: 600,
+      color: C.text, position: 'relative',
+    }}>
+      {label}
+      <div style={{ position:'absolute', left:0, right:0, bottom:-1, height:2, background: C.text, borderRadius: 2 }}/>
+    </button>
+  );
+  const navItem = (iconName, label) => (
+    <button style={{ display:'flex', alignItems:'center', gap:6, padding:'0 12px', height:60, fontSize:13.5, color:C.text, fontWeight:500 }}>
+      <Icon name={iconName} size={17} color={C.text}/> {label}
+    </button>
+  );
+  return (
+    <header style={{
+      height: 60, background: C.surface, borderBottom: `1px solid ${C.border}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      paddingRight: 16, flexShrink: 0,
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 24 }}>
+        <Logo/>
+        <div style={{ display:'flex', alignItems:'center', gap: 24, marginLeft: 4 }}>
+          {tab('진료')}
+          <div style={{ width:1, height:18, background:C.border }}/>
+          <span style={{ fontSize: 14, color: C.textSub, fontWeight: 500 }}>내과 이예나 교수님</span>
+        </div>
+      </div>
+      <div style={{ display:'flex', alignItems:'center' }}>
+        {navItem('phone','미니모드')}
+        {navItem('link','사전문진')}
+        {navItem('cal2','진료일정')}
+        {navItem('search','환자검색')}
+      </div>
+    </header>
+  );
+}
+
+/* ───────── 좌측 사이드바 ───────── */
+function Sidebar() {
+  const items = [
+    { icon:'mic',  label:'진료',     active: true },
+    { icon:'cal',  label:'오늘현황' },
+    { icon:'user', label:'환자관리' },
+    { icon:'list', label:'환자목록' },
+    { icon:'doc',  label:'템플릿'   },
+  ];
+  return (
+    <aside style={{
+      width: 72, background: C.surface, borderRight: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', alignItems:'center',
+      padding: '14px 0', flexShrink: 0,
+    }}>
+      {items.map((it, i) => (
+        <button key={i} style={{
+          width: 56, padding: '10px 0', marginBottom: 4,
+          display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+          color: it.active ? C.primary : C.textSub,
+          fontSize: 11, fontWeight: it.active ? 700 : 500,
+          borderRadius: 8, background: it.active ? C.primarySoft : 'transparent',
+        }}>
+          <Icon name={it.icon} size={20}/>
+          <span>{it.label}</span>
+        </button>
+      ))}
+      <div style={{ flex: 1 }}/>
+      <button style={{
+        width: 56, padding: '10px 0',
+        display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+        color: C.textSub, fontSize: 11, fontWeight: 500,
+      }}>
+        <Icon name="gear" size={20}/>
+        <span>설정</span>
+      </button>
+    </aside>
+  );
+}
+
+/* ───────── 환자 카드 & 환자 목록 ───────── */
+const STATUS_STYLES = {
+  '진료중':       { bg:'#5468FF', fg:'#fff' },
+  '문진중':       { bg:'#5468FF', fg:'#fff' },
+  '문진완료':     { bg:'#E6ECFF', fg:'#3D55E8' },
+  '도착':         { bg:'#E4F6EE', fg:'#1FB57A' },
+  '분석중':       { bg:'#E4F6EE', fg:'#1FB57A' },
+  '대기':         { bg:'#EEF0F3', fg:'#6B7280' },
+  '진료보류':     { bg:'#2A2F3D', fg:'#fff' },
+  '템플릿 발송 완료': { bg:'#EEF0F3', fg:'#6B7280' },
+};
+function StatusBadge({ label }) {
+  const s = STATUS_STYLES[label] || { bg: C.graySoft, fg: C.gray };
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', height: 22, padding:'0 8px',
+      borderRadius: 4, background: s.bg, color: s.fg,
+      fontSize: 11, fontWeight: 600,
+    }}>{label}</span>
+  );
+}
+function PatientCard({ p, selected, onClick }) {
+  return (
+    <button onClick={onClick} style={{
+      width:'100%', textAlign:'left',
+      background: C.surface, border: `1.5px solid ${selected ? C.accent : C.border}`,
+      borderRadius: 10, padding: '12px 14px', marginBottom: 8,
+      boxShadow: selected ? '0 0 0 3px rgba(84,104,255,0.08)' : 'none',
+    }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
+          {p.name} <span style={{ fontSize:12, color: C.textSub, fontWeight: 500, marginLeft:4 }}>
+            {p.id} · {p.gender}/{p.age}세
+          </span>
+        </div>
+      </div>
+      <div style={{ fontSize: 12, color: C.textSub, marginTop: 4 }}>오전 {p.time}</div>
+      <div style={{ display:'flex', gap: 5, marginTop: 8 }}>
+        {p.tags.map((t, i) => <StatusBadge key={i} label={t}/>)}
+      </div>
+    </button>
+  );
+}
+
+const PATIENTS = [
+  { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중','문진중'] },
+  { name:'이서준', id:'970504', gender:'M', age:29, time:'09:03', tags:['도착','문진중'] },
+  { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착','분석중'] },
+  { name:'이수현', id:'780922', gender:'F', age:47, time:'09:03', tags:['대기','문진완료'] },
+  { name:'김민재', id:'840218', gender:'M', age:41, time:'09:03', tags:['진료보류','문진생략'] },
+  { name:'윤지안', id:'880730', gender:'F', age:37, time:'09:03', tags:['템플릿 발송 완료'] },
+];
+
+function PatientList({ selectedIdx, setSelectedIdx }) {
+  const [tab, setTab] = useState('진료');
+  const tabs = [
+    { k:'진료', n:5 },
+    { k:'보류', n:0 },
+    { k:'완료', n:0 },
+  ];
+  return (
+    <section style={{
+      width: 250, background: C.surface, borderRight: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', flexShrink: 0,
+    }}>
+      <div style={{ padding: '14px 14px 8px' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <button style={{ padding: 4, color: C.textSub }}><Icon name="chevL" size={18}/></button>
+          <div style={{ display:'flex', alignItems:'center', gap:6, fontSize: 14, fontWeight: 700, color: C.text }}>
+            2026.04.10 금 <Icon name="cal" size={14} color={C.textSub}/>
+          </div>
+          <button style={{ padding: 4, color: C.textSub }}><Icon name="chevR" size={18}/></button>
+        </div>
+      </div>
+      <div style={{
+        display:'flex', gap: 18, padding: '4px 16px 12px',
+        borderBottom: `1px solid ${C.borderSoft}`,
+      }}>
+        {tabs.map(t => {
+          const active = tab === t.k;
+          return (
+            <button key={t.k} onClick={() => setTab(t.k)} style={{
+              display:'flex', alignItems:'center', gap: 5,
+              padding: '6px 0', fontSize: 13.5,
+              color: active ? C.text : C.textSub, fontWeight: active ? 700 : 500,
+              borderBottom: active ? `2px solid ${C.text}` : '2px solid transparent',
+              marginBottom: -13,
+            }}>
+              {t.k}
+              <span style={{
+                display:'inline-flex', alignItems:'center', justifyContent:'center',
+                width: 18, height: 18, borderRadius: 9,
+                background: active ? C.primary : C.graySoft,
+                color: active ? '#fff' : C.textSub,
+                fontSize: 11, fontWeight: 700,
+              }}>{t.n}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="scroll" style={{ flex:1, overflowY:'auto', padding: '12px 12px 16px' }}>
+        {PATIENTS.map((p, i) => (
+          <PatientCard key={i} p={p} selected={i === selectedIdx} onClick={() => setSelectedIdx(i)}/>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ───────── 가운데 패널 — 문진 요약 ───────── */
+function BodyDiagram({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <ellipse cx="20" cy="8" rx="4.5" ry="5" stroke="#94A1B3" strokeWidth="1.2"/>
+      <path d="M14 14 Q14 18 12 22 L12 30 L14 34 L18 34 L18 28 L22 28 L22 34 L26 34 L28 30 L28 22 Q26 18 26 14 Q23 13 20 13 Q17 13 14 14 Z" stroke="#94A1B3" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
+}
+function HeadDiagram({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <path d="M14 10 Q14 6 20 6 Q26 6 26 12 L26 18 Q28 18 28 22 Q28 26 25 26 L25 30 Q25 34 20 34 Q15 34 15 30 L15 26 Q12 26 12 22 Q12 18 14 18 Z" stroke="#94A1B3" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
+}
+
+function SummaryRow({ label, copyable, children, valueStyle }) {
+  return (
+    <div style={{ display:'flex', gap: 18, padding: '10px 0' }}>
+      <div style={{ width: 56, display:'flex', alignItems:'flex-start', gap:4, flexShrink: 0 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text }}>{label}</div>
+        {copyable && (
+          <button style={{ color: C.textMute, marginTop: 1 }}>
+            <Icon name="copy" size={13}/>
+          </button>
+        )}
+      </div>
+      <div style={{ flex: 1, fontSize: 13.5, color: C.text, lineHeight: 1.65, ...valueStyle }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function CenterPanel({ patient }) {
+  return (
+    <section style={{
+      flex: 1, minWidth: 0, background: C.bg,
+      display:'flex', flexDirection:'column',
+    }}>
+      {/* 환자 상단 정보 */}
+      <div style={{
+        padding: '16px 24px', background: C.surface,
+        borderBottom: `1px solid ${C.border}`,
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+      }}>
+        <div style={{ display:'flex', alignItems:'baseline', gap: 8 }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: C.text }}>{patient.name}</div>
+          <div style={{ fontSize: 13, color: C.textSub }}>만 {patient.age}세 · {patient.gender === 'F' ? '여성' : '남성'}</div>
+        </div>
+        <button style={{
+          display:'flex', alignItems:'center', gap: 6,
+          height: 34, padding: '0 14px', borderRadius: 8,
+          border: `1px solid ${C.border}`, background: C.surface,
+          fontSize: 13, fontWeight: 600, color: C.text,
+        }}>
+          2026.3.25(수) <Icon name="chevD" size={14} color={C.textSub}/>
+        </button>
+      </div>
+
+      {/* 문진 요약 */}
+      <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '20px 24px' }}>
+        <div style={{
+          background: C.surface, borderRadius: 12,
+          border: `1px solid ${C.border}`, padding: '18px 22px',
+        }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 6 }}>
+            <div style={{ display:'flex', alignItems:'center', gap: 6 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>문진 요약</div>
+              <button style={{ color: C.textMute }}><Icon name="note" size={14}/></button>
+            </div>
+            <button style={{
+              display:'flex', alignItems:'center', gap: 4,
+              height: 28, padding: '0 10px', borderRadius: 6,
+              border: `1px solid ${C.border}`, background: C.surface,
+              fontSize: 12, fontWeight: 600, color: C.textSub,
+            }}>
+              <Icon name="copy" size={12}/> 전체 복사
+            </button>
+          </div>
+
+          <SummaryRow label="Site">
+            <div style={{ display:'flex', gap: 6, alignItems:'center' }}>
+              <BodyDiagram/>
+              <BodyDiagram/>
+              <HeadDiagram/>
+              <HeadDiagram/>
+            </div>
+          </SummaryRow>
+
+          <SummaryRow label="C.C." copyable>상복부 통증</SummaryRow>
+          <SummaryRow label="Onset" copyable>3일 전 발생</SummaryRow>
+
+          <SummaryRow label="P.I." copyable>
+            <div>상복부 통증 (+, 쓰림/작열감, 더부룩함)</div>
+            <div>식사 연관 (+, 공복 시 악화 / 식후 완화)</div>
+            <div>속쓰림/신물 역류 (+)</div>
+            <div>구역감 (+), 구토 (-)</div>
+            <div>흑색변/토혈 (-)</div>
+            <div>NSAIDs 복용 (+)</div>
+          </SummaryRow>
+
+          <SummaryRow label="PHx." copyable>
+            <div>흡연 (+, 3년)</div>
+            <div>음주 (+, 1주일에 2번)</div>
+          </SummaryRow>
+
+          <SummaryRow label="etc." copyable>
+            기존 병원에서 약 3일치 처방받아 복용했으나 호전 없음
+          </SummaryRow>
+        </div>
+      </div>
+
+      {/* 진료녹음 바 */}
+      <div style={{
+        background: C.surface, borderTop: `1px solid ${C.border}`,
+        padding: '14px 24px', display:'flex', alignItems:'center', justifyContent:'space-between',
+      }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>진료녹음</div>
+        <button style={{
+          display:'flex', alignItems:'center', gap: 6,
+          height: 36, padding: '0 18px', borderRadius: 8,
+          background: C.primary, color: '#fff',
+          fontSize: 13.5, fontWeight: 600,
+        }}>
+          <Icon name="mic" size={15} color="#fff"/> 시작
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/* ───────── 우측 패널 — 템플릿/OCR ───────── */
+const CATEGORIES = [
+  '전체',
+  '즐겨찾기',
+  '시술·수술 및 검사 전 안내',
+  '시술·수술 및 검사 후 안내',
+  '질환관리법',
+  '검사 결과 확인 안내',
+  '복약 및 처방약 안내',
+  '정기 검진 및 추적관찰 일정',
+];
+const TEMPLATES = [
+  { name:'위내시경 검사 전 안내...', cat:'시술·수술 및 검사 전 안내', fav:false, sel:true },
+  { name:'대장내시경 검사 전 안내', cat:'시술·수술 및 검사 전 안내', fav:true,  sel:true },
+  { name:'캡슐내시경 검사 전 안내', cat:'시술·수술 및 검사 전 안내', fav:false, sel:false },
+  { name:'내시경 초음파 검사 전...', cat:'시술·수술 및 검사 전 안내', fav:false, sel:false },
+];
+
+function RightPanel() {
+  const [tab, setTab] = useState('template');
+  const [catIdx, setCatIdx] = useState(0);
+  const [items, setItems] = useState(TEMPLATES);
+  const [previewIdx, setPreviewIdx] = useState(0);
+
+  const toggleSel = (i) => setItems(items.map((it, idx) => idx === i ? { ...it, sel: !it.sel } : it));
+  const toggleFav = (i) => setItems(items.map((it, idx) => idx === i ? { ...it, fav: !it.fav } : it));
+
+  const selected = items.filter(it => it.sel);
+
+  return (
+    <section style={{
+      width: 560, background: C.surface, borderLeft: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', flexShrink: 0,
+    }}>
+      {/* 탭 */}
+      <div style={{ display:'flex', borderBottom: `1px solid ${C.border}`, padding: '0 20px' }}>
+        {[
+          { k:'ocr',      l:'환자 첨부 서류 (OCR)' },
+          { k:'template', l:'템플릿' },
+        ].map(t => {
+          const active = tab === t.k;
+          return (
+            <button key={t.k} onClick={() => setTab(t.k)} style={{
+              height: 50, padding: '0 18px',
+              fontSize: 14, fontWeight: active ? 700 : 500,
+              color: active ? C.text : C.textSub,
+              borderBottom: active ? `2px solid ${C.text}` : '2px solid transparent',
+            }}>{t.l}</button>
+          );
+        })}
+      </div>
+
+      {/* 검색 & 정렬 */}
+      <div style={{ display:'flex', alignItems:'center', gap: 10, padding: '14px 20px' }}>
+        <div style={{
+          flex: 1, display:'flex', alignItems:'center', gap: 8,
+          height: 36, padding: '0 12px', borderRadius: 8,
+          border: `1px solid ${C.border}`, background: '#FAFBFC',
+        }}>
+          <Icon name="search" size={15} color={C.textMute}/>
+          <input placeholder="사용하실 템플릿을 검색하세요" style={{
+            flex: 1, border: 'none', outline: 'none', background:'transparent',
+            fontSize: 13, color: C.text,
+          }}/>
+        </div>
+        <button style={{
+          display:'flex', alignItems:'center', gap: 4,
+          height: 36, padding: '0 10px', borderRadius: 8,
+          border: `1px solid ${C.border}`, background: C.surface,
+          fontSize: 13, color: C.text, fontWeight: 500,
+        }}>
+          최신순 <Icon name="chevD" size={13} color={C.textSub}/>
+        </button>
+      </div>
+
+      {/* 3-컬럼: 카테고리 / 템플릿 / 미리보기 */}
+      <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
+        {/* 카테고리 */}
+        <div className="scroll" style={{
+          width: 168, overflowY: 'auto',
+          borderRight: `1px solid ${C.borderSoft}`,
+          padding: '6px 0',
+        }}>
+          {CATEGORIES.map((c, i) => {
+            const active = i === catIdx;
+            return (
+              <button key={i} onClick={() => setCatIdx(i)} style={{
+                width:'100%', textAlign:'left',
+                padding: '10px 16px', fontSize: 13,
+                color: active ? C.text : C.textSub,
+                fontWeight: active ? 700 : 500,
+                background: active ? C.bg : 'transparent',
+                borderLeft: active ? `3px solid ${C.text}` : '3px solid transparent',
+              }}>{c}</button>
+            );
+          })}
+        </div>
+
+        {/* 템플릿 리스트 */}
+        <div className="scroll" style={{
+          width: 200, overflowY:'auto',
+          borderRight: `1px solid ${C.borderSoft}`,
+          padding: '10px',
+        }}>
+          {items.map((it, i) => {
+            const active = previewIdx === i;
+            return (
+              <div key={i}
+                onClick={() => setPreviewIdx(i)}
+                style={{
+                  background: active ? C.accentSoft : C.surface,
+                  border: `1.5px solid ${active ? C.accent : C.border}`,
+                  borderRadius: 10, padding: '10px 12px',
+                  marginBottom: 8, cursor: 'pointer',
+                }}>
+                <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+                  <button onClick={(e) => { e.stopPropagation(); toggleSel(i); }} style={{
+                    width: 16, height: 16, borderRadius: 4,
+                    background: it.sel ? C.accent : C.surface,
+                    border: `1.5px solid ${it.sel ? C.accent : '#C7CCD6'}`,
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    flexShrink: 0,
+                  }}>
+                    {it.sel && <Icon name="check" size={10} color="#fff"/>}
+                  </button>
+                  <div style={{
+                    flex: 1, fontSize: 12.5, fontWeight: 600, color: C.text,
+                    overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+                  }}>{it.name}</div>
+                  <button onClick={(e) => { e.stopPropagation(); toggleFav(i); }} style={{
+                    color: it.fav ? C.accent : '#C7CCD6', flexShrink: 0,
+                  }}>
+                    {it.fav ? <Icon name="starF"/> : <Icon name="star" size={15}/>}
+                  </button>
+                </div>
+                <div style={{ fontSize: 11, color: C.textMute, marginTop: 4, paddingLeft: 24 }}>
+                  시술·수술 및 검사 전 안내
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 미리보기 */}
+        <div className="scroll" style={{
+          flex: 1, minWidth: 0, overflowY:'auto', padding: '14px 16px',
+        }}>
+          <div style={{
+            display:'flex', alignItems:'center', justifyContent:'space-between',
+            marginBottom: 10,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+              미리보기 <span style={{ color: C.textSub, fontWeight: 500, fontSize: 12, marginLeft: 4 }}>1개 선택</span>
+            </div>
+            <button style={{
+              display:'flex', alignItems:'center', gap: 4,
+              fontSize: 12, color: C.primary, fontWeight: 600,
+            }}>
+              <Icon name="edit" size={12} color={C.primary}/> 수정
+            </button>
+          </div>
+          <div style={{
+            background: '#FAFBFC', borderRadius: 10,
+            border: `1px solid ${C.borderSoft}`, padding: '14px 16px',
+            fontSize: 12, color: C.text, lineHeight: 1.7,
+          }}>
+            <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>
+              위내시경 검사 전 안내
+            </div>
+            <div>
+              안녕하세요 #(name)님, 위내시경 검사는 식도, 위, 십이지장의 질환을 정확히 진단하고 필요한 경우 조직검사까지 가능한 검사입니다. 편안한 검사를 위해 아래 안내사항을 잘 따라주세요.
+            </div>
+            <div style={{ marginTop: 10, fontWeight: 700 }}>Q1. 검사 전 금식은 어떻게 하나요?</div>
+            <div>검사 전 최소 8시간 이상 금식이 필요합니다. 물도 포함하여 완전 금식해 주셔야 해요.</div>
+            <div style={{ marginTop: 8, fontWeight: 700 }}>Q2. 복용 중인 약은 어떻게 하나요?</div>
+            <div>고혈압약은 검사 당일 아침 소량의 물과 함께 복용 가능합니다. 항혈전, 당뇨약 등 다른 약들은 검사 전 반드시 의료진과 상담해 주세요.</div>
+            <div style={{ marginTop: 8, fontWeight: 700 }}>Q3. 수면내시경을 선택할 수 있나요?</div>
+            <div>네, 일반내시경과 수면내시경 중 선택 가능합니다. 수면내시경 선택 시 보호자 동반이 필수이며, 당일 운전은 금지됩니다.</div>
+          </div>
+        </div>
+      </div>
+
+      {/* 하단 액션 바 */}
+      <div style={{
+        borderTop: `1px solid ${C.border}`,
+        padding: '12px 20px',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+          <button style={{
+            display:'flex', alignItems:'center', gap: 4,
+            fontSize: 12.5, color: C.textSub, fontWeight: 500,
+            padding: '4px 6px',
+          }}>
+            <Icon name="refresh" size={13}/> 초기화
+          </button>
+          <div style={{ display:'flex', gap: 6, flexWrap:'wrap', flex:1 }}>
+            {selected.map((it, i) => (
+              <div key={i} style={{
+                display:'inline-flex', alignItems:'center', gap: 6,
+                height: 26, padding: '0 8px 0 10px',
+                borderRadius: 6, background: C.accentSoft,
+                fontSize: 12, color: C.text, fontWeight: 500,
+              }}>
+                {it.name.length > 12 ? it.name.slice(0, 11) + '…' : it.name}
+                <button onClick={() => toggleSel(items.indexOf(it))} style={{ color: C.textSub }}>
+                  <Icon name="x" size={11}/>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ display:'flex', gap: 8, marginTop: 10, justifyContent:'flex-end' }}>
+          <button style={{
+            height: 40, padding: '0 22px', borderRadius: 8,
+            border: `1px solid ${C.border}`, background: C.surface,
+            fontSize: 14, fontWeight: 600, color: C.text,
+          }}>진료 보류</button>
+          <button style={{
+            height: 40, padding: '0 28px', borderRadius: 8,
+            background: C.primary, color: '#fff',
+            fontSize: 14, fontWeight: 700,
+          }}>진료 저장</button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ───────── App ───────── */
+function App() {
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const patient = PATIENTS[selectedIdx];
+
+  return (
+    <div style={{ height:'100vh', display:'flex', flexDirection:'column' }}>
+      <Header/>
+      <div style={{ flex:1, display:'flex', minHeight: 0 }}>
+        <Sidebar/>
+        <PatientList selectedIdx={selectedIdx} setSelectedIdx={setSelectedIdx}/>
+        <CenterPanel patient={patient}/>
+        <RightPanel/>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
