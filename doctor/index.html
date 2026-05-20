@@ -1092,30 +1092,30 @@ function renderRich(text) {
   );
 }
 
-function FactorGroup({ dir, color, bg, label, items }) {
+function FactorColumn({ dir, color, label, items }) {
   return (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 6 }}>
-        <span style={{
-          display:'inline-flex', alignItems:'center', justifyContent:'center',
-          width: 18, height: 18, borderRadius: 4,
-          background: color, color: '#fff',
-        }}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" strokeWidth="2.4"
-               strokeLinecap="round" strokeLinejoin="round">
-            {dir === 'up'
-              ? <><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></>
-              : <><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></>}
-          </svg>
-        </span>
-        <div style={{ fontSize: 11.5, fontWeight: 800, color,
-                      letterSpacing: 0.4 }}>{label}</div>
+    <div style={{ flex: 1, padding: '10px 12px', minWidth: 0 }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 4, marginBottom: 8 }}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+             stroke={color} strokeWidth="3"
+             strokeLinecap="round" strokeLinejoin="round">
+          {dir === 'up'
+            ? <><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></>
+            : <><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></>}
+        </svg>
+        <div style={{
+          fontSize: 11, fontWeight: 800, color, letterSpacing: 0.6,
+          textTransform: 'uppercase',
+        }}>{label}</div>
       </div>
-      <ul style={{ margin: 0, padding: '0 0 0 18px',
-                   fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
-        {items.map((line, i) => (
-          <li key={i} style={{ marginBottom: 3 }}>{renderRich(line)}</li>
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+        {items.length === 0 ? (
+          <li style={{ fontSize: 12, color: C.textMute }}>—</li>
+        ) : items.map((line, i) => (
+          <li key={i} style={{
+            fontSize: 12.5, color: C.text, lineHeight: 1.55,
+            marginBottom: 3,
+          }}>{renderRich(line)}</li>
         ))}
       </ul>
     </div>
@@ -1199,36 +1199,26 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
         </div>
       )}
 
-      {/* AI 분석 — 스코어 상승/하강 인자로 분류 */}
+      {/* AI 분석 — 스코어 상승/하강 인자 2 컬럼 */}
       {analysis && (
-        <div style={{
-          padding: '12px 14px',
-          background: C.bg, borderRadius: 10,
-          border: `1px solid ${C.borderSoft}`,
-          marginBottom: 10,
-        }}>
-          <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 8 }}>
-            <span style={{
-              display:'inline-flex', alignItems:'center', height: 18,
-              padding: '0 6px', borderRadius: 3,
-              background: C.accentSoft, color: C.accent,
-              fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
-            }}>AI</span>
-            <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>스코어 산출 근거</div>
+        <div style={{ marginBottom: 10 }}>
+          <div style={{
+            fontSize: 10, fontWeight: 800, color: C.textMute,
+            letterSpacing: 1.4, textTransform: 'uppercase',
+            marginBottom: 6,
+          }}>
+            AI · 스코어 산출 근거
           </div>
-
-          {analysis.up && analysis.up.length > 0 && (
-            <FactorGroup
-              dir="up" color="#D63A3A" bg="#FBE6E6"
-              label="스코어 상승 인자"
-              items={analysis.up}/>
-          )}
-          {analysis.down && analysis.down.length > 0 && (
-            <FactorGroup
-              dir="down" color="#16A769" bg="#E7F6EE"
-              label="스코어 하강 인자"
-              items={analysis.down}/>
-          )}
+          <div style={{
+            background: '#FAFBFC',
+            border: `1px solid ${C.borderSoft}`,
+            borderRadius: 10,
+            display: 'flex',
+          }}>
+            <FactorColumn dir="up"   color="#D63A3A" label="상승 인자" items={analysis.up || []}/>
+            <div style={{ width: 1, background: C.borderSoft }}/>
+            <FactorColumn dir="down" color="#16A769" label="하강 인자" items={analysis.down || []}/>
+          </div>
         </div>
       )}
 
