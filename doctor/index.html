@@ -171,18 +171,22 @@ const Icon = ({ name, size = 22, color = 'currentColor' }) => {
     case 'inbox':return (<svg {...props}><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 6h13a1 1 0 0 1 .9.6L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6L4.6 6.6A1 1 0 0 1 5.5 6z"/></svg>);
     case 'expand': return (
       <svg {...props}>
-        <path d="M4 10V4h6"/>
-        <path d="M20 10V4h-6"/>
-        <path d="M4 14v6h6"/>
-        <path d="M20 14v6h-6"/>
+        {/* 우상단 대각선 화살표 (밖으로) */}
+        <path d="M14 10L20 4"/>
+        <path d="M15 4h5v5"/>
+        {/* 좌하단 대각선 화살표 (밖으로) */}
+        <path d="M10 14L4 20"/>
+        <path d="M9 20H4v-5"/>
       </svg>
     );
     case 'collapse': return (
       <svg {...props}>
-        <path d="M10 4v6H4"/>
-        <path d="M14 4v6h6"/>
-        <path d="M10 20v-6H4"/>
-        <path d="M14 20v-6h6"/>
+        {/* 우상단 → 안쪽으로 향하는 화살표 */}
+        <path d="M20 4L14 10"/>
+        <path d="M14 5v5h5"/>
+        {/* 좌하단 → 안쪽으로 향하는 화살표 */}
+        <path d="M4 20L10 14"/>
+        <path d="M10 19v-5H5"/>
       </svg>
     );
     default: return null;
