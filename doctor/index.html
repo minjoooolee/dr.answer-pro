@@ -1670,6 +1670,44 @@ function PlanPreviewModal({ plan, onClose }) {
   );
 }
 
+function ExportConfirmModal({ onClose }) {
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.45)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 110,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 400, maxWidth:'92vw',
+        background: C.surface, borderRadius: 16, padding: 26,
+        boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+        textAlign:'center',
+      }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 28,
+          background: C.accentSoft, color: C.accent,
+          display:'flex', alignItems:'center', justifyContent:'center',
+          margin: '4px auto 16px',
+        }}>
+          <Icon name="check" size={26}/>
+        </div>
+        <div style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 8 }}>
+          환자 앱으로 전송 완료
+        </div>
+        <div style={{ fontSize: 13.5, color: C.textSub, lineHeight: 1.6, marginBottom: 22 }}>
+          처방하신 값으로 환자 앱의 에이전트가 구동됩니다.
+        </div>
+        <button onClick={onClose} style={{
+          width:'100%', height: 44, borderRadius: 10,
+          background: C.primary, color: '#fff',
+          fontSize: 14, fontWeight: 700,
+        }}>
+          확인
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function PlanPanel({ plan, setPlan }) {
   const [section, setSection] = useState('all');
 
@@ -1738,6 +1776,7 @@ function RightPanel({ patient }) {
   const [tab, setTab] = useState('emr');               // 'emr' | 'plan'
   const [plan, setPlan] = useState(DEFAULT_PLAN);
   const [showPreview, setShowPreview] = useState(false);
+  const [showExported, setShowExported] = useState(false);
 
   return (
     <section style={{
@@ -1780,7 +1819,7 @@ function RightPanel({ patient }) {
             <Icon name="note" size={14} color={C.text}/> 미리보기
           </button>
         )}
-        <button style={{
+        <button onClick={() => setShowExported(true)} style={{
           display:'flex', alignItems:'center', gap: 8,
           height: 42, padding: '0 24px', borderRadius: 8,
           background: C.primary, color: '#fff',
@@ -1792,6 +1831,9 @@ function RightPanel({ patient }) {
 
       {showPreview && (
         <PlanPreviewModal plan={plan} onClose={() => setShowPreview(false)}/>
+      )}
+      {showExported && (
+        <ExportConfirmModal onClose={() => setShowExported(false)}/>
       )}
     </section>
   );
