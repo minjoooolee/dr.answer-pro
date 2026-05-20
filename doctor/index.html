@@ -169,6 +169,22 @@ const Icon = ({ name, size = 22, color = 'currentColor' }) => {
     case 'note': return (<svg {...props}><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/></svg>);
     case 'send': return (<svg {...props}><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>);
     case 'inbox':return (<svg {...props}><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 6h13a1 1 0 0 1 .9.6L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6L4.6 6.6A1 1 0 0 1 5.5 6z"/></svg>);
+    case 'expand': return (
+      <svg {...props}>
+        <path d="M4 10V4h6"/>
+        <path d="M20 10V4h-6"/>
+        <path d="M4 14v6h6"/>
+        <path d="M20 14v6h-6"/>
+      </svg>
+    );
+    case 'collapse': return (
+      <svg {...props}>
+        <path d="M10 4v6H4"/>
+        <path d="M14 4v6h6"/>
+        <path d="M10 20v-6H4"/>
+        <path d="M14 20v-6h6"/>
+      </svg>
+    );
     default: return null;
   }
 };
@@ -414,7 +430,7 @@ function SummaryRow({ label, copyable, children, valueStyle }) {
 }
 
 /* ───────── 환자 재택 관리 경과 보고 카드 ───────── */
-function HomeReportCard() {
+function HomeReportCard({ collapsed, active, onToggle }) {
   const [status, setStatus] = useState('none');     // 'none' | 'sent'
   const [code, setCode] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -431,6 +447,37 @@ function HomeReportCard() {
   };
   const sent = status === 'sent';
 
+  const toggleBtn = (
+    <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+      style={{ color: C.textSub, padding: 4, display:'flex' }}>
+      <Icon name={active ? 'collapse' : 'expand'} size={16}/>
+    </button>
+  );
+
+  // 접힌 상태 (다른 패널이 expanded) — 헤더 바만
+  if (collapsed) {
+    return (
+      <>
+        <div onClick={onToggle} style={{
+          background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+          padding: '12px 18px', flexShrink: 0, cursor: 'pointer',
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
+            환자 재택 관리 경과 보고
+          </div>
+          <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+            style={{ color: C.textSub, padding: 4, display:'flex' }}>
+            <Icon name="expand" size={16}/>
+          </button>
+        </div>
+        {showModal && (
+          <SendCodeModal code={code} onClose={() => setShowModal(false)} onConfirm={onConfirmSend}/>
+        )}
+      </>
+    );
+  }
+
   return (
     <div style={{ flex: 1, minHeight: 0, display:'flex', flexDirection:'column' }}>
       <div style={{
@@ -439,8 +486,11 @@ function HomeReportCard() {
         border: `1px solid ${C.border}`, padding: '16px 20px',
         display:'flex', flexDirection:'column',
       }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 6 }}>
-          환자 재택 관리 경과 보고
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 6 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>
+            환자 재택 관리 경과 보고
+          </div>
+          {toggleBtn}
         </div>
         <div style={{
           flex: 1, display:'flex', flexDirection:'column',
@@ -570,8 +620,8 @@ function SendCodeModal({ code, onClose, onConfirm }) {
 
 /* ───────── 재발률 예측 스코어 카드 (꺾은선 그래프) ───────── */
 function RecurrenceChart({ points }) {
-  const W = 560, H = 240;
-  const PAD = { top: 20, right: 28, bottom: 36, left: 40 };
+  const W = 560, H = 130;
+  const PAD = { top: 12, right: 24, bottom: 24, left: 36 };
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
   const yMax = 100;
@@ -633,16 +683,12 @@ function RiskBadge({ score }) {
   );
 }
 
-function RecurrenceCard({ points, analysis }) {
+function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
   const latest = points[points.length - 1];
 
-  return (
-    <div style={{
-      flex: 1, minHeight: 0,
-      background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
-      padding: '16px 20px', display:'flex', flexDirection:'column',
-    }}>
-      <div style={{ display:'flex', alignItems:'center', gap: 8, marginBottom: 6 }}>
+  const titleRow = (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 6 }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
         <span style={{
           display:'inline-flex', alignItems:'center', height: 20,
@@ -651,9 +697,48 @@ function RecurrenceCard({ points, analysis }) {
           fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
         }}>AI</span>
       </div>
+      <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+        style={{ color: C.textSub, padding: 4, display:'flex' }}>
+        <Icon name={active ? 'collapse' : 'expand'} size={16}/>
+      </button>
+    </div>
+  );
+
+  // 접힌 상태 — 헤더 바만
+  if (collapsed) {
+    return (
+      <div onClick={onToggle} style={{
+        background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+        padding: '12px 18px', flexShrink: 0, cursor: 'pointer',
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
+          <span style={{
+            display:'inline-flex', alignItems:'center', height: 20,
+            padding: '0 8px', borderRadius: 4,
+            background: C.accentSoft, color: C.accent,
+            fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
+          }}>AI</span>
+        </div>
+        <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          style={{ color: C.textSub, padding: 4, display:'flex' }}>
+          <Icon name="expand" size={16}/>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      flex: 1, minHeight: 0,
+      background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+      padding: '16px 20px', display:'flex', flexDirection:'column',
+    }}>
+      {titleRow}
 
       {latest && (
-        <div style={{ display:'flex', alignItems:'baseline', gap: 10, padding: '4px 0 8px' }}>
+        <div style={{ display:'flex', alignItems:'baseline', gap: 10, padding: '2px 0 10px' }}>
           <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1 }}>{latest.score}</div>
           <div style={{ fontSize: 12, color: C.textSub }}>/ 100</div>
           <RiskBadge score={latest.score}/>
@@ -663,37 +748,40 @@ function RecurrenceCard({ points, analysis }) {
         </div>
       )}
 
-      {/* 꺾은선 그래프 */}
-      <div className="scroll" style={{ overflow:'auto', maxHeight: '100%' }}>
-        <RecurrenceChart points={points}/>
-
-        {/* AI 분석 — 점수 산출 근거 */}
-        {analysis && (
-          <div style={{
-            marginTop: 10, padding: '12px 14px',
-            background: C.bg, borderRadius: 10,
-            border: `1px solid ${C.borderSoft}`,
-          }}>
-            <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 6 }}>
-              <span style={{
-                display:'inline-flex', alignItems:'center', height: 18,
-                padding: '0 6px', borderRadius: 3,
-                background: C.accentSoft, color: C.accent,
-                fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
-              }}>AI</span>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>스코어 산출 근거</div>
-            </div>
-            <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
-              {analysis.map((line, i) => <li key={i}>{line}</li>)}
-            </ul>
+      {/* AI 분석 — 위로 올라옴, 더 잘 보이게 */}
+      {analysis && (
+        <div style={{
+          padding: '12px 14px',
+          background: C.bg, borderRadius: 10,
+          border: `1px solid ${C.borderSoft}`,
+          marginBottom: 10,
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 6 }}>
+            <span style={{
+              display:'inline-flex', alignItems:'center', height: 18,
+              padding: '0 6px', borderRadius: 3,
+              background: C.accentSoft, color: C.accent,
+              fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
+            }}>AI</span>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>스코어 산출 근거</div>
           </div>
-        )}
+          <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12.5, color: C.text, lineHeight: 1.7 }}>
+            {analysis.map((line, i) => <li key={i} style={{ marginBottom: 2 }}>{line}</li>)}
+          </ul>
+        </div>
+      )}
+
+      {/* 꺾은선 그래프 — 세로로 컴팩트 */}
+      <div className="scroll" style={{ flex: 1, minHeight: 0, overflow:'auto' }}>
+        <RecurrenceChart points={points}/>
       </div>
     </div>
   );
 }
 
 function CenterPanel({ patient }) {
+  const [activePanel, setActivePanel] = useState(null); // null | 'report' | 'recurrence'
+  const toggle = (p) => setActivePanel(prev => prev === p ? null : p);
   return (
     <section style={{
       flex: 1, minWidth: 0,
@@ -720,8 +808,15 @@ function CenterPanel({ patient }) {
         </button>
       </div>
 
-      <HomeReportCard/>
+      <HomeReportCard
+        collapsed={activePanel === 'recurrence'}
+        active={activePanel === 'report'}
+        onToggle={() => toggle('report')}
+      />
       <RecurrenceCard
+        collapsed={activePanel === 'report'}
+        active={activePanel === 'recurrence'}
+        onToggle={() => toggle('recurrence')}
         points={patient.recurrence || []}
         analysis={patient.analysis}
       />
