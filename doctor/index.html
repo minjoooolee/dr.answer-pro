@@ -1746,7 +1746,7 @@ function ExportConfirmModal({ onClose }) {
           <Icon name="check" size={26}/>
         </div>
         <div style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 8 }}>
-          환자 앱으로 전송 완료
+          에이전트 내보내기 완료
         </div>
         <div style={{ fontSize: 13.5, color: C.textSub, lineHeight: 1.6, marginBottom: 22 }}>
           처방하신 값으로 환자 앱의 에이전트가 구동됩니다.
@@ -1843,7 +1843,7 @@ function RightPanel({ patient }) {
       <div style={{ display:'flex', borderBottom: `1px solid ${C.border}`, padding: '0 20px' }}>
         {[
           { k:'emr',  l:'환자 치료 정보 (EMR)' },
-          { k:'plan', l:'재택 관리 플랜 생성' },
+          { k:'plan', l:'재택 관리 플랜 생성 (Agent-builder)' },
         ].map(t => {
           const active = tab === t.k;
           return (
@@ -1880,7 +1880,7 @@ function RightPanel({ patient }) {
           background: C.primary, color: '#fff',
           fontSize: 14, fontWeight: 700,
         }}>
-          <Icon name="send" size={14} color="#fff"/> 환자 앱으로 내보내기
+          <Icon name="send" size={14} color="#fff"/> 에이전트 내보내기
         </button>
       </div>
 
