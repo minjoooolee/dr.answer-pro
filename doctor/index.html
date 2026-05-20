@@ -524,7 +524,7 @@ function HomeReportCard({ collapsed, active, onToggle }) {
   const toggleBtn = (
     <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
       style={{ color: C.textSub, padding: 4, display:'flex' }}>
-      <Icon name={active ? 'collapse' : 'expand'} size={16}/>
+      <Icon name={active ? 'collapse' : 'expand'} size={13}/>
     </button>
   );
 
@@ -542,7 +542,7 @@ function HomeReportCard({ collapsed, active, onToggle }) {
           </div>
           <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
             style={{ color: C.textSub, padding: 4, display:'flex' }}>
-            <Icon name="expand" size={16}/>
+            <Icon name="expand" size={13}/>
           </button>
         </div>
         {showModal && (
@@ -773,7 +773,7 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
       </div>
       <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
         style={{ color: C.textSub, padding: 4, display:'flex' }}>
-        <Icon name={active ? 'collapse' : 'expand'} size={16}/>
+        <Icon name={active ? 'collapse' : 'expand'} size={13}/>
       </button>
     </div>
   );
@@ -797,7 +797,7 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
         </div>
         <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
           style={{ color: C.textSub, padding: 4, display:'flex' }}>
-          <Icon name="expand" size={16}/>
+          <Icon name="expand" size={13}/>
         </button>
       </div>
     );
