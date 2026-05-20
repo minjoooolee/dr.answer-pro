@@ -35,26 +35,26 @@
 <script type="text/babel">
 const { useState } = React;
 
-/* ───────── 색상 토큰 ───────── */
+/* ───────── 색상 토큰 (reference mock 매칭) ───────── */
 const C = {
-  bg:        '#F4F6F8',
+  bg:        '#F5F6F8',
   surface:   '#FFFFFF',
-  border:    '#E6E9EF',
-  borderSoft:'#EEF1F5',
-  text:      '#1B1F27',
-  textSub:   '#6B7280',
-  textMute:  '#9AA1AE',
-  primary:   '#2F3DDB',     // 진료 저장 navy/blue
-  primarySoft:'#EEF0FF',
-  accent:    '#5468FF',     // selected card
+  border:    '#E8EAEF',
+  borderSoft:'#F0F2F5',
+  text:      '#1A1D26',
+  textSub:   '#6E7280',
+  textMute:  '#A0A6B1',
+  primary:   '#1E1F4B',      // 진료 저장 — 거의 검정에 가까운 짙은 네이비
+  primarySoft:'#EDEFFB',
+  accent:    '#4F5BE0',      // 선택/하이라이트 인디고
   accentSoft:'#EEF1FF',
-  green:     '#1FB57A',
-  greenSoft: '#E4F6EE',
-  blue:      '#3D6BFF',
-  blueSoft:  '#E6ECFF',
-  gray:      '#6B7280',
+  green:     '#1FB87A',
+  greenSoft: '#E7F6EE',
+  blue:      '#4F5BE0',
+  blueSoft:  '#E6EAFE',
+  gray:      '#6E7280',
   graySoft:  '#EEF0F3',
-  dark:      '#2A2F3D',
+  dark:      '#22253A',      // 진료보류 배지 색
 };
 
 /* ───────── 아이콘 (사이드바 등) ───────── */
@@ -89,13 +89,11 @@ const Icon = ({ name, size = 22, color = 'currentColor' }) => {
 /* ───────── 로고 ───────── */
 const Logo = () => (
   <div style={{
-    width: 60, height: 60, background: '#1F2937',
+    width: 72, height: 60, background: '#1E1F4B',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: '#fff', fontWeight: 800, fontSize: 11, letterSpacing: 0.3,
-    flexDirection: 'column', lineHeight: 1.05,
+    color: '#fff', fontWeight: 800, letterSpacing: 0.2,
   }}>
-    <div style={{ fontSize: 13, fontWeight: 800 }}>V.Doc</div>
-    <div style={{ fontSize: 9, opacity: 0.7, marginTop: 1 }}>ai</div>
+    <div style={{ fontSize: 13, fontWeight: 800 }}>닥터앤서</div>
   </div>
 );
 
@@ -181,14 +179,15 @@ function Sidebar() {
 
 /* ───────── 환자 카드 & 환자 목록 ───────── */
 const STATUS_STYLES = {
-  '진료중':       { bg:'#5468FF', fg:'#fff' },
-  '문진중':       { bg:'#5468FF', fg:'#fff' },
-  '문진완료':     { bg:'#E6ECFF', fg:'#3D55E8' },
-  '도착':         { bg:'#E4F6EE', fg:'#1FB57A' },
-  '분석중':       { bg:'#E4F6EE', fg:'#1FB57A' },
-  '대기':         { bg:'#EEF0F3', fg:'#6B7280' },
-  '진료보류':     { bg:'#2A2F3D', fg:'#fff' },
-  '템플릿 발송 완료': { bg:'#EEF0F3', fg:'#6B7280' },
+  '진료중':       { bg:'#4F5BE0', fg:'#fff' },
+  '문진중':       { bg:'#4F5BE0', fg:'#fff' },
+  '문진완료':     { bg:'#E6EAFE', fg:'#3742C5' },
+  '문진생략':     { bg:'#EEF0F3', fg:'#6E7280' },
+  '도착':         { bg:'#E7F6EE', fg:'#16A769' },
+  '분석중':       { bg:'#E7F6EE', fg:'#16A769' },
+  '대기':         { bg:'#EEF0F3', fg:'#6E7280' },
+  '진료보류':     { bg:'#22253A', fg:'#fff' },
+  '템플릿 발송 완료': { bg:'#EEF0F3', fg:'#6E7280' },
 };
 function StatusBadge({ label }) {
   const s = STATUS_STYLES[label] || { bg: C.graySoft, fg: C.gray };
