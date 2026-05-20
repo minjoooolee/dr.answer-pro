@@ -772,11 +772,11 @@ function RecurrenceChart({ points }) {
   );
 }
 
-/* "**critical**" 마커를 굵게 강조해서 렌더링 */
-function renderRich(text, color) {
+/* "**critical**" 마커를 굵게 강조해서 렌더링 (블랙 + 볼드) */
+function renderRich(text) {
   return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
     p.startsWith('**') && p.endsWith('**')
-      ? <strong key={i} style={{ fontWeight: 800, color: color || C.accent }}>{p.slice(2, -2)}</strong>
+      ? <strong key={i} style={{ fontWeight: 800, color: C.text }}>{p.slice(2, -2)}</strong>
       : <React.Fragment key={i}>{p}</React.Fragment>
   );
 }
@@ -804,7 +804,7 @@ function FactorGroup({ dir, color, bg, label, items }) {
       <ul style={{ margin: 0, padding: '0 0 0 18px',
                    fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
         {items.map((line, i) => (
-          <li key={i} style={{ marginBottom: 3 }}>{renderRich(line, color)}</li>
+          <li key={i} style={{ marginBottom: 3 }}>{renderRich(line)}</li>
         ))}
       </ul>
     </div>
