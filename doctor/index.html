@@ -326,12 +326,17 @@ function PatientCard({ p, selected, onClick }) {
 
 /* ── 김류아 (퇴원 시점) ── */
 const SAMPLE_RECURRENCE = [{ date:'2026.03.25', score: 24, note:'퇴원' }];
-const SAMPLE_ANALYSIS = [
-  '병기 결장암 **stage IIIa (pT3N1aM0)** — 영상 검사상 **원격 전이 없음**',
-  '복강경 우측 결장 절제술 시행 (2025.11.15) — 절제연 음성, **림프절 24개 중 1개 양성**',
-  '술 후 합병증 없이 회복 경과 양호',
-  '**FOLFOX 보조 화학요법 6 회차 완료** (2026.02.28) — 큰 이상반응 없이 종료',
-];
+const SAMPLE_ANALYSIS = {
+  up: [
+    '병기 결장암 stage IIIa (pT3N1aM0) — N1: **림프절 24개 중 1개 양성**',
+  ],
+  down: [
+    '영상 검사상 **원격 전이 없음** (M0)',
+    '복강경 우측 결장 절제술 — **절제연 음성**, 술 후 합병증 없음',
+    '**FOLFOX 보조 화학요법 6 회차 완료** (2026.02.28) — 큰 이상반응 없이 종료',
+    '회복 경과 양호, 영양 상태 정상',
+  ],
+};
 const SAMPLE_EMR = {
   basic: {
     age:    '만 32세',
@@ -374,15 +379,20 @@ const SAMPLE_RECURRENCE_LONG = [
   { date:'2026.02.15', score: 32, note:'외래' },
   { date:'2026.04.15', score: 38, note:'재진' },
 ];
-const SAMPLE_ANALYSIS_LONG = [
-  '병기 결장암 **stage IIIc (T4N2M0)**, 영상 검사상 원격 전이 없음',
-  '근치적 절제술 후 FOLFOX 보조 화학요법 12 회차 완료 (2025.05)',
-  '현재 추적 관찰 단계 — 2개월 간격 외래 방문 중',
-  '재택 PRO 7일 평균: 통증 2.1/10, **변비 빈도 증가**, 식이 순응도 보통',
-  '**응급상황 발생 1 회** (지난 2개월 — 경도 복통, 자가 호전)',
-  '웨어러블 활동량: 일평균 3,200 보 / 중강도 운동 **주 0.8h — 권장치 미달**',
-  '**직전 평가 대비 스코어 32 → 38**, 추이 재평가 및 생활 습관 강화 필요',
-];
+const SAMPLE_ANALYSIS_LONG = {
+  up: [
+    '병기 결장암 **stage IIIc (T4N2M0)** — 진단 시 T4N2 진행성 병변',
+    '재택 PRO 7일 평균: **변비 빈도 증가**, 식이 순응도 보통',
+    '**응급상황 발생 1 회** (지난 2개월 — 경도 복통, 자가 호전)',
+    '웨어러블 활동량 일평균 3,200 보 / **중강도 운동 주 0.8h — 권장치 미달**',
+    '**직전 평가 대비 스코어 32 → 38**, 추이 재평가 필요',
+  ],
+  down: [
+    '영상 검사상 **원격 전이 없음** (M0)',
+    'FOLFOX 보조 화학요법 **12 회차 완료** (2025.05) — 완주 성공',
+    '추적 관찰에 적극 참여 — 2개월 간격 외래 방문 유지',
+  ],
+};
 const SAMPLE_EMR_LONG = {
   basic: {
     age:    '만 68세',
@@ -763,11 +773,41 @@ function RecurrenceChart({ points }) {
 }
 
 /* "**critical**" 마커를 굵게 강조해서 렌더링 */
-function renderRich(text) {
+function renderRich(text, color) {
   return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
     p.startsWith('**') && p.endsWith('**')
-      ? <strong key={i} style={{ fontWeight: 800, color: C.accent }}>{p.slice(2, -2)}</strong>
+      ? <strong key={i} style={{ fontWeight: 800, color: color || C.accent }}>{p.slice(2, -2)}</strong>
       : <React.Fragment key={i}>{p}</React.Fragment>
+  );
+}
+
+function FactorGroup({ dir, color, bg, label, items }) {
+  return (
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 6 }}>
+        <span style={{
+          display:'inline-flex', alignItems:'center', justifyContent:'center',
+          width: 18, height: 18, borderRadius: 4,
+          background: color, color: '#fff',
+        }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" strokeWidth="2.4"
+               strokeLinecap="round" strokeLinejoin="round">
+            {dir === 'up'
+              ? <><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></>
+              : <><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></>}
+          </svg>
+        </span>
+        <div style={{ fontSize: 11.5, fontWeight: 800, color,
+                      letterSpacing: 0.4 }}>{label}</div>
+      </div>
+      <ul style={{ margin: 0, padding: '0 0 0 18px',
+                   fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
+        {items.map((line, i) => (
+          <li key={i} style={{ marginBottom: 3 }}>{renderRich(line, color)}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -848,7 +888,7 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
         </div>
       )}
 
-      {/* AI 분석 — 위로 올라옴, 더 잘 보이게 */}
+      {/* AI 분석 — 스코어 상승/하강 인자로 분류 */}
       {analysis && (
         <div style={{
           padding: '12px 14px',
@@ -856,7 +896,7 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
           border: `1px solid ${C.borderSoft}`,
           marginBottom: 10,
         }}>
-          <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 6 }}>
+          <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 8 }}>
             <span style={{
               display:'inline-flex', alignItems:'center', height: 18,
               padding: '0 6px', borderRadius: 3,
@@ -865,9 +905,19 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
             }}>AI</span>
             <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>스코어 산출 근거</div>
           </div>
-          <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12.5, color: C.text, lineHeight: 1.7 }}>
-            {analysis.map((line, i) => <li key={i} style={{ marginBottom: 2 }}>{renderRich(line)}</li>)}
-          </ul>
+
+          {analysis.up && analysis.up.length > 0 && (
+            <FactorGroup
+              dir="up" color="#D63A3A" bg="#FBE6E6"
+              label="스코어 상승 인자"
+              items={analysis.up}/>
+          )}
+          {analysis.down && analysis.down.length > 0 && (
+            <FactorGroup
+              dir="down" color="#16A769" bg="#E7F6EE"
+              label="스코어 하강 인자"
+              items={analysis.down}/>
+          )}
         </div>
       )}
 
