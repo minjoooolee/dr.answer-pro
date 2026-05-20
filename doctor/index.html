@@ -427,11 +427,62 @@ const SAMPLE_EMR_LONG = {
   },
 };
 
+/* ── 이서준의 재택 관리 경과 데이터 ── */
+const SAMPLE_HOME_REPORT_LONG = {
+  ai: [
+    '지난 2개월간 통증 NRS 평균 **2.1**로 안정적이나 **변비 빈도 증가** 추세',
+    '신체 활동량 일평균 **3,200 보** — 권장치 (5,000보) 미달',
+    '체중 **-1.2 kg 감소** (66.2 → 65.0 kg)',
+    '식이 순응도 보통 — **가공식품 섭취 빈도 권장치 초과**',
+    '**응급상황 1 회 발생** (2026.03.18 경도 복통, 자가 호전)',
+    '재발률 예측 스코어 **32 → 38 상승**, 생활 습관 강화 권고',
+  ],
+  symptoms: [
+    { date:'2026.04.10', symptom:'변비', severity:'중', action:'고섬유 식이 권장',    resolved:'지속 관찰' },
+    { date:'2026.03.28', symptom:'피로', severity:'경', action:'휴식 권장',           resolved:'호전' },
+    { date:'2026.03.18', symptom:'복통', severity:'중', action:'진통제 자가 복용',    resolved:'자가 호전' },
+    { date:'2026.02.22', symptom:'설사', severity:'경', action:'수분 보충',           resolved:'호전' },
+    { date:'2026.01.14', symptom:'손발 저림', severity:'경', action:'경과 관찰',     resolved:'호전' },
+  ],
+  pro: [
+    { date:'2026.04.14', pain:2, nausea:0, diarrhea:0, constipation:3, fatigue:2 },
+    { date:'2026.04.13', pain:2, nausea:0, diarrhea:0, constipation:3, fatigue:1 },
+    { date:'2026.04.12', pain:1, nausea:0, diarrhea:0, constipation:2, fatigue:2 },
+    { date:'2026.04.11', pain:3, nausea:1, diarrhea:0, constipation:3, fatigue:2 },
+    { date:'2026.04.10', pain:2, nausea:0, diarrhea:0, constipation:4, fatigue:2 },
+    { date:'2026.04.09', pain:1, nausea:0, diarrhea:0, constipation:2, fatigue:1 },
+    { date:'2026.04.08', pain:2, nausea:0, diarrhea:0, constipation:3, fatigue:2 },
+  ],
+  weight: [
+    { month:'2025.09', avg:66.5, change: 0    },
+    { month:'2025.10', avg:66.3, change:-0.2 },
+    { month:'2025.11', avg:66.0, change:-0.3 },
+    { month:'2025.12', avg:65.8, change:-0.2 },
+    { month:'2026.01', avg:65.5, change:-0.3 },
+    { month:'2026.02', avg:65.3, change:-0.2 },
+    { month:'2026.03', avg:65.1, change:-0.2 },
+    { month:'2026.04', avg:65.0, change:-0.1 },
+  ],
+  diet: [
+    { month:'2026.04', compliance:72, fruitsVeg:'4.2 srv/일', processed:'주 3.1 회', water:'1.7 L/일', note:'가공식품 권장치 초과' },
+    { month:'2026.03', compliance:74, fruitsVeg:'4.4 srv/일', processed:'주 2.8 회', water:'1.8 L/일', note:'' },
+    { month:'2026.02', compliance:70, fruitsVeg:'3.9 srv/일', processed:'주 3.5 회', water:'1.6 L/일', note:'명절 식이 일탈' },
+    { month:'2026.01', compliance:75, fruitsVeg:'4.5 srv/일', processed:'주 2.6 회', water:'1.9 L/일', note:'' },
+  ],
+  exercise: [
+    { month:'2026.04', steps:3200, intensity:'주 0.8h', sessions:'주 2 회', note:'권장치 미달' },
+    { month:'2026.03', steps:3450, intensity:'주 1.2h', sessions:'주 3 회', note:'' },
+    { month:'2026.02', steps:3100, intensity:'주 0.9h', sessions:'주 2 회', note:'' },
+    { month:'2026.01', steps:2900, intensity:'주 0.7h', sessions:'주 2 회', note:'한파로 외출 감소' },
+  ],
+};
+
 const PATIENTS = [
   { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중'],
     recurrence: SAMPLE_RECURRENCE, analysis: SAMPLE_ANALYSIS, emr: SAMPLE_EMR },
   { name:'이서준', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
-    recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG, emr: SAMPLE_EMR_LONG },
+    recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG,
+    emr: SAMPLE_EMR_LONG, homeReport: SAMPLE_HOME_REPORT_LONG },
   { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
   { name:'이수현', id:'780922', gender:'F', age:47, time:'09:03', tags:['대기'],     recurrence: [] },
   { name:'김민재', id:'840218', gender:'M', age:41, time:'09:03', tags:['진료보류'], recurrence: [] },
@@ -531,10 +582,157 @@ function SummaryRow({ label, copyable, children, valueStyle }) {
 }
 
 /* ───────── 환자 재택 관리 경과 보고 카드 ───────── */
-function HomeReportCard({ collapsed, active, onToggle }) {
-  const [status, setStatus] = useState('none');     // 'none' | 'sent'
+const HOME_REPORT_SECTIONS = [
+  { k:'ai',       l:'AI 요약' },
+  { k:'symptoms', l:'이상증세 보고' },
+  { k:'pro',      l:'일자별 PRO 점수표' },
+  { k:'weight',   l:'체중 월간 요약' },
+  { k:'diet',     l:'식단 월간 요약' },
+  { k:'exercise', l:'운동 월간 요약' },
+];
+
+const SEVERITY_STYLE = {
+  '경': { bg: '#E7F6EE', fg: '#16A769' },
+  '중': { bg: '#FFF1DC', fg: '#D08221' },
+  '중증': { bg: '#FBE6E6', fg: '#D63A3A' },
+};
+
+function ReportTable({ head, rows }) {
+  return (
+    <div style={{ overflowX:'auto' }}>
+      <table style={{ width:'100%', borderCollapse:'collapse', fontSize: 12.5 }}>
+        <thead>
+          <tr>
+            {head.map((h, i) => (
+              <th key={i} style={{
+                textAlign:'left', padding:'8px 10px',
+                background: '#FAFBFC', color: C.textSub,
+                fontWeight: 700, fontSize: 11.5,
+                borderBottom: `1px solid ${C.border}`,
+                whiteSpace:'nowrap',
+              }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((cells, i) => (
+            <tr key={i}>
+              {cells.map((c, j) => (
+                <td key={j} style={{
+                  padding:'8px 10px', color: C.text,
+                  borderBottom: i === rows.length - 1 ? 'none' : `1px solid ${C.borderSoft}`,
+                  whiteSpace:'nowrap',
+                }}>{c}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ReportAi({ items }) {
+  return (
+    <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 13, color: C.text, lineHeight: 1.75 }}>
+      {items.map((line, i) => <li key={i} style={{ marginBottom: 4 }}>{renderRich(line)}</li>)}
+    </ul>
+  );
+}
+function ReportSymptoms({ items }) {
+  return (
+    <ReportTable
+      head={['날짜', '증상', '강도', '조치', '결과']}
+      rows={items.map(it => {
+        const s = SEVERITY_STYLE[it.severity] || { bg: C.graySoft, fg: C.textSub };
+        return [
+          it.date, it.symptom,
+          <span style={{
+            display:'inline-flex', alignItems:'center', height: 20,
+            padding:'0 8px', borderRadius: 4,
+            background: s.bg, color: s.fg, fontSize: 11, fontWeight: 700,
+          }}>{it.severity}</span>,
+          it.action, it.resolved,
+        ];
+      })}
+    />
+  );
+}
+function ProCell({ v }) {
+  let color = C.text;
+  if (v >= 7) color = '#D63A3A';
+  else if (v >= 4) color = '#D08221';
+  else if (v === 0) color = C.textMute;
+  return <span style={{ color, fontWeight: v >= 4 ? 700 : 500 }}>{v}</span>;
+}
+function ReportPro({ items }) {
+  return (
+    <ReportTable
+      head={['날짜', '통증', '메스꺼움', '설사', '변비', '피로']}
+      rows={items.map(it => [
+        it.date,
+        <ProCell v={it.pain}/>, <ProCell v={it.nausea}/>,
+        <ProCell v={it.diarrhea}/>, <ProCell v={it.constipation}/>,
+        <ProCell v={it.fatigue}/>,
+      ])}
+    />
+  );
+}
+function ReportWeight({ items }) {
+  return (
+    <ReportTable
+      head={['월', '평균 체중', '변화량']}
+      rows={items.map(it => [
+        it.month,
+        `${it.avg} kg`,
+        <span style={{
+          color: it.change < 0 ? '#D63A3A' : (it.change > 0 ? '#16A769' : C.textSub),
+          fontWeight: 700,
+        }}>
+          {it.change > 0 ? `+${it.change}` : it.change} kg
+        </span>,
+      ])}
+    />
+  );
+}
+function ReportDiet({ items }) {
+  return (
+    <ReportTable
+      head={['월', '순응도', '과일·채소', '가공식품', '수분', '비고']}
+      rows={items.map(it => [
+        it.month,
+        <span style={{ fontWeight: 700,
+          color: it.compliance >= 80 ? '#16A769' : (it.compliance >= 70 ? C.text : '#D08221') }}>
+          {it.compliance}%
+        </span>,
+        it.fruitsVeg, it.processed, it.water,
+        <span style={{ color: it.note ? '#D08221' : C.textMute }}>{it.note || '—'}</span>,
+      ])}
+    />
+  );
+}
+function ReportExercise({ items }) {
+  return (
+    <ReportTable
+      head={['월', '일평균 걸음', '중강도 운동', '횟수', '비고']}
+      rows={items.map(it => [
+        it.month,
+        `${it.steps.toLocaleString()} 보`,
+        it.intensity, it.sessions,
+        <span style={{ color: it.note ? '#D08221' : C.textMute }}>{it.note || '—'}</span>,
+      ])}
+    />
+  );
+}
+
+function HomeReportCard({ patient, collapsed, active, onToggle }) {
+  const [status, setStatus] = useState('none');
   const [code, setCode] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [section, setSection] = useState('ai');
+
+  const homeReport = patient && patient.homeReport;
+  const hasData = !!homeReport;
 
   const genCode = () => 'MX' + Math.floor(1000 + Math.random() * 9000);
   const onClickSend = () => {
@@ -542,10 +740,7 @@ function HomeReportCard({ collapsed, active, onToggle }) {
     setCode(genCode());
     setShowModal(true);
   };
-  const onConfirmSend = () => {
-    setStatus('sent');
-    setShowModal(false);
-  };
+  const onConfirmSend = () => { setStatus('sent'); setShowModal(false); };
   const sent = status === 'sent';
 
   const toggleBtn = (
@@ -555,7 +750,6 @@ function HomeReportCard({ collapsed, active, onToggle }) {
     </button>
   );
 
-  // 접힌 상태 (다른 패널이 expanded) — 헤더 바만
   if (collapsed) {
     return (
       <>
@@ -564,9 +758,7 @@ function HomeReportCard({ collapsed, active, onToggle }) {
           padding: '12px 18px', flexShrink: 0, cursor: 'pointer',
           display:'flex', alignItems:'center', justifyContent:'space-between',
         }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
-            환자 재택 관리 경과 보고
-          </div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>환자 재택 관리 경과 보고</div>
           <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
             style={{ color: C.textSub, padding: 4, display:'flex' }}>
             <Icon name="expand" size={13}/>
@@ -579,54 +771,105 @@ function HomeReportCard({ collapsed, active, onToggle }) {
     );
   }
 
+  const sectionContent = (() => {
+    if (!hasData) return null;
+    if (section === 'ai')       return <ReportAi       items={homeReport.ai}/>;
+    if (section === 'symptoms') return <ReportSymptoms items={homeReport.symptoms}/>;
+    if (section === 'pro')      return <ReportPro      items={homeReport.pro}/>;
+    if (section === 'weight')   return <ReportWeight   items={homeReport.weight}/>;
+    if (section === 'diet')     return <ReportDiet     items={homeReport.diet}/>;
+    if (section === 'exercise') return <ReportExercise items={homeReport.exercise}/>;
+    return null;
+  })();
+
   return (
     <div style={{ flex: 1, minHeight: 0, display:'flex', flexDirection:'column' }}>
       <div style={{
         flex: 1, minHeight: 0,
         background: C.surface, borderRadius: 12,
-        border: `1px solid ${C.border}`, padding: '16px 20px',
-        display:'flex', flexDirection:'column',
+        border: `1px solid ${C.border}`,
+        display:'flex', flexDirection:'column', overflow:'hidden',
       }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 6 }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>
+        {/* 타이틀 */}
+        <div style={{
+          padding: '14px 18px',
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          borderBottom: hasData ? `1px solid ${C.borderSoft}` : 'none',
+        }}>
+          <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text }}>
             환자 재택 관리 경과 보고
           </div>
           {toggleBtn}
         </div>
-        <div style={{
-          flex: 1, display:'flex', flexDirection:'column',
-          alignItems:'center', justifyContent:'center', gap: 14,
-          padding: '8px',
-        }}>
-          <div style={{
-            width: 56, height: 56, borderRadius: 28,
-            background: C.bg,
-            display:'flex', alignItems:'center', justifyContent:'center',
-            color: C.textMute,
-          }}>
-            <Icon name="inbox" size={26}/>
-          </div>
-          <div style={{ fontSize: 12.5, color: C.textSub, textAlign:'center', lineHeight: 1.5 }}>
-            아직 환자가 보낸 재택 관리 데이터가 없습니다.<br/>
-            환자에게 코드를 전송해 시작하세요.
-          </div>
-          <button
-            onClick={onClickSend}
-            disabled={sent}
-            style={{
-              display:'flex', alignItems:'center', gap: 8,
-              height: 40, padding: '0 20px', borderRadius: 10,
-              background: sent ? C.graySoft : C.primary,
-              color: sent ? C.textSub : '#fff',
-              fontSize: 13.5, fontWeight: 700,
-              cursor: sent ? 'not-allowed' : 'pointer',
-              border: 'none',
+
+        {hasData ? (
+          <div style={{ flex: 1, minHeight: 0, display:'flex' }}>
+            {/* 좌측 섹션 사이드바 */}
+            <div className="scroll" style={{
+              width: 140, flexShrink: 0, overflowY:'auto',
+              borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
             }}>
-            {sent
-              ? (<><Icon name="check" size={13} color={C.textSub}/> 환자 코드 전송 완료</>)
-              : (<><Icon name="send" size={14} color="#fff"/> 환자 코드 전송</>)}
-          </button>
-        </div>
+              {HOME_REPORT_SECTIONS.map(s => {
+                const a = section === s.k;
+                return (
+                  <button key={s.k} onClick={() => setSection(s.k)} style={{
+                    width:'100%', textAlign:'left',
+                    padding: '10px 14px', fontSize: 12.5,
+                    color: a ? C.text : C.textSub,
+                    fontWeight: a ? 700 : 500,
+                    background: a ? C.bg : 'transparent',
+                    borderLeft: a ? `3px solid ${C.text}` : '3px solid transparent',
+                  }}>{s.l}</button>
+                );
+              })}
+            </div>
+            {/* 우측 콘텐츠 */}
+            <div className="scroll" style={{
+              flex: 1, minWidth: 0, overflowY:'auto',
+              padding: '14px 18px 18px',
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 10 }}>
+                {HOME_REPORT_SECTIONS.find(s => s.k === section).l}
+              </div>
+              {sectionContent}
+            </div>
+          </div>
+        ) : (
+          /* 빈 상태 — 환자 코드 전송 */
+          <div style={{
+            flex: 1, display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center', gap: 14,
+            padding: '16px',
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 28,
+              background: C.bg,
+              display:'flex', alignItems:'center', justifyContent:'center',
+              color: C.textMute,
+            }}>
+              <Icon name="inbox" size={26}/>
+            </div>
+            <div style={{ fontSize: 12.5, color: C.textSub, textAlign:'center', lineHeight: 1.5 }}>
+              아직 환자가 보낸 재택 관리 데이터가 없습니다.<br/>
+              환자에게 코드를 전송해 시작하세요.
+            </div>
+            <button
+              onClick={onClickSend} disabled={sent}
+              style={{
+                display:'flex', alignItems:'center', gap: 8,
+                height: 40, padding: '0 20px', borderRadius: 10,
+                background: sent ? C.graySoft : C.primary,
+                color: sent ? C.textSub : '#fff',
+                fontSize: 13.5, fontWeight: 700,
+                cursor: sent ? 'not-allowed' : 'pointer',
+                border: 'none',
+              }}>
+              {sent
+                ? (<><Icon name="check" size={13} color={C.textSub}/> 환자 코드 전송 완료</>)
+                : (<><Icon name="send" size={14} color="#fff"/> 환자 코드 전송</>)}
+            </button>
+          </div>
+        )}
       </div>
       {showModal && (
         <SendCodeModal code={code} onClose={() => setShowModal(false)} onConfirm={onConfirmSend}/>
@@ -959,6 +1202,7 @@ function CenterPanel({ patient }) {
       </div>
 
       <HomeReportCard
+        patient={patient}
         collapsed={activePanel === 'recurrence'}
         active={activePanel === 'report'}
         onToggle={() => toggle('report')}
