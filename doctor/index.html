@@ -345,22 +345,57 @@ const PATIENTS = [
       },
       tests: [
         { name: '혈액검사 (CBC · Chemistry)', date: '2026.03.20',
-          result: 'WBC 5.8 · Hb 12.1 · PLT 232 · ALB 4.1 — 정상 범위' },
+          summary: '정상 범위 (이상치 없음)',
+          detail: [
+            'WBC 5.8 ×10⁹/L (3.5 – 10.0)',
+            'Hb 12.1 g/dL (12.0 – 16.0)',
+            'PLT 232 ×10⁹/L (150 – 400)',
+            'Neutrophil 60% / Lymphocyte 32%',
+            'ALB 4.1 g/dL · AST 22 / ALT 18 U/L · Cr 0.7 mg/dL — 모두 정상',
+          ] },
         { name: '종양 표지자',                date: '2026.03.20',
-          result: 'CEA 2.8 ng/mL (정상) · CA 19-9 12 U/mL (정상)' },
+          summary: 'CEA / CA 19-9 모두 정상 범위',
+          detail: [
+            'CEA 2.8 ng/mL (정상치 < 5.0)',
+            'CA 19-9 12 U/mL (정상치 < 37)',
+            '직전(2025.12.18) 검사 대비 큰 변화 없음',
+          ] },
         { name: 'CT (복부·골반, contrast)',   date: '2026.03.18',
-          result: 'No evidence of recurrence or distant metastasis' },
+          summary: 'No evidence of recurrence or distant metastasis',
+          detail: [
+            '간/폐/복막/림프절 — 재발 소견 없음',
+            '문합부 정상, 수술 후 변화만 관찰됨',
+            '복수 없음, 장 폐색 소견 없음',
+          ] },
         { name: 'PET-CT',                     date: '2026.02.20',
-          result: 'Negative for FDG-avid lesion' },
+          summary: 'Negative for FDG-avid lesion',
+          detail: [
+            '전신 FDG 섭취 증가 병변 관찰되지 않음',
+            'SUVmax 정상 범위 유지',
+          ] },
         { name: 'MRI (간)',                   date: '2026.02.22',
-          result: 'No focal liver lesion' },
+          summary: 'No focal liver lesion',
+          detail: [
+            'T1/T2 신호 정상',
+            'DWI 제한 병변 없음',
+            'gadoxetate 강조 후 결손 영역 없음',
+          ] },
         { name: '조직검사',                   date: '2025.11.18',
-          result: 'Adenocarcinoma, moderately differentiated, pT3N1aM0 (Stage IIIa)' },
+          summary: 'Adenocarcinoma, moderately differentiated, pT3N1aM0',
+          detail: [
+            'pT3 — 고유근층 침범, 장막 노출 없음',
+            'pN1a — 림프절 1개 양성 / 총 24개 절제',
+            'Lymphovascular invasion (+) / Perineural invasion (–)',
+            'MMR proficient (MSS) / KRAS wild-type / BRAF wild-type',
+          ] },
       ],
       chemo: {
-        regimen:       'FOLFOX (5-FU + Leucovorin + Oxaliplatin)',
-        cycle:         '6 / 6 주기 완료 (보조 화학요법)',
-        lastStartDate: '2026.02.28 (마지막 주기)',
+        regimen:       'FOLFOX',
+        cycleNum:      6,
+        cycleTotal:    6,
+        lastStartDate: '2026.02.28',
+        adjuvant:      true,
+        note:          '보조 화학요법 (수술 후) — 마지막 주기 완료',
       },
       surgery: {
         date:    '2025.11.15',
@@ -882,30 +917,31 @@ const TEMPLATES = [
 ];
 
 /* ─── EMR 보조 컴포넌트들 ─── */
-function EMRSection({ title, children }) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 8 }}>
-        {title}
-      </div>
-      <div style={{
-        background: '#FAFBFC', borderRadius: 10,
-        border: `1px solid ${C.borderSoft}`, padding: '12px 14px',
-      }}>
-        {children}
-      </div>
-    </div>
-  );
-}
+const REGIMENS = [
+  'FOLFOX',
+  'FOLFIRI',
+  'FOLFOXIRI',
+  'CAPOX (XELOX)',
+  'Capecitabine 단독',
+  '5-FU + Leucovorin',
+  'FOLFOX + Bevacizumab',
+  'FOLFIRI + Cetuximab',
+];
+const EMR_SECTIONS = [
+  { k:'basic',   l:'기본 정보' },
+  { k:'tests',   l:'검사 기록지 결과' },
+  { k:'chemo',   l:'항암 치료 정보' },
+  { k:'surgery', l:'수술 이력' },
+];
+
 function KVGrid({ items, cols = 2 }) {
   return (
     <div style={{
-      display:'grid',
-      gridTemplateColumns: `repeat(${cols}, 1fr)`,
-      columnGap: 18, rowGap: 8,
+      display:'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      columnGap: 18, rowGap: 10,
     }}>
       {items.map(([k, v], i) => (
-        <div key={i} style={{ display:'flex', gap: 8, fontSize: 12.5, alignItems:'baseline' }}>
+        <div key={i} style={{ display:'flex', gap: 8, fontSize: 13, alignItems:'baseline' }}>
           <div style={{ width: 84, color: C.textSub, flexShrink: 0 }}>{k}</div>
           <div style={{ color: C.text, fontWeight: 500, flex: 1 }}>{v}</div>
         </div>
@@ -913,19 +949,91 @@ function KVGrid({ items, cols = 2 }) {
     </div>
   );
 }
-function ExamRow({ name, date, result, last }) {
+
+function Field({ label, children }) {
   return (
-    <div style={{ padding: '8px 0', borderBottom: last ? 'none' : `1px dashed ${C.borderSoft}` }}>
-      <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom: 3 }}>
-        <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>{name}</div>
-        <div style={{ fontSize: 11.5, color: C.textSub }}>{date}</div>
+    <div style={{ display:'flex', alignItems:'center', gap: 12, marginBottom: 12 }}>
+      <div style={{ width: 110, fontSize: 12.5, color: C.textSub, flexShrink: 0 }}>{label}</div>
+      <div style={{ flex: 1 }}>{children}</div>
+    </div>
+  );
+}
+
+function Select({ value, options, onChange }) {
+  return (
+    <div style={{ position:'relative' }}>
+      <select value={value} onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%', height: 36, padding: '0 32px 0 12px',
+          borderRadius: 8, border: `1px solid ${C.border}`, background: C.surface,
+          fontSize: 13, color: C.text, fontFamily: 'inherit',
+          appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none',
+          cursor: 'pointer',
+        }}>
+        {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+      </select>
+      <div style={{ position:'absolute', right: 10, top: '50%', transform:'translateY(-50%)', pointerEvents:'none', color: C.textSub }}>
+        <Icon name="chevD" size={14}/>
       </div>
-      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.55 }}>{result}</div>
+    </div>
+  );
+}
+
+function TextInput({ value, onChange, placeholder, width }) {
+  return (
+    <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+      style={{
+        width: width || '100%', height: 36, padding: '0 12px',
+        borderRadius: 8, border: `1px solid ${C.border}`, background: C.surface,
+        fontSize: 13, color: C.text, outline: 'none', boxSizing:'border-box',
+      }}/>
+  );
+}
+
+function TestRow({ test, open, onToggle }) {
+  return (
+    <div style={{
+      border: `1px solid ${C.border}`, borderRadius: 10,
+      marginBottom: 8, background: C.surface, overflow:'hidden',
+    }}>
+      <button onClick={onToggle} style={{
+        width:'100%', padding: '12px 14px', textAlign:'left',
+        display:'flex', alignItems:'center', justifyContent:'space-between', gap: 10,
+        background: open ? C.bg : C.surface,
+      }}>
+        <div style={{ display:'flex', flexDirection:'column', gap: 2, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.text,
+                        overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+            {test.name}
+          </div>
+          <div style={{ fontSize: 12, color: C.textSub,
+                        overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+            {test.summary}
+          </div>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap: 8, flexShrink: 0 }}>
+          <div style={{ fontSize: 11.5, color: C.textSub }}>{test.date}</div>
+          <div style={{ color: C.textSub, transform: open ? 'rotate(180deg)' : 'none', display:'flex' }}>
+            <Icon name="chevD" size={14}/>
+          </div>
+        </div>
+      </button>
+      {open && (
+        <div style={{ padding: '12px 14px', borderTop: `1px solid ${C.borderSoft}` }}>
+          <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: 12.5, color: C.text, lineHeight: 1.7 }}>
+            {test.detail.map((d, i) => <li key={i} style={{ marginBottom: 2 }}>{d}</li>)}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
 
 function EMRPanel({ emr }) {
+  const [section, setSection] = useState('basic');
+  const [openTest, setOpenTest] = useState(0);
+  const [chemo, setChemo] = useState(emr ? emr.chemo : null);
+
   if (!emr) {
     return (
       <div style={{
@@ -936,41 +1044,106 @@ function EMRPanel({ emr }) {
       </div>
     );
   }
-  return (
-    <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '16px 20px 20px' }}>
-      <EMRSection title="기본 정보">
-        <KVGrid items={[
-          ['신장',    emr.basic.height],
-          ['체중',    emr.basic.weight],
-          ['BMI',     emr.basic.bmi],
-          ['혈압',    emr.basic.bp],
-          ['맥박',    emr.basic.pulse],
-          ['ECOG',    emr.basic.ecog],
+
+  const content = (() => {
+    if (section === 'basic') {
+      return (
+        <KVGrid cols={2} items={[
+          ['신장', emr.basic.height],
+          ['체중', emr.basic.weight],
+          ['BMI',  emr.basic.bmi],
+          ['혈압', emr.basic.bp],
+          ['맥박', emr.basic.pulse],
+          ['ECOG', emr.basic.ecog],
         ]}/>
-      </EMRSection>
-
-      <EMRSection title="검사 기록지 결과">
-        {emr.tests.map((t, i) => (
-          <ExamRow key={i} {...t} last={i === emr.tests.length - 1}/>
-        ))}
-      </EMRSection>
-
-      <EMRSection title="항암 치료 정보">
-        <KVGrid cols={1} items={[
-          ['레지멘',       emr.chemo.regimen],
-          ['진행 상태',    emr.chemo.cycle],
-          ['이번 주기 시작일', emr.chemo.lastStartDate],
-        ]}/>
-      </EMRSection>
-
-      <EMRSection title="최근 수술 이력">
+      );
+    }
+    if (section === 'tests') {
+      return (
+        <div>
+          {emr.tests.map((t, i) => (
+            <TestRow key={i} test={t} open={openTest === i}
+              onToggle={() => setOpenTest(openTest === i ? -1 : i)}/>
+          ))}
+        </div>
+      );
+    }
+    if (section === 'chemo') {
+      return (
+        <div>
+          <Field label="레지멘">
+            <Select value={chemo.regimen} options={REGIMENS}
+              onChange={(v) => setChemo({ ...chemo, regimen: v })}/>
+          </Field>
+          <Field label="치료 차수">
+            <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+              <TextInput value={String(chemo.cycleNum)} width={80}
+                onChange={(v) => setChemo({ ...chemo, cycleNum: v.replace(/\D/g, '') })}/>
+              <span style={{ fontSize: 13, color: C.textSub }}>/</span>
+              <TextInput value={String(chemo.cycleTotal)} width={80}
+                onChange={(v) => setChemo({ ...chemo, cycleTotal: v.replace(/\D/g, '') })}/>
+              <span style={{ fontSize: 13, color: C.textSub }}>주기</span>
+            </div>
+          </Field>
+          <Field label="이번 주기 시작일">
+            <TextInput value={chemo.lastStartDate} placeholder="YYYY.MM.DD"
+              onChange={(v) => setChemo({ ...chemo, lastStartDate: v })} width={180}/>
+          </Field>
+          <Field label="치료 유형">
+            <Select value={chemo.adjuvant ? '보조 화학요법 (Adjuvant)' : '완화 화학요법 (Palliative)'}
+              options={['보조 화학요법 (Adjuvant)', '완화 화학요법 (Palliative)', '선행 화학요법 (Neoadjuvant)']}
+              onChange={(v) => setChemo({ ...chemo, adjuvant: v.includes('보조') })}/>
+          </Field>
+          <Field label="비고">
+            <TextInput value={chemo.note || ''} placeholder="메모"
+              onChange={(v) => setChemo({ ...chemo, note: v })}/>
+          </Field>
+        </div>
+      );
+    }
+    if (section === 'surgery') {
+      return (
         <KVGrid cols={1} items={[
           ['수술일',    emr.surgery.date],
           ['수술 방법', emr.surgery.method],
           ['집도의',    emr.surgery.surgeon],
           ['병기',      emr.surgery.stage],
         ]}/>
-      </EMRSection>
+      );
+    }
+    return null;
+  })();
+
+  const sectionLabel = EMR_SECTIONS.find(s => s.k === section).l;
+
+  return (
+    <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
+      {/* 좌측 섹션 사이드바 */}
+      <div className="scroll" style={{
+        width: 168, overflowY:'auto',
+        borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
+      }}>
+        {EMR_SECTIONS.map(s => {
+          const active = section === s.k;
+          return (
+            <button key={s.k} onClick={() => setSection(s.k)} style={{
+              width:'100%', textAlign:'left',
+              padding: '10px 16px', fontSize: 13,
+              color: active ? C.text : C.textSub,
+              fontWeight: active ? 700 : 500,
+              background: active ? C.bg : 'transparent',
+              borderLeft: active ? `3px solid ${C.text}` : '3px solid transparent',
+            }}>{s.l}</button>
+          );
+        })}
+      </div>
+      {/* 우측 콘텐츠 */}
+      <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '16px 20px 20px' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>
+          {sectionLabel}
+        </div>
+        {content}
+      </div>
     </div>
   );
 }
