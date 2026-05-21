@@ -4622,7 +4622,7 @@ function Auth({ onComplete }) {
             Dr.Answer PRO Companion
           </div>
           <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: -0.8, lineHeight: 1.25 }}>
-            대장암 항암 환자를 위한<br/>AI 건강 동반자
+            대장암 환자를 위한<br/>AI 주치의
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 14, lineHeight: 1.55, letterSpacing: -0.1 }}>
             매일의 증상과 컨디션을 기록하고<br/>의료진과 함께 치료를 관리해요.
@@ -4633,7 +4633,7 @@ function Auth({ onComplete }) {
             width: '100%', padding: '16px 0', borderRadius: 16, border: 0, cursor: 'pointer',
             background: '#fff', color: AC.ink, fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
           }}>새로 시작하기</button>
-          <button onClick={() => { setMode('login'); setStep('phone'); }} style={{
+          <button onClick={onComplete} style={{
             width: '100%', padding: '14px 0', background: 'transparent', border: 0, cursor: 'pointer',
             color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 600, letterSpacing: -0.2,
           }}>이미 계정이 있어요</button>
