@@ -507,12 +507,15 @@ const SAMPLE_HOME_REPORT_LONG = {
       { month:'2026.04', avg:65.0 },
     ],
   },
-  diet: [
-    { month:'2026.04', compliance:72, fruitsVeg:'4.2 srv/일', processed:'주 3.1 회', water:'1.7 L/일', note:'가공식품 권장치 초과' },
-    { month:'2026.03', compliance:74, fruitsVeg:'4.4 srv/일', processed:'주 2.8 회', water:'1.8 L/일', note:'' },
-    { month:'2026.02', compliance:70, fruitsVeg:'3.9 srv/일', processed:'주 3.5 회', water:'1.6 L/일', note:'명절 식이 일탈' },
-    { month:'2026.01', compliance:75, fruitsVeg:'4.5 srv/일', processed:'주 2.6 회', water:'1.9 L/일', note:'' },
-  ],
+  diet: {
+    stats: { avgCalories: 469, highCalorieDays: 1, recordedDays: 13 },
+    monthly: [
+      { month:'2026.04', compliance:72, fruitsVeg:'4.2 srv/일', processed:'주 3.1 회', water:'1.7 L/일', note:'가공식품 권장치 초과' },
+      { month:'2026.03', compliance:74, fruitsVeg:'4.4 srv/일', processed:'주 2.8 회', water:'1.8 L/일', note:'' },
+      { month:'2026.02', compliance:70, fruitsVeg:'3.9 srv/일', processed:'주 3.5 회', water:'1.6 L/일', note:'명절 식이 일탈' },
+      { month:'2026.01', compliance:75, fruitsVeg:'4.5 srv/일', processed:'주 2.6 회', water:'1.9 L/일', note:'' },
+    ],
+  },
   exercise: [
     { month:'2026.04', steps:3200, intensity:'주 0.8h', sessions:'주 2 회', note:'권장치 미달' },
     { month:'2026.03', steps:3450, intensity:'주 1.2h', sessions:'주 3 회', note:'' },
@@ -1088,20 +1091,40 @@ function ReportWeight({ data }) {
     </div>
   );
 }
-function ReportDiet({ items }) {
+function ReportDiet({ data }) {
+  if (!data) return null;
+  const { stats, monthly } = data;
   return (
-    <ReportTable
-      head={['월', '순응도', '과일·채소', '가공식품', '수분', '비고']}
-      rows={items.map(it => [
-        it.month,
-        <span style={{ fontWeight: 700,
-          color: it.compliance >= 80 ? '#16A769' : (it.compliance >= 70 ? C.text : '#D08221') }}>
-          {it.compliance}%
-        </span>,
-        it.fruitsVeg, it.processed, it.water,
-        <span style={{ color: it.note ? '#D08221' : C.textMute }}>{it.note || '—'}</span>,
-      ])}
-    />
+    <div>
+      {stats && (
+        <div style={{ display:'flex', gap: 8, marginBottom: 12 }}>
+          <StatCard label="일평균 칼로리">
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{stats.avgCalories}</div>
+            <div style={{ fontSize: 12, color: C.textSub }}>kcal</div>
+          </StatCard>
+          <StatCard label="고칼로리 일수">
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{stats.highCalorieDays}</div>
+            <div style={{ fontSize: 12, color: C.textSub }}>일</div>
+          </StatCard>
+          <StatCard label="기록 완료">
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{stats.recordedDays}</div>
+            <div style={{ fontSize: 12, color: C.textSub }}>일</div>
+          </StatCard>
+        </div>
+      )}
+      <ReportTable
+        head={['월', '순응도', '과일·채소', '가공식품', '수분', '비고']}
+        rows={monthly.map(it => [
+          it.month,
+          <span style={{ fontWeight: 700,
+            color: it.compliance >= 80 ? '#16A769' : (it.compliance >= 70 ? C.text : '#D08221') }}>
+            {it.compliance}%
+          </span>,
+          it.fruitsVeg, it.processed, it.water,
+          <span style={{ color: it.note ? '#D08221' : C.textMute }}>{it.note || '—'}</span>,
+        ])}
+      />
+    </div>
   );
 }
 function ReportExercise({ items }) {
@@ -1170,7 +1193,7 @@ function HomeReportCard({ patient, collapsed, active, onToggle }) {
     if (section === 'symptoms') return <ReportSymptoms items={homeReport.symptoms}/>;
     if (section === 'pro')      return <ReportPro      items={homeReport.pro} insights={homeReport.proInsights} period={homeReport.proPeriod}/>;
     if (section === 'weight')   return <ReportWeight   data={homeReport.weight}/>;
-    if (section === 'diet')     return <ReportDiet     items={homeReport.diet}/>;
+    if (section === 'diet')     return <ReportDiet     data={homeReport.diet}/>;
     if (section === 'exercise') return <ReportExercise items={homeReport.exercise}/>;
     return null;
   })();
