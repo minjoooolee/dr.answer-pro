@@ -1898,6 +1898,8 @@ function Report() {
   };
 
   const PERIOD_LABEL = { hourly: '시간대별', daily: '일간', monthly: '월간' };
+
+  const Bar = ({ pct, tone = 'ok' }) => (
     <div style={{
       flex: 1, height: 6, borderRadius: 4, background: 'rgba(14,17,22,0.06)',
       overflow: 'hidden',
