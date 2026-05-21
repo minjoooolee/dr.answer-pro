@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>V.Doc.ai — 진료 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body, #root { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: 'Pretendard', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #F0F3F2;
+    color: #1B1F27;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+  input { font-family: inherit; }
+  input::placeholder { color: #A6ADBA; }
+  /* Hide scrollbars but keep scroll */
+  .scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scroll::-webkit-scrollbar-thumb { background: #D8DDE6; border-radius: 3px; }
+  .scroll::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+/* ───────── 색상 토큰 (reference mock 매칭) ───────── */
+const C = {
+  bg:        '#F0F3F2',      // 패널 사이/뒤 쿨그레이
+  chrome:    '#2E2F33',      // 헤더·사이드바 차콜
+  chromeAct: '#43444A',      // 사이드바 active 강조
+  chromeMute:'rgba(255,255,255,0.7)',
+  surface:   '#FFFFFF',      // 카드·패널 흰색
+  border:    '#E2E6E5',
+  borderSoft:'#ECEFEE',
+  text:      '#1A1D26',
+  textSub:   '#6E7280',
+  textMute:  '#A0A6B1',
+  primary:   '#1E1F4B',      // 진료 저장 — 거의 검정에 가까운 짙은 네이비
+  primarySoft:'#EDEFFB',
+  accent:    '#4F5BE0',      // 선택/하이라이트 인디고
+  accentSoft:'#EEF1FF',
+  green:     '#1FB87A',
+  greenSoft: '#E7F6EE',
+  blue:      '#4F5BE0',
+  blueSoft:  '#E6EAFE',
+  gray:      '#6E7280',
+  graySoft:  '#EEF0F3',
+  dark:      '#22253A',      // 진료보류 배지 색
+};
+
+/* ───────── 아이콘 (사이드바 등) ───────── */
+const Icon = ({ name, size = 22, color = 'currentColor' }) => {
+  const props = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: color, strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  switch (name) {
+    case 'mic': return (<svg {...props}><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0"/><path d="M12 18v3"/></svg>);
+    case 'cal': return (<svg {...props}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>);
+    case 'user': return (<svg {...props}><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>);
+    case 'list': return (<svg {...props}><path d="M4 6h16M4 12h16M4 18h16"/></svg>);
+    case 'doc':  return (<svg {...props}><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/></svg>);
+    case 'colon':  return (
+      <svg {...props} strokeWidth="1.6">
+        {/* 외곽선 — Π 프레임 따라 동글동글한 haustra outline, 내부는 비어있음(fill 없음) */}
+        {/* 상부(횡행결장) 외측 불룩 - 5 bumps 위로 */}
+        <path d="M3.5 8
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0
+                 a1.75 1.75 0 0 1 3 0"/>
+        {/* 우측(상행결장) 외측 불룩 - 3 bumps 오른쪽으로 */}
+        <path d="M21.5 8
+                 a1.75 1.75 0 0 1 0 3
+                 a1.75 1.75 0 0 1 0 3
+                 a1.75 1.75 0 0 1 0 3"/>
+        {/* 맹장 곡선 + 충수 튜브 */}
+        <path d="M21.5 17c0 2-1 3-2.5 3 l 0 3"/>
+        {/* S상결장 - 우→좌 물결 */}
+        <path d="M19 20
+                 c-1.3 0-1.7-1.3-3-1.3
+                 c-1.3 0-1.7 1.3-3 1.3
+                 c-1.3 0-1.7-1.3-3-1.3
+                 c-1.3 0-1.7 1.3-3 1.3"/>
+        {/* 직장 튜브 */}
+        <path d="M7 20 v 3"/>
+        {/* 좌측(하행결장) 외측 불룩 - 3 bumps 왼쪽으로 */}
+        <path d="M2.5 17
+                 a1.75 1.75 0 0 1 0 -3
+                 a1.75 1.75 0 0 1 0 -3
+                 a1.75 1.75 0 0 1 0 -3"/>
+      </svg>
+    );
+    case 'stomach': return (
+      <svg {...props} strokeWidth="1.7">
+        {/* 식도 — 좌측에 위로 열린 긴 튜브 */}
+        <path d="M9 2 v 6"/>
+        <path d="M11.5 2 v 5"/>
+        {/* 위 본체 outline (좌우 반전: fundus 우측, pylorus 좌측) */}
+        <path d="M11.5 7
+                 c1 .8 2 1.2 3 1.2
+                 c3 0 5 1.8 5.5 4.5
+                 c .5 3 -1 6 -4 7
+                 c -3 1 -7 .5 -9 -1.5
+                 c -2 -2 -2.5 -5 -1 -7
+                 c 1 -1.3 2.5 -1.7 4 -1.7"/>
+        {/* 분문 곡선 (식도→위 입구) */}
+        <path d="M9 8 c .5 1 1.7 1.5 2.5 .5"/>
+        {/* 십이지장 — 좌측 아래로 긴 튜브 */}
+        <path d="M5.5 16
+                 c -1 1.5 -.5 3.5 1 4
+                 c 1 .3 1.7 -.5 1 -1.5"/>
+      </svg>
+    );
+    case 'lung':   return (
+      <svg {...props} strokeWidth="1.7">
+        {/* 기관(trachea) — 위로 열린 튜브 */}
+        <path d="M11 2 v 6"/>
+        <path d="M13 2 v 6"/>
+        {/* 기관 분기부 — 양쪽으로 더 벌어짐 (gap 확대) */}
+        <path d="M11 8 L 8.5 10.5"/>
+        <path d="M13 8 L 15.5 10.5"/>
+        {/* 좌측 폐 — 내측 edge x=10 (이전 11.5 → gap 확대) */}
+        <path d="M8.5 10.5
+                 c-3 .8 -5.5 3.5 -6 7
+                 c-.4 2.5 .8 4.5 3 4.5
+                 h4.5
+                 c.6 0 1 -.5 1 -1.2
+                 V 11.5
+                 c0 -.6 -.4 -1 -1 -1
+                 z"/>
+        {/* 우측 폐 — 내측 edge x=14 */}
+        <path d="M15.5 10.5
+                 c3 .8 5.5 3.5 6 7
+                 c.4 2.5 -.8 4.5 -3 4.5
+                 h-4.5
+                 c-.6 0 -1 -.5 -1 -1.2
+                 V 11.5
+                 c0 -.6 .4 -1 1 -1
+                 z"/>
+      </svg>
+    );
+    case 'gear': return (<svg {...props}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3h0a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8v0a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>);
+    case 'phone':return (<svg {...props}><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>);
+    case 'link': return (<svg {...props}><path d="M10 14a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/><path d="M14 10a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/></svg>);
+    case 'cal2': return (<svg {...props}><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>);
+    case 'search':return (<svg {...props}><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>);
+    case 'chevL':return (<svg {...props}><path d="M15 6l-6 6 6 6"/></svg>);
+    case 'chevR':return (<svg {...props}><path d="M9 6l6 6-6 6"/></svg>);
+    case 'chevD':return (<svg {...props}><path d="M6 9l6 6 6-6"/></svg>);
+    case 'copy': return (<svg {...props}><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 012-2h10"/></svg>);
+    case 'star': return (<svg {...props}><path d="M12 3l2.7 5.5L20.5 9.4l-4.3 4.2 1 6L12 16.8 6.8 19.6l1-6-4.3-4.2 5.8-.9z"/></svg>);
+    case 'starF':return (<svg width="18" height="18" viewBox="0 0 24 24" fill={C.accent}><path d="M12 3l2.7 5.5L20.5 9.4l-4.3 4.2 1 6L12 16.8 6.8 19.6l1-6-4.3-4.2 5.8-.9z"/></svg>);
+    case 'check':return (<svg {...props} strokeWidth="3"><path d="M5 12l5 5 9-10"/></svg>);
+    case 'refresh':return (<svg {...props}><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>);
+    case 'x':    return (<svg {...props}><path d="M6 6l12 12M18 6L6 18"/></svg>);
+    case 'edit': return (<svg {...props}><path d="M4 20h4l10-10-4-4L4 16v4z"/></svg>);
+    case 'note': return (<svg {...props}><path d="M4 4h12l4 4v12H4z"/><path d="M16 4v4h4"/></svg>);
+    case 'send': return (<svg {...props}><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>);
+    case 'inbox':return (<svg {...props}><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 6h13a1 1 0 0 1 .9.6L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6L4.6 6.6A1 1 0 0 1 5.5 6z"/></svg>);
+    case 'expand': return (
+      <svg {...props}>
+        {/* 우상단 대각선 화살표 (밖으로) */}
+        <path d="M14 10L20 4"/>
+        <path d="M15 4h5v5"/>
+        {/* 좌하단 대각선 화살표 (밖으로) */}
+        <path d="M10 14L4 20"/>
+        <path d="M9 20H4v-5"/>
+      </svg>
+    );
+    case 'trendUp': return (
+      <svg {...props}><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+    );
+    case 'alert': return (
+      <svg {...props}>
+        <path d="M10.3 3.86l-8.16 14a2 2 0 0 0 1.72 3h16.3a2 2 0 0 0 1.72-3l-8.16-14a2 2 0 0 0-3.42 0z"/>
+        <path d="M12 9v4"/><path d="M12 17.5v.01"/>
+      </svg>
+    );
+    case 'info': return (
+      <svg {...props}><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8v.01"/></svg>
+    );
+    case 'moon': return (
+      <svg {...props}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    );
+    case 'image': return (
+      <svg {...props}>
+        <rect x="3" y="5" width="18" height="14" rx="2"/>
+        <circle cx="9" cy="11" r="1.5"/>
+        <path d="M21 16l-5-5L4 19"/>
+      </svg>
+    );
+    case 'video': return (
+      <svg {...props}>
+        <rect x="2" y="5" width="14" height="14" rx="2"/>
+        <path d="M22 7l-6 5 6 5z"/>
+      </svg>
+    );
+    case 'play': return (
+      <svg {...props}><polygon points="6 4 20 12 6 20 6 4" fill="currentColor" stroke="none"/></svg>
+    );
+    case 'collapse': return (
+      <svg {...props}>
+        {/* 우상단 → 안쪽으로 향하는 화살표 */}
+        <path d="M20 4L14 10"/>
+        <path d="M14 5v5h5"/>
+        {/* 좌하단 → 안쪽으로 향하는 화살표 */}
+        <path d="M4 20L10 14"/>
+        <path d="M10 19v-5H5"/>
+      </svg>
+    );
+    default: return null;
+  }
+};
+
+/* ───────── 로고 ───────── */
+const Logo = () => (
+  <div style={{
+    width: 72, height: 60,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: '#fff', fontWeight: 800, letterSpacing: 0.2,
+  }}>
+    <div style={{ fontSize: 14, fontWeight: 800 }}>닥터앤서</div>
+  </div>
+);
+
+/* ───────── 상단 헤더 ───────── */
+function Header() {
+  const tab = (label) => (
+    <button style={{
+      padding: '0 4px', height: 60, fontSize: 15, fontWeight: 700,
+      color: '#fff', position: 'relative',
+    }}>
+      {label}
+      <div style={{ position:'absolute', left:0, right:0, bottom:-1, height:2, background: '#fff', borderRadius: 2 }}/>
+    </button>
+  );
+  const navItem = (iconName, label) => (
+    <button style={{ display:'flex', alignItems:'center', gap:6, padding:'0 12px', height:60, fontSize:13.5, color:'#fff', fontWeight:500 }}>
+      <Icon name={iconName} size={17} color="#fff"/> {label}
+    </button>
+  );
+  return (
+    <header style={{
+      height: 60, background: C.chrome,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      paddingRight: 16, flexShrink: 0,
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 24 }}>
+        <Logo/>
+        <div style={{ display:'flex', alignItems:'center', gap: 24, marginLeft: 4 }}>
+          {tab('진료')}
+          <div style={{ width:1, height:18, background:'rgba(255,255,255,0.3)' }}/>
+          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>대장항문외과 이예나 교수님</span>
+        </div>
+      </div>
+      <div style={{ display:'flex', alignItems:'center' }}>
+        {navItem('search','환자검색')}
+      </div>
+    </header>
+  );
+}
+
+/* ───────── 좌측 사이드바 ───────── */
+function Sidebar() {
+  const items = [
+    { icon:'colon',   label:'대장암',   active: true },
+    { icon:'stomach', label:'위암'   },
+    { icon:'lung',    label:'호흡부전' },
+  ];
+  return (
+    <aside style={{
+      width: 84, background: C.chrome,
+      display:'flex', flexDirection:'column', alignItems:'center',
+      padding: '14px 0', flexShrink: 0,
+    }}>
+      {items.map((it, i) => (
+        <button key={i} style={{
+          width: 68, padding: '12px 0', marginBottom: 6,
+          display:'flex', flexDirection:'column', alignItems:'center', gap:6,
+          color: it.active ? '#fff' : 'rgba(255,255,255,0.7)',
+          fontSize: 13, fontWeight: it.active ? 700 : 500,
+          borderRadius: 10, background: it.active ? C.chromeAct : 'transparent',
+        }}>
+          <Icon name={it.icon} size={24}/>
+          <span>{it.label}</span>
+        </button>
+      ))}
+      <div style={{ flex: 1 }}/>
+      <button style={{
+        width: 68, padding: '12px 0',
+        display:'flex', flexDirection:'column', alignItems:'center', gap:6,
+        color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500,
+      }}>
+        <Icon name="gear" size={22}/>
+        <span>설정</span>
+      </button>
+    </aside>
+  );
+}
+
+/* ───────── 환자 카드 & 환자 목록 ───────── */
+const STATUS_STYLES = {
+  '진료중':       { bg:'#4F5BE0', fg:'#fff' },
+  '문진중':       { bg:'#4F5BE0', fg:'#fff' },
+  '문진완료':     { bg:'#E6EAFE', fg:'#3742C5' },
+  '문진생략':     { bg:'#EEF0F3', fg:'#6E7280' },
+  '도착':         { bg:'#E7F6EE', fg:'#16A769' },
+  '분석중':       { bg:'#E7F6EE', fg:'#16A769' },
+  '대기':         { bg:'#EEF0F3', fg:'#6E7280' },
+  '진료보류':     { bg:'#22253A', fg:'#fff' },
+  '템플릿 발송 완료': { bg:'#EEF0F3', fg:'#6E7280' },
+};
+function StatusBadge({ label }) {
+  const s = STATUS_STYLES[label] || { bg: C.graySoft, fg: C.gray };
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', height: 22, padding:'0 8px',
+      borderRadius: 4, background: s.bg, color: s.fg,
+      fontSize: 11, fontWeight: 600,
+    }}>{label}</span>
+  );
+}
+function PatientCard({ p, selected, onClick }) {
+  return (
+    <button onClick={onClick} style={{
+      width:'100%', textAlign:'left',
+      background: C.surface, border: `1.5px solid ${selected ? C.accent : C.border}`,
+      borderRadius: 10, padding: '12px 14px', marginBottom: 8,
+      boxShadow: selected ? '0 0 0 3px rgba(84,104,255,0.08)' : 'none',
+    }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
+          {p.name} <span style={{ fontSize:12, color: C.textSub, fontWeight: 500, marginLeft:4 }}>
+            {p.id} · {p.gender}/{p.age}세
+          </span>
+        </div>
+      </div>
+      <div style={{ fontSize: 12, color: C.textSub, marginTop: 4 }}>오전 {p.time}</div>
+      <div style={{ display:'flex', gap: 5, marginTop: 8 }}>
+        {p.tags.map((t, i) => <StatusBadge key={i} label={t}/>)}
+      </div>
+    </button>
+  );
+}
+
+/* ── 김류아 (퇴원 시점) ── */
+const SAMPLE_RECURRENCE = [{ date:'2026.03.25', score: 24, note:'퇴원' }];
+const SAMPLE_ANALYSIS = {
+  up: [
+    'stage IIIa · 림프절 1/24 양성',
+  ],
+  down: [
+    '원격 전이 없음 (M0)',
+    '절제연 음성, 술 후 무합병증',
+    'FOLFOX 6 회차 완료',
+  ],
+};
+const SAMPLE_EMR = {
+  basic: {
+    age:    '만 32세',
+    gender: '여성',
+    height: '162 cm',
+    weight: '54 kg',
+    bmi:    '20.6',
+    bp:     '118 / 76 mmHg',
+    pulse:  '72 bpm',
+    ecog:   '0 (제한 없음)',
+  },
+  comorbidities: {
+    '고혈압': false, '당뇨': false, '고지혈증': false, '심혈관 질환': false,
+    '만성 신질환': false, '만성 폐질환': false, '간 질환': false,
+    '갑상선 질환': true, '골다공증': false, '뇌혈관 질환': false,
+  },
+  comorbiditiesNote: '갑상선기능저하증 — Synthroid 50 mcg 복용 중',
+  chemo: {
+    regimen:       'FOLFOX',
+    cycleNum:      6,
+    cycleTotal:    6,
+    lastStartDate: '2026.02.28',
+    adjuvant:      true,
+    note:          '보조 화학요법 (수술 후) — 마지막 주기 완료',
+  },
+  surgery: {
+    date:    '2025.11.15',
+    method:  '복강경 우측 결장 절제술 (Laparoscopic right hemicolectomy)',
+    surgeon: '이예나 교수',
+    stage:   'Stage IIIa (pT3N1aM0)',
+  },
+};
+
+/* ── 김성인 (장기 치료 후 재진) ── */
+const SAMPLE_RECURRENCE_LONG = [
+  { date:'2025.06.15', score: 58, note:'퇴원' },
+  { date:'2025.08.15', score: 49, note:'외래' },
+  { date:'2025.10.15', score: 42, note:'외래' },
+  { date:'2025.12.15', score: 36, note:'외래' },
+  { date:'2026.02.15', score: 32, note:'외래' },
+  { date:'2026.04.15', score: 38, note:'재진' },
+];
+const SAMPLE_ANALYSIS_LONG = {
+  up: [
+    'stage IIIc (T4N2)',
+    '활동량 권장치 미달 (3,200 보)',
+    '변비 빈도 증가',
+  ],
+  down: [
+    '원격 전이 없음 (M0)',
+    'FOLFOX 12 회차 완주',
+    '추적 관찰 적극 참여',
+  ],
+};
+const SAMPLE_EMR_LONG = {
+  basic: {
+    age:    '만 68세',
+    gender: '남성',
+    height: '176 cm',
+    weight: '65 kg',
+    bmi:    '21.0',
+    bp:     '134 / 82 mmHg',
+    pulse:  '74 bpm',
+    ecog:   '1 (경도 활동 제한)',
+  },
+  comorbidities: {
+    '고혈압': true, '당뇨': true, '고지혈증': true, '심혈관 질환': false,
+    '만성 신질환': false, '만성 폐질환': false, '간 질환': false,
+    '갑상선 질환': false, '골다공증': false, '뇌혈관 질환': false,
+  },
+  comorbiditiesNote:
+    '고혈압 7년 (Amlodipine 5mg) · 제2형 당뇨 5년 (Metformin 1000mg) · 이상지질혈증 (Rosuvastatin 10mg) — 모두 약물 조절 중',
+  chemo: {
+    regimen:       'FOLFOX',
+    cycleNum:      12,
+    cycleTotal:    12,
+    lastStartDate: '2025.05.10',
+    adjuvant:      true,
+    note:          '보조 화학요법 12 회차 완료 — 현재 추적 관찰 (2개월 간격 외래)',
+  },
+  surgery: {
+    date:    '2024.10.20',
+    method:  '복강경 좌측 결장 절제술 (Laparoscopic left hemicolectomy)',
+    surgeon: '이예나 교수',
+    stage:   'Stage IIIc (pT4N2M0)',
+  },
+};
+
+/* ── 김성인의 재택 관리 경과 데이터 ── */
+const SAMPLE_HOME_REPORT_LONG = {
+  ai: [
+    { label:'전반적 추세', tone:'안정',
+      body:'통증·기분 지표 5월 개선 추세. 컨디션 회복 중.' },
+    { label:'특이점',     tone:'위험',
+      body:'5/9 복합 이상 반응 (통증·피로·신경증상). 모니터링 필요.' },
+    { label:'소화 지표',  tone:'안정',
+      body:'월 평균 3.6 안정, 소화 불량 3회 반복. 식이 상담 권장.' },
+    { label:'피로·수면',  tone:'주의',
+      body:'월 평균 3.1로 상대적 낮음. 수면 위생 점검 필요.' },
+  ],
+  symptoms: [
+    { date:'2026.04.10', symptom:'손발 저림',  pain:3, attachment:'photo', note:'좌측 손가락 끝 — 야간에 심함' },
+    { date:'2026.04.05', symptom:'어지러움',   pain:2, attachment:null,    note:'기립 시 순간적' },
+    { date:'2026.03.28', symptom:'복부 경련',  pain:5, attachment:'video', note:'야간 발생, 5분간 지속' },
+    { date:'2026.03.18', symptom:'복통',       pain:6, attachment:'photo', note:'우하복부 압통' },
+    { date:'2026.03.05', symptom:'피부 발진',  pain:1, attachment:'photo', note:'팔뚝 부위' },
+    { date:'2026.02.22', symptom:'두통',       pain:4, attachment:null,    note:'관자놀이 부위' },
+    { date:'2026.02.10', symptom:'메스꺼움',   pain:2, attachment:null,    note:'식후 30분' },
+  ],
+  pro: [
+    { date:'2026.04.14', pain:2, nausea:0, diarrhea:0, constipation:3, fatigue:2 },
+    { date:'2026.04.13', pain:2, nausea:0, diarrhea:0, constipation:3, fatigue:1 },
+    { date:'2026.04.12', pain:1, nausea:0, diarrhea:0, constipation:2, fatigue:2 },
+    { date:'2026.04.11', pain:3, nausea:1, diarrhea:0, constipation:3, fatigue:2 },
+    { date:'2026.04.10', pain:2, nausea:0, diarrhea:0, constipation:4, fatigue:2 },
+    { date:'2026.04.09', pain:1, nausea:0, diarrhea:0, constipation:2, fatigue:1 },
+    { date:'2026.04.08', pain:2, nausea:0, diarrhea:0, constipation:3, fatigue:2 },
+  ],
+  proPeriod: { start: '2026.02.15', end: '2026.04.15' },
+  proInsights: [
+    { category: '통증',          tone:'안정', text: '평균 2.1, 변동 없이 안정' },
+    { category: '배변 (변비)',   tone:'주의', text: '월 6 → 12 회 증가 — 식이 상담 권장' },
+    { category: '메스꺼움·식욕', tone:'안정', text: '정상 범위 유지' },
+    { category: '신경 증상',     tone:'주의', text: '손발 저림 1 회 보고 — 신경병증 모니터링 필요' },
+    { category: '피로·수면',     tone:'안정', text: '평균 1.8, 야간 각성 없음' },
+  ],
+  weight: {
+    baseline: 68.5,
+    baselineDate: '2024.10',
+    monthly: [
+      { month:'2025.09', avg:66.5 },
+      { month:'2025.10', avg:66.3 },
+      { month:'2025.11', avg:66.0 },
+      { month:'2025.12', avg:65.8 },
+      { month:'2026.01', avg:65.5 },
+      { month:'2026.02', avg:65.3 },
+      { month:'2026.03', avg:65.1 },
+      { month:'2026.04', avg:65.0 },
+    ],
+  },
+  diet: [
+    { month:'2026.04', compliance:72, fruitsVeg:'4.2 srv/일', processed:'주 3.1 회', water:'1.7 L/일', note:'가공식품 권장치 초과' },
+    { month:'2026.03', compliance:74, fruitsVeg:'4.4 srv/일', processed:'주 2.8 회', water:'1.8 L/일', note:'' },
+    { month:'2026.02', compliance:70, fruitsVeg:'3.9 srv/일', processed:'주 3.5 회', water:'1.6 L/일', note:'명절 식이 일탈' },
+    { month:'2026.01', compliance:75, fruitsVeg:'4.5 srv/일', processed:'주 2.6 회', water:'1.9 L/일', note:'' },
+  ],
+  exercise: [
+    { month:'2026.04', steps:3200, intensity:'주 0.8h', sessions:'주 2 회', note:'권장치 미달' },
+    { month:'2026.03', steps:3450, intensity:'주 1.2h', sessions:'주 3 회', note:'' },
+    { month:'2026.02', steps:3100, intensity:'주 0.9h', sessions:'주 2 회', note:'' },
+    { month:'2026.01', steps:2900, intensity:'주 0.7h', sessions:'주 2 회', note:'한파로 외출 감소' },
+  ],
+};
+
+const PATIENTS = [
+  { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중'],
+    recurrence: SAMPLE_RECURRENCE, analysis: SAMPLE_ANALYSIS, emr: SAMPLE_EMR },
+  { name:'김성인', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
+    recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG,
+    emr: SAMPLE_EMR_LONG, homeReport: SAMPLE_HOME_REPORT_LONG },
+  { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
+  { name:'이수현', id:'780922', gender:'F', age:47, time:'09:03', tags:['대기'],     recurrence: [] },
+  { name:'김민재', id:'840218', gender:'M', age:41, time:'09:03', tags:['진료보류'], recurrence: [] },
+  { name:'윤지안', id:'880730', gender:'F', age:37, time:'09:03', tags:[],           recurrence: [] },
+];
+
+function PatientList({ selectedIdx, setSelectedIdx }) {
+  const [tab, setTab] = useState('진료');
+  const tabs = [
+    { k:'진료', n:5 },
+    { k:'보류', n:0 },
+    { k:'완료', n:0 },
+  ];
+  return (
+    <section style={{
+      width: 250, background: C.surface,
+      borderRadius: 12, border: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', flexShrink: 0, overflow:'hidden',
+    }}>
+      <div style={{ padding: '14px 14px 8px' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <button style={{ padding: 4, color: C.textSub }}><Icon name="chevL" size={18}/></button>
+          <div style={{ display:'flex', alignItems:'center', gap:6, fontSize: 14, fontWeight: 700, color: C.text }}>
+            2026.04.10 금 <Icon name="cal" size={14} color={C.textSub}/>
+          </div>
+          <button style={{ padding: 4, color: C.textSub }}><Icon name="chevR" size={18}/></button>
+        </div>
+      </div>
+      <div style={{
+        display:'flex', gap: 18, padding: '4px 16px 12px',
+        borderBottom: `1px solid ${C.borderSoft}`,
+      }}>
+        {tabs.map(t => {
+          const active = tab === t.k;
+          return (
+            <button key={t.k} onClick={() => setTab(t.k)} style={{
+              display:'flex', alignItems:'center', gap: 5,
+              padding: '6px 0', fontSize: 13.5,
+              color: active ? C.text : C.textSub, fontWeight: active ? 700 : 500,
+              borderBottom: active ? `2px solid ${C.text}` : '2px solid transparent',
+              marginBottom: -13,
+            }}>
+              {t.k}
+              <span style={{
+                display:'inline-flex', alignItems:'center', justifyContent:'center',
+                width: 18, height: 18, borderRadius: 9,
+                background: active ? C.primary : C.graySoft,
+                color: active ? '#fff' : C.textSub,
+                fontSize: 11, fontWeight: 700,
+              }}>{t.n}</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="scroll" style={{ flex:1, overflowY:'auto', padding: '12px 12px 16px' }}>
+        {PATIENTS.map((p, i) => (
+          <PatientCard key={i} p={p} selected={i === selectedIdx} onClick={() => setSelectedIdx(i)}/>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ───────── 가운데 패널 — 문진 요약 ───────── */
+function BodyDiagram({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <ellipse cx="20" cy="8" rx="4.5" ry="5" stroke="#94A1B3" strokeWidth="1.2"/>
+      <path d="M14 14 Q14 18 12 22 L12 30 L14 34 L18 34 L18 28 L22 28 L22 34 L26 34 L28 30 L28 22 Q26 18 26 14 Q23 13 20 13 Q17 13 14 14 Z" stroke="#94A1B3" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
+}
+function HeadDiagram({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <path d="M14 10 Q14 6 20 6 Q26 6 26 12 L26 18 Q28 18 28 22 Q28 26 25 26 L25 30 Q25 34 20 34 Q15 34 15 30 L15 26 Q12 26 12 22 Q12 18 14 18 Z" stroke="#94A1B3" strokeWidth="1.2" fill="none"/>
+    </svg>
+  );
+}
+
+function SummaryRow({ label, copyable, children, valueStyle }) {
+  return (
+    <div style={{ display:'flex', gap: 18, padding: '10px 0' }}>
+      <div style={{ width: 56, display:'flex', alignItems:'flex-start', gap:4, flexShrink: 0 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text }}>{label}</div>
+        {copyable && (
+          <button style={{ color: C.textMute, marginTop: 1 }}>
+            <Icon name="copy" size={13}/>
+          </button>
+        )}
+      </div>
+      <div style={{ flex: 1, fontSize: 13.5, color: C.text, lineHeight: 1.65, ...valueStyle }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ───────── 환자 재택 관리 경과 보고 카드 ───────── */
+const HOME_REPORT_SECTIONS = [
+  { k:'ai',       l:'AI 요약' },
+  { k:'symptoms', l:'이상증세 보고' },
+  { k:'pro',      l:'PRO 점수표' },
+  { k:'weight',   l:'체중 요약' },
+  { k:'diet',     l:'식단 요약' },
+  { k:'exercise', l:'운동 요약' },
+];
+
+const SEVERITY_STYLE = {
+  '경': { bg: '#E7F6EE', fg: '#16A769' },
+  '중': { bg: '#FFF1DC', fg: '#D08221' },
+  '중증': { bg: '#FBE6E6', fg: '#D63A3A' },
+};
+
+function ReportTable({ head, rows }) {
+  return (
+    <div style={{ overflowX:'auto' }}>
+      <table style={{ width:'100%', borderCollapse:'collapse', fontSize: 12.5 }}>
+        <thead>
+          <tr>
+            {head.map((h, i) => (
+              <th key={i} style={{
+                textAlign:'left', padding:'8px 10px',
+                background: '#FAFBFC', color: C.textSub,
+                fontWeight: 700, fontSize: 11.5,
+                borderBottom: `1px solid ${C.border}`,
+                whiteSpace:'nowrap',
+              }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((cells, i) => (
+            <tr key={i}>
+              {cells.map((c, j) => (
+                <td key={j} style={{
+                  padding:'8px 10px', color: C.text,
+                  borderBottom: i === rows.length - 1 ? 'none' : `1px solid ${C.borderSoft}`,
+                  whiteSpace:'nowrap',
+                }}>{c}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+const AI_TONES = {
+  '위험': { color:'#D63A3A', bg:'#FBE6E6' },
+  '안정': { color:'#16A769', bg:'#E7F6EE' },
+  '주의': { color:'#D08221', bg:'#FFF1DC' },
+};
+
+function ReportAi({ items }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap: 8 }}>
+      {items.map((it, i) => {
+        const tone = AI_TONES[it.tone] || AI_TONES['안정'];
+        return (
+          <div key={i} style={{
+            position: 'relative',
+            background: '#fff',
+            border: `1px solid ${C.borderSoft}`,
+            borderRadius: 10,
+            padding: '11px 14px 11px 18px',
+            overflow: 'hidden',
+          }}>
+            {/* 좌측 accent bar */}
+            <div style={{
+              position:'absolute', left: 0, top: 0, bottom: 0,
+              width: 3, background: tone.color,
+            }}/>
+            <div style={{
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              marginBottom: 5,
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+                {it.label}
+              </div>
+              <span style={{
+                display:'inline-flex', alignItems:'center', height: 20,
+                padding:'0 8px', borderRadius: 4,
+                background: tone.bg, color: tone.color,
+                fontSize: 11, fontWeight: 800, letterSpacing: 0.4,
+              }}>{it.tone}</span>
+            </div>
+            <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.6 }}>
+              {it.body}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+function AttachmentChip({ kind, onClick }) {
+  if (!kind) return <span style={{ color: C.textMute }}>—</span>;
+  const isVideo = kind === 'video';
+  return (
+    <button onClick={onClick} style={{
+      display:'inline-flex', alignItems:'center', gap: 4,
+      height: 22, padding: '0 8px', borderRadius: 4,
+      background: C.accentSoft, color: C.accent,
+      fontSize: 11, fontWeight: 700, cursor: 'pointer',
+    }}>
+      <Icon name={isVideo ? 'video' : 'image'} size={11}/>
+      {isVideo ? '동영상' : '사진'}
+    </button>
+  );
+}
+
+function AttachmentModal({ kind, date, symptom, onClose }) {
+  const isVideo = kind === 'video';
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.6)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 120,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 480, maxWidth:'92vw',
+        background: C.surface, borderRadius: 16, overflow:'hidden',
+        boxShadow: '0 24px 60px rgba(0,0,0,0.25)',
+      }}>
+        <div style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding:'14px 18px', borderBottom: `1px solid ${C.borderSoft}`,
+        }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.textSub, marginBottom: 2 }}>
+              {date} · {symptom}
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
+              환자 업로드 {isVideo ? '동영상' : '사진'}
+            </div>
+          </div>
+          <button onClick={onClose} style={{ color: C.textSub, padding: 4, display:'flex' }}>
+            <Icon name="x" size={20}/>
+          </button>
+        </div>
+        <div style={{
+          aspectRatio: '4 / 3', background: '#1F2230',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          position:'relative',
+        }}>
+          <div style={{
+            color: 'rgba(255,255,255,0.45)',
+            display:'flex', flexDirection:'column', alignItems:'center', gap: 10,
+          }}>
+            <Icon name={isVideo ? 'play' : 'image'} size={48}/>
+            <div style={{ fontSize: 12 }}>
+              {isVideo ? '환자 업로드 동영상 (미리보기 placeholder)'
+                       : '환자 업로드 사진 (미리보기 placeholder)'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PainCell({ v }) {
+  let color = C.text;
+  let bg = 'transparent';
+  if (v >= 7)      { color = '#fff'; bg = '#D63A3A'; }
+  else if (v >= 4) { color = '#fff'; bg = '#D08221'; }
+  else if (v >= 1) { color = C.text; bg = C.graySoft; }
+  else             { color = C.textMute; }
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', justifyContent:'center',
+      minWidth: 28, height: 22, padding: '0 8px', borderRadius: 4,
+      background: bg, color, fontSize: 11.5, fontWeight: 700,
+    }}>{v}</span>
+  );
+}
+
+function ReportSymptoms({ items }) {
+  const [open, setOpen] = useState(null); // index of opened attachment
+  return (
+    <>
+      <ReportTable
+        head={['날짜', '증상', '통증 (0–10)', '첨부', '메모']}
+        rows={items.map((it, i) => [
+          it.date, it.symptom,
+          <PainCell v={it.pain}/>,
+          <AttachmentChip kind={it.attachment} onClick={() => it.attachment && setOpen(i)}/>,
+          <span style={{ color: C.textSub, whiteSpace:'normal' }}>{it.note || '—'}</span>,
+        ])}
+      />
+      {open !== null && items[open] && items[open].attachment && (
+        <AttachmentModal
+          kind={items[open].attachment}
+          date={items[open].date}
+          symptom={items[open].symptom}
+          onClose={() => setOpen(null)}/>
+      )}
+    </>
+  );
+}
+function ProCell({ v }) {
+  let color = C.text;
+  if (v >= 7) color = '#D63A3A';
+  else if (v >= 4) color = '#D08221';
+  else if (v === 0) color = C.textMute;
+  return <span style={{ color, fontWeight: v >= 4 ? 700 : 500 }}>{v}</span>;
+}
+function ProRawModal({ items, onClose }) {
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.5)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 120,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 620, maxWidth:'92vw', maxHeight:'80vh',
+        background: C.surface, borderRadius: 16, overflow:'hidden',
+        display:'flex', flexDirection:'column',
+        boxShadow: '0 24px 60px rgba(0,0,0,0.2)',
+      }}>
+        <div style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding: '14px 18px', borderBottom: `1px solid ${C.borderSoft}`,
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
+            일자별 PRO 점수표
+          </div>
+          <button onClick={onClose} style={{ color: C.textSub, padding: 4, display:'flex' }}>
+            <Icon name="x" size={20}/>
+          </button>
+        </div>
+        <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '14px 18px' }}>
+          <ReportTable
+            head={['날짜', '통증', '메스꺼움', '설사', '변비', '피로']}
+            rows={items.map(it => [
+              it.date,
+              <ProCell v={it.pain}/>, <ProCell v={it.nausea}/>,
+              <ProCell v={it.diarrhea}/>, <ProCell v={it.constipation}/>,
+              <ProCell v={it.fatigue}/>,
+            ])}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReportPro({ items, insights, period }) {
+  const [showRaw, setShowRaw] = useState(false);
+  return (
+    <div>
+      {/* AI 인사이트 */}
+      <div style={{
+        padding: '14px 16px',
+        background: '#FAFBFC',
+        border: `1px solid ${C.borderSoft}`,
+        borderRadius: 12,
+        marginBottom: 12,
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 4 }}>
+          <span style={{
+            display:'inline-flex', alignItems:'center', height: 18,
+            padding:'0 6px', borderRadius: 3,
+            background: C.accentSoft, color: C.accent,
+            fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
+          }}>AI</span>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+            대장암 PRO 인사이트
+          </div>
+        </div>
+        {period && (
+          <div style={{ fontSize: 11.5, color: C.textSub, marginBottom: 10 }}>
+            {period.start} → {period.end} (지난 외래 ~ 현재)
+          </div>
+        )}
+        {insights && insights.map((it, i) => {
+          const tone = AI_TONES[it.tone] || AI_TONES['안정'];
+          return (
+            <div key={i} style={{
+              display:'flex', alignItems:'center', gap: 12, padding: '8px 0',
+              borderTop: i === 0 ? `1px solid ${C.borderSoft}` : 'none',
+              borderBottom: `1px dashed ${C.borderSoft}`,
+              fontSize: 12.5,
+            }}>
+              <div style={{ width: 96, color: C.textSub, fontWeight: 700, flexShrink: 0 }}>
+                {it.category}
+              </div>
+              <div style={{ flex: 1, color: C.text, lineHeight: 1.55 }}>
+                {it.text}
+              </div>
+              <span style={{
+                display:'inline-flex', alignItems:'center', height: 20,
+                padding:'0 8px', borderRadius: 4,
+                background: tone.bg, color: tone.color,
+                fontSize: 11, fontWeight: 800, letterSpacing: 0.4,
+                flexShrink: 0,
+              }}>{it.tone}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <button onClick={() => setShowRaw(true)} style={{
+        display:'inline-flex', alignItems:'center', gap: 6,
+        height: 34, padding: '0 14px', borderRadius: 8,
+        border: `1px solid ${C.border}`, background: C.surface,
+        fontSize: 12.5, fontWeight: 600, color: C.text, cursor: 'pointer',
+      }}>
+        일자별 PRO 보기
+        <span style={{ color: C.textSub }}>→</span>
+      </button>
+
+      {showRaw && <ProRawModal items={items} onClose={() => setShowRaw(false)}/>}
+    </div>
+  );
+}
+function StatCard({ label, children }) {
+  return (
+    <div style={{
+      flex: 1, background: C.surface,
+      border: `1px solid ${C.borderSoft}`,
+      borderRadius: 10, padding: '12px 14px',
+    }}>
+      <div style={{
+        fontSize: 10.5, color: C.textMute, fontWeight: 800,
+        letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
+      }}>{label}</div>
+      <div style={{ display:'flex', alignItems:'baseline', gap: 6 }}>{children}</div>
+    </div>
+  );
+}
+
+function WeightChart({ monthly, baseline }) {
+  const W = 560, H = 140;
+  const PAD = { top: 18, right: 26, bottom: 26, left: 42 };
+  const innerW = W - PAD.left - PAD.right;
+  const innerH = H - PAD.top - PAD.bottom;
+
+  const values = monthly.map(m => m.avg).concat([baseline]);
+  const yMin = Math.floor(Math.min(...values) - 0.5);
+  const yMax = Math.ceil(Math.max(...values) + 0.5);
+  const yRange = Math.max(yMax - yMin, 1);
+
+  const xToPx = (i, n) => n <= 1
+    ? PAD.left + innerW / 2
+    : PAD.left + (i / (n - 1)) * innerW;
+  const yToPx = (v) => PAD.top + innerH * (1 - (v - yMin) / yRange);
+  const baselineY = yToPx(baseline);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', height:'auto', display:'block' }}>
+      {/* y-grid */}
+      {[0, 0.25, 0.5, 0.75, 1].map(p => {
+        const y = PAD.top + p * innerH;
+        const v = yMax - p * yRange;
+        return (
+          <g key={p}>
+            <line x1={PAD.left} x2={W - PAD.right} y1={y} y2={y}
+                  stroke={C.borderSoft} strokeWidth="1"/>
+            <text x={PAD.left - 8} y={y + 4} textAnchor="end"
+                  fontSize="10.5" fill={C.textSub} fontFamily="Pretendard">
+              {v.toFixed(0)}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* 치료 전 reference line (dashed) */}
+      <line x1={PAD.left} x2={W - PAD.right} y1={baselineY} y2={baselineY}
+            stroke="#9AA1AE" strokeWidth="1" strokeDasharray="3 4"/>
+      <text x={W - PAD.right} y={baselineY - 5} textAnchor="end"
+            fontSize="10" fill={C.textSub} fontFamily="Pretendard">
+        치료 전 {baseline} kg
+      </text>
+
+      {/* Line */}
+      <polyline
+        fill="none" stroke={C.accent} strokeWidth="1.4"
+        strokeLinejoin="round" strokeLinecap="round"
+        points={monthly.map((m, i) => `${xToPx(i, monthly.length)},${yToPx(m.avg)}`).join(' ')}
+      />
+
+      {/* Dots + x-axis */}
+      {monthly.map((m, i) => {
+        const x = xToPx(i, monthly.length);
+        const y = yToPx(m.avg);
+        return (
+          <g key={i}>
+            <circle cx={x} cy={y} r="3" fill="#fff" stroke={C.accent} strokeWidth="1.6"/>
+            <text x={x} y={H - PAD.bottom + 15} textAnchor="middle"
+                  fontSize="10" fill={C.textSub} fontFamily="Pretendard">
+              {m.month.slice(2)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function ReportWeight({ data }) {
+  if (!data || !data.monthly || data.monthly.length === 0) return null;
+  const { baseline, baselineDate, monthly } = data;
+  const current = monthly[monthly.length - 1].avg;
+  const change = +(current - baseline).toFixed(1);
+  const pct = +((change / baseline) * 100).toFixed(1);
+  const decreased = change < 0;
+  const trendColor = decreased ? '#D63A3A' : (change > 0 ? '#16A769' : C.textSub);
+
+  return (
+    <div>
+      {/* 치료 전 체중 — pinned */}
+      <div style={{
+        display:'flex', alignItems:'baseline', justifyContent:'space-between',
+        padding: '12px 14px', marginBottom: 10,
+        background: C.bg, borderRadius: 10,
+        border: `1px solid ${C.borderSoft}`,
+      }}>
+        <div>
+          <div style={{
+            fontSize: 10.5, color: C.textMute, fontWeight: 800,
+            letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 4,
+          }}>치료 전 체중</div>
+          <div style={{ display:'flex', alignItems:'baseline', gap: 8 }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{baseline}</div>
+            <div style={{ fontSize: 13, color: C.textSub }}>kg · {baselineDate}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* 이번 달 평균 + 치료 전 대비 */}
+      <div style={{ display:'flex', gap: 8, marginBottom: 12 }}>
+        <StatCard label="이번 달 평균">
+          <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{current}</div>
+          <div style={{ fontSize: 12, color: C.textSub }}>kg</div>
+        </StatCard>
+        <StatCard label="치료 전 대비">
+          <span style={{
+            fontSize: 11, color: trendColor, fontWeight: 800,
+            marginRight: 4, lineHeight: 1, position:'relative', top: -3,
+          }}>
+            {decreased ? '▼' : (change > 0 ? '▲' : '—')}
+          </span>
+          <span style={{ fontSize: 22, fontWeight: 800, color: trendColor }}>
+            {Math.abs(change)}
+          </span>
+          <span style={{ fontSize: 12, color: C.textSub }}>
+            kg ({pct > 0 ? '+' : ''}{pct}%)
+          </span>
+        </StatCard>
+      </div>
+
+      {/* 그래프 */}
+      <div style={{
+        background: C.surface, border: `1px solid ${C.borderSoft}`,
+        borderRadius: 10, padding: '12px 14px 10px',
+      }}>
+        <div style={{
+          fontSize: 10.5, color: C.textMute, fontWeight: 800,
+          letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
+        }}>체중 변화 추이</div>
+        <WeightChart monthly={monthly} baseline={baseline}/>
+      </div>
+    </div>
+  );
+}
+function ReportDiet({ items }) {
+  return (
+    <ReportTable
+      head={['월', '순응도', '과일·채소', '가공식품', '수분', '비고']}
+      rows={items.map(it => [
+        it.month,
+        <span style={{ fontWeight: 700,
+          color: it.compliance >= 80 ? '#16A769' : (it.compliance >= 70 ? C.text : '#D08221') }}>
+          {it.compliance}%
+        </span>,
+        it.fruitsVeg, it.processed, it.water,
+        <span style={{ color: it.note ? '#D08221' : C.textMute }}>{it.note || '—'}</span>,
+      ])}
+    />
+  );
+}
+function ReportExercise({ items }) {
+  return (
+    <ReportTable
+      head={['월', '일평균 걸음', '중강도 운동', '횟수', '비고']}
+      rows={items.map(it => [
+        it.month,
+        `${it.steps.toLocaleString()} 보`,
+        it.intensity, it.sessions,
+        <span style={{ color: it.note ? '#D08221' : C.textMute }}>{it.note || '—'}</span>,
+      ])}
+    />
+  );
+}
+
+function HomeReportCard({ patient, collapsed, active, onToggle }) {
+  const [status, setStatus] = useState('none');
+  const [code, setCode] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [section, setSection] = useState('ai');
+
+  const homeReport = patient && patient.homeReport;
+  const hasData = !!homeReport;
+
+  const genCode = () => 'MX' + Math.floor(1000 + Math.random() * 9000);
+  const onClickSend = () => {
+    if (status === 'sent') return;
+    setCode(genCode());
+    setShowModal(true);
+  };
+  const onConfirmSend = () => { setStatus('sent'); setShowModal(false); };
+  const sent = status === 'sent';
+
+  const toggleBtn = (
+    <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+      style={{ color: C.textSub, padding: 4, display:'flex' }}>
+      <Icon name={active ? 'collapse' : 'expand'} size={13}/>
+    </button>
+  );
+
+  if (collapsed) {
+    return (
+      <>
+        <div onClick={onToggle} style={{
+          background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+          padding: '12px 18px', flexShrink: 0, cursor: 'pointer',
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>환자 재택 관리 경과 보고</div>
+          <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+            style={{ color: C.textSub, padding: 4, display:'flex' }}>
+            <Icon name="expand" size={13}/>
+          </button>
+        </div>
+        {showModal && (
+          <SendCodeModal code={code} onClose={() => setShowModal(false)} onConfirm={onConfirmSend}/>
+        )}
+      </>
+    );
+  }
+
+  const sectionContent = (() => {
+    if (!hasData) return null;
+    if (section === 'ai')       return <ReportAi       items={homeReport.ai}/>;
+    if (section === 'symptoms') return <ReportSymptoms items={homeReport.symptoms}/>;
+    if (section === 'pro')      return <ReportPro      items={homeReport.pro} insights={homeReport.proInsights} period={homeReport.proPeriod}/>;
+    if (section === 'weight')   return <ReportWeight   data={homeReport.weight}/>;
+    if (section === 'diet')     return <ReportDiet     items={homeReport.diet}/>;
+    if (section === 'exercise') return <ReportExercise items={homeReport.exercise}/>;
+    return null;
+  })();
+
+  return (
+    <div style={{ flex: 1, minHeight: 0, display:'flex', flexDirection:'column' }}>
+      <div style={{
+        flex: 1, minHeight: 0,
+        background: C.surface, borderRadius: 12,
+        border: `1px solid ${C.border}`,
+        display:'flex', flexDirection:'column', overflow:'hidden',
+      }}>
+        {/* 타이틀 */}
+        <div style={{
+          padding: '14px 18px',
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          borderBottom: hasData ? `1px solid ${C.borderSoft}` : 'none',
+        }}>
+          <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text }}>
+            환자 재택 관리 경과 보고
+          </div>
+          {toggleBtn}
+        </div>
+
+        {hasData ? (
+          <div style={{ flex: 1, minHeight: 0, display:'flex' }}>
+            {/* 좌측 섹션 사이드바 */}
+            <div className="scroll" style={{
+              width: 140, flexShrink: 0, overflowY:'auto',
+              borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
+            }}>
+              {HOME_REPORT_SECTIONS.map(s => {
+                const a = section === s.k;
+                return (
+                  <button key={s.k} onClick={() => setSection(s.k)} style={{
+                    width:'100%', textAlign:'left',
+                    padding: '10px 14px', fontSize: 12.5,
+                    color: a ? C.text : C.textSub,
+                    fontWeight: a ? 700 : 500,
+                    background: a ? C.bg : 'transparent',
+                    borderLeft: a ? `3px solid ${C.text}` : '3px solid transparent',
+                  }}>{s.l}</button>
+                );
+              })}
+            </div>
+            {/* 우측 콘텐츠 */}
+            <div className="scroll" style={{
+              flex: 1, minWidth: 0, overflowY:'auto',
+              padding: '14px 18px 18px',
+            }}>
+              {sectionContent}
+            </div>
+          </div>
+        ) : (
+          /* 빈 상태 — 환자 코드 전송 */
+          <div style={{
+            flex: 1, display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center', gap: 14,
+            padding: '16px',
+          }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 28,
+              background: C.bg,
+              display:'flex', alignItems:'center', justifyContent:'center',
+              color: C.textMute,
+            }}>
+              <Icon name="inbox" size={26}/>
+            </div>
+            <div style={{ fontSize: 12.5, color: C.textSub, textAlign:'center', lineHeight: 1.5 }}>
+              아직 환자가 보낸 재택 관리 데이터가 없습니다.<br/>
+              환자에게 코드를 전송해 시작하세요.
+            </div>
+            <button
+              onClick={onClickSend} disabled={sent}
+              style={{
+                display:'flex', alignItems:'center', gap: 8,
+                height: 40, padding: '0 20px', borderRadius: 10,
+                background: sent ? C.graySoft : C.primary,
+                color: sent ? C.textSub : '#fff',
+                fontSize: 13.5, fontWeight: 700,
+                cursor: sent ? 'not-allowed' : 'pointer',
+                border: 'none',
+              }}>
+              {sent
+                ? (<><Icon name="check" size={13} color={C.textSub}/> 환자 코드 전송 완료</>)
+                : (<><Icon name="send" size={14} color="#fff"/> 환자 코드 전송</>)}
+            </button>
+          </div>
+        )}
+      </div>
+      {showModal && (
+        <SendCodeModal code={code} onClose={() => setShowModal(false)} onConfirm={onConfirmSend}/>
+      )}
+    </div>
+  );
+}
+
+function SendCodeModal({ code, onClose, onConfirm }) {
+  const [phone, setPhone] = useState('010-1234-5678');
+  const smsBody = `[닥터앤서] 환자 코드 ${code}\n닥터앤서 앱에 접속하여 위 코드를 입력해 재택 관리를 시작해 주세요.\nhttps://minjoooolee.github.io/dr.answer-pro/6/`;
+
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.45)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 100,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 440, maxWidth:'92vw',
+        background: C.surface, borderRadius: 16, padding: 26,
+        boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 18 }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>환자에게 코드 전송</div>
+          <button onClick={onClose} style={{ color: C.textSub }}>
+            <Icon name="x" size={20}/>
+          </button>
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 12, color: C.textSub, marginBottom: 6, fontWeight: 600 }}>
+            생성된 환자 코드
+          </div>
+          <div style={{
+            padding: '16px', borderRadius: 10, background: C.bg,
+            border: `1px solid ${C.border}`,
+            fontSize: 28, fontWeight: 800, color: C.primary,
+            letterSpacing: 4, textAlign:'center',
+          }}>
+            {code}
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 12, color: C.textSub, marginBottom: 6, fontWeight: 600 }}>
+            환자 휴대폰 번호
+          </div>
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="010-0000-0000"
+            style={{
+              width:'100%', height: 42, padding: '0 14px', borderRadius: 8,
+              border: `1px solid ${C.border}`, background: C.surface,
+              fontSize: 14, color: C.text, outline: 'none', boxSizing:'border-box',
+            }}/>
+        </div>
+
+        <div style={{
+          padding: '12px 14px', borderRadius: 10, background: C.bg,
+          border: `1px solid ${C.borderSoft}`, marginBottom: 22,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.textSub, marginBottom: 4 }}>
+            전송될 문자 내용 미리보기
+          </div>
+          <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.6, whiteSpace:'pre-line' }}>
+            {smsBody}
+          </div>
+        </div>
+
+        <div style={{ display:'flex', gap: 8 }}>
+          <button onClick={onClose} style={{
+            flex: 1, height: 44, borderRadius: 10,
+            border: `1px solid ${C.border}`, background: C.surface,
+            fontSize: 14, fontWeight: 600, color: C.text,
+          }}>
+            취소
+          </button>
+          <button onClick={onConfirm} style={{
+            flex: 1, height: 44, borderRadius: 10,
+            background: C.primary, color: '#fff',
+            fontSize: 14, fontWeight: 700,
+            display:'flex', alignItems:'center', justifyContent:'center', gap: 6,
+          }}>
+            <Icon name="send" size={14} color="#fff"/> 문자 전송
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ───────── 재발률 예측 스코어 카드 (꺾은선 그래프) ───────── */
+function RecurrenceChart({ points }) {
+  const W = 560, H = 130;
+  const PAD = { top: 12, right: 24, bottom: 24, left: 36 };
+  const innerW = W - PAD.left - PAD.right;
+  const innerH = H - PAD.top - PAD.bottom;
+  const yMax = 100;
+
+  const xToPx = (i, n) => n <= 1
+    ? PAD.left + innerW / 2
+    : PAD.left + (i / (n - 1)) * innerW;
+  const yToPx = (v) => PAD.top + innerH * (1 - v / yMax);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', height:'auto', display:'block' }}>
+      {/* y-grid */}
+      {[0, 25, 50, 75, 100].map(v => (
+        <g key={v}>
+          <line x1={PAD.left} x2={W - PAD.right} y1={yToPx(v)} y2={yToPx(v)}
+                stroke={C.borderSoft} strokeWidth="1"/>
+          <text x={PAD.left - 8} y={yToPx(v) + 4} textAnchor="end"
+                fontSize="11" fill={C.textSub} fontFamily="Pretendard">{v}</text>
+        </g>
+      ))}
+      {/* baseline */}
+      <line x1={PAD.left} x2={W - PAD.right} y1={yToPx(0)} y2={yToPx(0)}
+            stroke={C.border} strokeWidth="1"/>
+      {/* line */}
+      {points.length > 1 && (
+        <polyline
+          fill="none" stroke={C.accent} strokeWidth="1.4"
+          strokeLinejoin="round" strokeLinecap="round"
+          points={points.map((p, i) => `${xToPx(i, points.length)},${yToPx(p.score)}`).join(' ')}
+        />
+      )}
+      {/* dots + labels + x-axis ticks */}
+      {points.map((p, i) => {
+        const x = xToPx(i, points.length);
+        const y = yToPx(p.score);
+        return (
+          <g key={i}>
+            <circle cx={x} cy={y} r="4" fill="#fff" stroke={C.accent} strokeWidth="2"/>
+            <text x={x} y={y - 11} textAnchor="middle" fontSize="11.5" fontWeight="700"
+                  fill={C.text} fontFamily="Pretendard">{p.score}</text>
+            <text x={x} y={H - PAD.bottom + 18} textAnchor="middle" fontSize="11"
+                  fill={C.textSub} fontFamily="Pretendard">{p.date}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* "**critical**" 마커를 굵게 강조해서 렌더링 (블랙 + 볼드) */
+function renderRich(text) {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
+    p.startsWith('**') && p.endsWith('**')
+      ? <strong key={i} style={{ fontWeight: 800, color: C.text }}>{p.slice(2, -2)}</strong>
+      : <React.Fragment key={i}>{p}</React.Fragment>
+  );
+}
+
+function FactorColumn({ dir, color, label, items }) {
+  return (
+    <div style={{ flex: 1, padding: '10px 12px', minWidth: 0 }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 4, marginBottom: 8 }}>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+             stroke={color} strokeWidth="3"
+             strokeLinecap="round" strokeLinejoin="round">
+          {dir === 'up'
+            ? <><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></>
+            : <><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></>}
+        </svg>
+        <div style={{
+          fontSize: 11, fontWeight: 800, color, letterSpacing: 0.6,
+          textTransform: 'uppercase',
+        }}>{label}</div>
+      </div>
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+        {items.length === 0 ? (
+          <li style={{ fontSize: 12, color: C.textMute }}>—</li>
+        ) : items.map((line, i) => (
+          <li key={i} style={{
+            fontSize: 12.5, color: C.text, lineHeight: 1.55,
+            marginBottom: 3,
+          }}>{renderRich(line)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RiskBadge({ score }) {
+  let bg = C.greenSoft, fg = C.green, label = '낮음';
+  if (score >= 70)      { bg = '#FBE6E6'; fg = '#D63A3A'; label = '높음'; }
+  else if (score >= 40) { bg = '#FFF1DC'; fg = '#D08221'; label = '주의'; }
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', height: 22, padding: '0 8px',
+      borderRadius: 4, background: bg, color: fg, fontSize: 11, fontWeight: 700,
+    }}>{label}</span>
+  );
+}
+
+function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
+  const latest = points[points.length - 1];
+
+  const titleRow = (
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 6 }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
+        <span style={{
+          display:'inline-flex', alignItems:'center', height: 20,
+          padding: '0 8px', borderRadius: 4,
+          background: C.accentSoft, color: C.accent,
+          fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
+        }}>AI</span>
+      </div>
+      <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+        style={{ color: C.textSub, padding: 4, display:'flex' }}>
+        <Icon name={active ? 'collapse' : 'expand'} size={13}/>
+      </button>
+    </div>
+  );
+
+  // 접힌 상태 — 헤더 바만
+  if (collapsed) {
+    return (
+      <div onClick={onToggle} style={{
+        background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+        padding: '12px 18px', flexShrink: 0, cursor: 'pointer',
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
+          <span style={{
+            display:'inline-flex', alignItems:'center', height: 20,
+            padding: '0 8px', borderRadius: 4,
+            background: C.accentSoft, color: C.accent,
+            fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
+          }}>AI</span>
+        </div>
+        <button onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          style={{ color: C.textSub, padding: 4, display:'flex' }}>
+          <Icon name="expand" size={13}/>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      flex: 1, minHeight: 0,
+      background: C.surface, borderRadius: 12, border: `1px solid ${C.border}`,
+      padding: '16px 20px', display:'flex', flexDirection:'column',
+    }}>
+      {titleRow}
+
+      {latest && (
+        <div style={{ display:'flex', alignItems:'baseline', gap: 10, padding: '2px 0 10px' }}>
+          <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1 }}>{latest.score}</div>
+          <div style={{ fontSize: 12, color: C.textSub }}>/ 100</div>
+          <RiskBadge score={latest.score}/>
+          <div style={{ marginLeft: 'auto', fontSize: 12, color: C.textSub }}>
+            기준일 {latest.date} ({latest.note || '퇴원'})
+          </div>
+        </div>
+      )}
+
+      {/* AI 분석 — 스코어 상승/하강 인자 2 컬럼 */}
+      {analysis && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{
+            fontSize: 10, fontWeight: 800, color: C.textMute,
+            letterSpacing: 1.4, textTransform: 'uppercase',
+            marginBottom: 6,
+          }}>
+            AI · 스코어 산출 근거
+          </div>
+          <div style={{
+            background: '#FAFBFC',
+            border: `1px solid ${C.borderSoft}`,
+            borderRadius: 10,
+            display: 'flex',
+          }}>
+            <FactorColumn dir="up"   color="#D63A3A" label="상승 인자" items={analysis.up || []}/>
+            <div style={{ width: 1, background: C.borderSoft }}/>
+            <FactorColumn dir="down" color="#16A769" label="하강 인자" items={analysis.down || []}/>
+          </div>
+        </div>
+      )}
+
+      {/* 꺾은선 그래프 — 세로로 컴팩트 */}
+      <div className="scroll" style={{ flex: 1, minHeight: 0, overflow:'auto' }}>
+        <RecurrenceChart points={points}/>
+      </div>
+    </div>
+  );
+}
+
+function CenterPanel({ patient }) {
+  const [activePanel, setActivePanel] = useState(null); // null | 'report' | 'recurrence'
+  const toggle = (p) => setActivePanel(prev => prev === p ? null : p);
+  return (
+    <section style={{
+      flex: 1, minWidth: 0,
+      display:'flex', flexDirection:'column', gap: 10, minHeight: 0,
+    }}>
+      {/* 환자 상단 정보 카드 */}
+      <div style={{
+        padding: '16px 22px', background: C.surface,
+        borderRadius: 12, border: `1px solid ${C.border}`,
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        flexShrink: 0,
+      }}>
+        <div style={{ display:'flex', alignItems:'baseline', gap: 8 }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: C.text }}>{patient.name}</div>
+          <div style={{ fontSize: 13, color: C.textSub }}>만 {patient.age}세 · {patient.gender === 'F' ? '여성' : '남성'}</div>
+        </div>
+        <button style={{
+          display:'flex', alignItems:'center', gap: 6,
+          height: 34, padding: '0 14px', borderRadius: 8,
+          border: `1px solid ${C.border}`, background: C.surface,
+          fontSize: 13, fontWeight: 600, color: C.text,
+        }}>
+          2026.3.25(수) <Icon name="chevD" size={14} color={C.textSub}/>
+        </button>
+      </div>
+
+      <HomeReportCard
+        patient={patient}
+        collapsed={activePanel === 'recurrence'}
+        active={activePanel === 'report'}
+        onToggle={() => toggle('report')}
+      />
+      <RecurrenceCard
+        collapsed={activePanel === 'report'}
+        active={activePanel === 'recurrence'}
+        onToggle={() => toggle('recurrence')}
+        points={patient.recurrence || []}
+        analysis={patient.analysis}
+      />
+    </section>
+  );
+}
+
+/* ───────── 우측 패널 — EMR / 재택 관리 플랜 ───────── */
+const PLAN_SECTIONS = [
+  { k:'all',      l:'전체' },
+  { k:'diet',     l:'식이처방' },
+  { k:'exercise', l:'운동처방' },
+  { k:'measure',  l:'자기측정처방' },
+  { k:'triage',   l:'트리아제 트리거' },
+  { k:'next',     l:'다음 외래 일정' },
+  { k:'custom',   l:'의료진 직접 처방' },
+];
+const FREQ_OPTIONS = ['매일', '주 5회', '주 3회', '주 2회', '주 1회', '미실시'];
+const PRO_DAILY  = ['통증', '메스꺼움', '설사', '변비', '피로'];
+const PRO_WEEKLY = ['손발 저림', '식욕', '수면'];
+const NEXT_METRICS = [
+  '재발률 예측 스코어',
+  '체중 변화',
+  '통증 패턴',
+  '운동량 (걸음수)',
+  '식이 순응도',
+  '수면 / 피로',
+  '응급상황 발생 횟수',
+];
+const DEFAULT_PLAN = {
+  diet: {
+    fruitsVeg: 5, fiber: 25,
+    processedMeat: 2, redMeat: 3, fried: 1, sugary: 1,
+    alcohol: '절제 (주 2잔 이하)',
+    water: 2,
+    note: '',
+  },
+  exercise: {
+    freq: 3, intensity: '중강도',
+    timePerSession: 30, timePerWeek: 150,
+    aerobic: true, strength: true, strengthFreq: 2,
+    progressive: true,
+  },
+  measure: {
+    weight: '주 3회', bp: '매일', pain: '매일', diet: '매일', exercise: '매일',
+    daily:  { '통증': true, '메스꺼움': true, '설사': true, '변비': false, '피로': true },
+    weekly: { '손발 저림': true, '식욕': true, '수면': true },
+    painThreshold: 7,
+  },
+  triage: {
+    redFever: true, redFeverTemp: 38.5,
+    redBlood: true, redAbdominalPain: true, redConsciousness: true,
+    yellowFever: true, yellowFeverTemp: 38.0,
+    yellowDiarrhea: true, yellowDiarrheaFreq: 6,
+    yellowDehydration: true,
+  },
+  next: {
+    checkDate: '2026.04.10',
+    nextVisit: '2026.05.15',
+    metrics: {
+      '재발률 예측 스코어': true,
+      '체중 변화': true,
+      '통증 패턴': true,
+      '운동량 (걸음수)': true,
+      '식이 순응도': false,
+      '수면 / 피로': false,
+      '응급상황 발생 횟수': true,
+    },
+  },
+  custom: '',
+};
+
+/* ─── EMR 보조 컴포넌트들 ─── */
+const REGIMENS = [
+  'FOLFOX',
+  'FOLFIRI',
+  'FOLFOXIRI',
+  'CAPOX (XELOX)',
+  'Capecitabine 단독',
+  '5-FU + Leucovorin',
+  'FOLFOX + Bevacizumab',
+  'FOLFIRI + Cetuximab',
+];
+const EMR_SECTIONS = [
+  { k:'basic',         l:'기본 정보' },
+  { k:'comorbidities', l:'동반 질환' },
+  { k:'chemo',         l:'항암 치료 정보' },
+  { k:'surgery',       l:'수술 이력' },
+];
+const COMORBIDITY_LIST = [
+  '고혈압', '당뇨', '고지혈증', '심혈관 질환',
+  '만성 신질환', '만성 폐질환', '간 질환',
+  '갑상선 질환', '골다공증', '뇌혈관 질환',
+];
+
+function KVGrid({ items, cols = 2 }) {
+  return (
+    <div style={{
+      display:'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      columnGap: 18, rowGap: 10,
+    }}>
+      {items.map(([k, v], i) => (
+        <div key={i} style={{ display:'flex', gap: 8, fontSize: 13, alignItems:'baseline' }}>
+          <div style={{ width: 84, color: C.textSub, flexShrink: 0 }}>{k}</div>
+          <div style={{ color: C.text, fontWeight: 500, flex: 1 }}>{v}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Field({ label, children }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap: 12, marginBottom: 12 }}>
+      <div style={{ width: 110, fontSize: 12.5, color: C.textSub, flexShrink: 0 }}>{label}</div>
+      <div style={{ flex: 1 }}>{children}</div>
+    </div>
+  );
+}
+
+function Select({ value, options, onChange }) {
+  return (
+    <div style={{ position:'relative' }}>
+      <select value={value} onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%', height: 36, padding: '0 32px 0 12px',
+          borderRadius: 8, border: `1px solid ${C.border}`, background: C.surface,
+          fontSize: 13, color: C.text, fontFamily: 'inherit',
+          appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none',
+          cursor: 'pointer',
+        }}>
+        {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+      </select>
+      <div style={{ position:'absolute', right: 10, top: '50%', transform:'translateY(-50%)', pointerEvents:'none', color: C.textSub }}>
+        <Icon name="chevD" size={14}/>
+      </div>
+    </div>
+  );
+}
+
+function TextInput({ value, onChange, placeholder, width }) {
+  return (
+    <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+      style={{
+        width: width || '100%', height: 36, padding: '0 12px',
+        borderRadius: 8, border: `1px solid ${C.border}`, background: C.surface,
+        fontSize: 13, color: C.text, outline: 'none', boxSizing:'border-box',
+      }}/>
+  );
+}
+
+function EMRPanel({ emr }) {
+  const [section, setSection] = useState('basic');
+  const [chemo, setChemo] = useState(emr ? emr.chemo : null);
+  const [cobs,  setCobs]  = useState(emr ? emr.comorbidities : null);
+  const [cobsNote, setCobsNote] = useState(emr ? (emr.comorbiditiesNote || '') : '');
+
+  if (!emr) {
+    return (
+      <div style={{
+        flex: 1, display:'flex', alignItems:'center', justifyContent:'center',
+        padding: 24, color: C.textSub, fontSize: 13,
+      }}>
+        등록된 치료 정보가 없습니다.
+      </div>
+    );
+  }
+
+  const content = (() => {
+    if (section === 'basic') {
+      return (
+        <KVGrid cols={2} items={[
+          ['나이', emr.basic.age],
+          ['성별', emr.basic.gender],
+          ['신장', emr.basic.height],
+          ['체중', emr.basic.weight],
+          ['BMI',  emr.basic.bmi],
+          ['혈압', emr.basic.bp],
+          ['맥박', emr.basic.pulse],
+          ['ECOG', emr.basic.ecog],
+        ]}/>
+      );
+    }
+    if (section === 'comorbidities') {
+      const toggle = (k) => setCobs({ ...(cobs || {}), [k]: !(cobs && cobs[k]) });
+      return (
+        <div>
+          <SubHeader>기저질환 여부</SubHeader>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 4, marginBottom: 16 }}>
+            {COMORBIDITY_LIST.map(c => (
+              <CheckBox key={c} checked={!!(cobs && cobs[c])} onChange={() => toggle(c)} label={c}/>
+            ))}
+          </div>
+          <SubHeader>기타 / 메모</SubHeader>
+          <Textarea value={cobsNote} onChange={setCobsNote}
+            placeholder="동반 복용 약물, 알레르기, 특이사항 등"/>
+        </div>
+      );
+    }
+    if (section === 'chemo') {
+      return (
+        <div>
+          <Field label="레지멘">
+            <Select value={chemo.regimen} options={REGIMENS}
+              onChange={(v) => setChemo({ ...chemo, regimen: v })}/>
+          </Field>
+          <Field label="치료 차수">
+            <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+              <TextInput value={String(chemo.cycleNum)} width={80}
+                onChange={(v) => setChemo({ ...chemo, cycleNum: v.replace(/\D/g, '') })}/>
+              <span style={{ fontSize: 13, color: C.textSub }}>/</span>
+              <TextInput value={String(chemo.cycleTotal)} width={80}
+                onChange={(v) => setChemo({ ...chemo, cycleTotal: v.replace(/\D/g, '') })}/>
+              <span style={{ fontSize: 13, color: C.textSub }}>주기</span>
+            </div>
+          </Field>
+          <Field label="이번 주기 시작일">
+            <TextInput value={chemo.lastStartDate} placeholder="YYYY.MM.DD"
+              onChange={(v) => setChemo({ ...chemo, lastStartDate: v })} width={180}/>
+          </Field>
+          <Field label="치료 유형">
+            <Select value={chemo.adjuvant ? '보조 화학요법 (Adjuvant)' : '완화 화학요법 (Palliative)'}
+              options={['보조 화학요법 (Adjuvant)', '완화 화학요법 (Palliative)', '선행 화학요법 (Neoadjuvant)']}
+              onChange={(v) => setChemo({ ...chemo, adjuvant: v.includes('보조') })}/>
+          </Field>
+          <Field label="비고">
+            <TextInput value={chemo.note || ''} placeholder="메모"
+              onChange={(v) => setChemo({ ...chemo, note: v })}/>
+          </Field>
+        </div>
+      );
+    }
+    if (section === 'surgery') {
+      return (
+        <KVGrid cols={1} items={[
+          ['수술일',    emr.surgery.date],
+          ['수술 방법', emr.surgery.method],
+          ['집도의',    emr.surgery.surgeon],
+          ['병기',      emr.surgery.stage],
+        ]}/>
+      );
+    }
+    return null;
+  })();
+
+  const sectionLabel = EMR_SECTIONS.find(s => s.k === section).l;
+
+  return (
+    <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
+      {/* 좌측 섹션 사이드바 */}
+      <div className="scroll" style={{
+        width: 168, overflowY:'auto',
+        borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
+      }}>
+        {EMR_SECTIONS.map(s => {
+          const active = section === s.k;
+          return (
+            <button key={s.k} onClick={() => setSection(s.k)} style={{
+              width:'100%', textAlign:'left',
+              padding: '10px 16px', fontSize: 13,
+              color: active ? C.text : C.textSub,
+              fontWeight: active ? 700 : 500,
+              background: active ? C.bg : 'transparent',
+              borderLeft: active ? `3px solid ${C.text}` : '3px solid transparent',
+            }}>{s.l}</button>
+          );
+        })}
+      </div>
+      {/* 우측 콘텐츠 */}
+      <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '16px 20px 20px' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>
+          {sectionLabel}
+        </div>
+        {content}
+      </div>
+    </div>
+  );
+}
+
+/* ─── 재택 관리 플랜 helpers ─── */
+function NumberInput({ value, onChange, width = 64 }) {
+  return (
+    <input type="text" inputMode="decimal" value={value}
+      onChange={(e) => onChange(e.target.value.replace(/[^\d.]/g, ''))}
+      style={{
+        width, height: 32, padding: '0 8px',
+        borderRadius: 6, border: `1px solid ${C.border}`, background: C.surface,
+        fontSize: 13, color: C.text, outline: 'none', textAlign:'center',
+        fontFamily: 'inherit', boxSizing:'border-box',
+      }}/>
+  );
+}
+function CheckBox({ checked, onChange, label }) {
+  return (
+    <label onClick={() => onChange(!checked)} style={{
+      display:'inline-flex', alignItems:'center', gap: 6, cursor:'pointer',
+      fontSize: 13, color: C.text, padding: '4px 0',
+    }}>
+      <span style={{
+        width: 16, height: 16, borderRadius: 4,
+        background: checked ? C.accent : C.surface,
+        border: `1.5px solid ${checked ? C.accent : '#C7CCD6'}`,
+        display:'inline-flex', alignItems:'center', justifyContent:'center',
+        flexShrink: 0,
+      }}>
+        {checked && <Icon name="check" size={10} color="#fff"/>}
+      </span>
+      {label}
+    </label>
+  );
+}
+function Segment({ options, value, onChange }) {
+  return (
+    <div style={{
+      display:'inline-flex', background: '#FAFBFC',
+      border: `1px solid ${C.border}`, borderRadius: 8, padding: 2,
+    }}>
+      {options.map(opt => {
+        const active = opt === value;
+        return (
+          <button key={opt} onClick={() => onChange(opt)} style={{
+            padding: '6px 12px', borderRadius: 6,
+            background: active ? C.surface : 'transparent',
+            color: active ? C.text : C.textSub,
+            fontSize: 12.5, fontWeight: active ? 700 : 500,
+            border: active ? `1px solid ${C.border}` : '1px solid transparent',
+            boxShadow: active ? '0 1px 2px rgba(0,0,0,0.04)' : 'none',
+          }}>{opt}</button>
+        );
+      })}
+    </div>
+  );
+}
+function Textarea({ value, onChange, placeholder }) {
+  return (
+    <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+      style={{
+        width:'100%', minHeight: 60, padding: '10px 12px',
+        borderRadius: 8, border: `1px solid ${C.border}`, background: C.surface,
+        fontSize: 13, color: C.text, outline: 'none',
+        fontFamily: 'inherit', resize: 'vertical', boxSizing:'border-box',
+      }}/>
+  );
+}
+function SectionTitle({ children, num }) {
+  return (
+    <div style={{
+      display:'flex', alignItems:'center', gap: 10,
+      marginBottom: 14, paddingBottom: 10,
+      borderBottom: `1px solid ${C.border}`,
+    }}>
+      {num != null && (
+        <span style={{
+          display:'inline-flex', alignItems:'center', justifyContent:'center',
+          width: 22, height: 22, borderRadius: 6,
+          background: C.primary, color: '#fff',
+          fontSize: 11.5, fontWeight: 800, lineHeight: 1,
+        }}>{num}</span>
+      )}
+      <div style={{
+        fontSize: 15.5, fontWeight: 800, color: C.text,
+        letterSpacing: -0.2, lineHeight: 1.2,
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+function SubHeader({ children, color }) {
+  return (
+    <div style={{
+      fontSize: 10.5, fontWeight: 800,
+      color: color || C.textMute,
+      letterSpacing: 1.4, textTransform: 'uppercase',
+      marginBottom: 8,
+    }}>
+      {children}
+    </div>
+  );
+}
+function Card({ children, style }) {
+  return (
+    <div style={{
+      background: '#FAFBFC',
+      borderRadius: 10, border: `1px solid ${C.borderSoft}`,
+      padding: '14px 16px', marginBottom: 10,
+      ...(style || {}),
+    }}>
+      {children}
+    </div>
+  );
+}
+function InlineHint({ children }) {
+  return <span style={{ fontSize: 12.5, color: C.textSub, marginLeft: 4 }}>{children}</span>;
+}
+
+/* ─── 섹션 컴포넌트 ─── */
+function DietSection({ d, set }) {
+  return (
+    <div>
+      <Card>
+        <SubHeader>권장</SubHeader>
+        <Field label="과일·채소">
+          <NumberInput value={d.fruitsVeg} onChange={(v) => set({ ...d, fruitsVeg: v })}/>
+          <InlineHint>servings/일 이상</InlineHint>
+        </Field>
+        <Field label="식이섬유">
+          <NumberInput value={d.fiber} onChange={(v) => set({ ...d, fiber: v })}/>
+          <InlineHint>g/일 이상</InlineHint>
+        </Field>
+      </Card>
+
+      <Card>
+        <SubHeader>제한</SubHeader>
+        <Field label="가공육">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={d.processedMeat} onChange={(v) => set({ ...d, processedMeat: v })}/>
+          <InlineHint>회 이하</InlineHint>
+        </Field>
+        <Field label="붉은 육류">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={d.redMeat} onChange={(v) => set({ ...d, redMeat: v })}/>
+          <InlineHint>회 이하</InlineHint>
+        </Field>
+        <Field label="튀김 · 패스트푸드">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={d.fried} onChange={(v) => set({ ...d, fried: v })}/>
+          <InlineHint>회 이하</InlineHint>
+        </Field>
+        <Field label="가당 음료">
+          <InlineHint>일</InlineHint>
+          <NumberInput value={d.sugary} onChange={(v) => set({ ...d, sugary: v })}/>
+          <InlineHint>잔 이하</InlineHint>
+        </Field>
+      </Card>
+
+      <Card>
+        <SubHeader>알코올 · 수분</SubHeader>
+        <Field label="알코올">
+          <Segment options={['금주', '절제 (주 2잔 이하)', '자유']}
+            value={d.alcohol} onChange={(v) => set({ ...d, alcohol: v })}/>
+        </Field>
+        <Field label="수분">
+          <NumberInput value={d.water} onChange={(v) => set({ ...d, water: v })}/>
+          <InlineHint>L/일 이상</InlineHint>
+        </Field>
+      </Card>
+
+      <Card>
+        <SubHeader>맞춤 메모</SubHeader>
+        <Textarea value={d.note} onChange={(v) => set({ ...d, note: v })}
+          placeholder='예) "장루 환자라 ○○ 주의"'/>
+      </Card>
+    </div>
+  );
+}
+
+function ExerciseSection({ e, set }) {
+  return (
+    <div>
+      <Card>
+        <SubHeader>FITT 처방</SubHeader>
+        <Field label="F · 빈도">
+          <InlineHint>주</InlineHint>
+          <NumberInput value={e.freq} onChange={(v) => set({ ...e, freq: v })}/>
+          <InlineHint>회</InlineHint>
+        </Field>
+        <Field label="I · 강도">
+          <Segment options={['저강도', '중강도', '고강도']}
+            value={e.intensity} onChange={(v) => set({ ...e, intensity: v })}/>
+        </Field>
+        <Field label="T · 시간">
+          <NumberInput value={e.timePerSession} onChange={(v) => set({ ...e, timePerSession: v })}/>
+          <InlineHint>분/회 · 주</InlineHint>
+          <NumberInput value={e.timePerWeek} onChange={(v) => set({ ...e, timePerWeek: v })}/>
+          <InlineHint>분</InlineHint>
+        </Field>
+        <Field label="T · 종류">
+          <div style={{ display:'flex', alignItems:'center', gap: 14, flexWrap:'wrap' }}>
+            <CheckBox checked={e.aerobic} onChange={(v) => set({ ...e, aerobic: v })} label="유산소"/>
+            <CheckBox checked={e.strength} onChange={(v) => set({ ...e, strength: v })} label="근력"/>
+            {e.strength && (
+              <span style={{ display:'inline-flex', alignItems:'center', gap: 6 }}>
+                <InlineHint>주</InlineHint>
+                <NumberInput value={e.strengthFreq} onChange={(v) => set({ ...e, strengthFreq: v })}/>
+                <InlineHint>회</InlineHint>
+              </span>
+            )}
+          </div>
+        </Field>
+      </Card>
+      <Card>
+        <SubHeader>단계적 진행</SubHeader>
+        <CheckBox checked={e.progressive} onChange={(v) => set({ ...e, progressive: v })}
+          label="수술 후 회복기 첫 2주는 저강도로 시작"/>
+      </Card>
+    </div>
+  );
+}
+
+function MeasureSection({ m, set }) {
+  const freqRow = (key, label) => (
+    <Field label={label}>
+      <Select value={m[key]} options={FREQ_OPTIONS}
+        onChange={(v) => set({ ...m, [key]: v })}/>
+    </Field>
+  );
+  const togDaily = (k) => set({ ...m, daily: { ...m.daily, [k]: !m.daily[k] } });
+  const togWeek  = (k) => set({ ...m, weekly: { ...m.weekly, [k]: !m.weekly[k] } });
+
+  return (
+    <div>
+      <Card>
+        <SubHeader>측정 주기</SubHeader>
+        {freqRow('weight',   '체중')}
+        {freqRow('bp',       '혈압')}
+        {freqRow('pain',     '통증 NRS')}
+        {freqRow('diet',     '식단')}
+        {freqRow('exercise', '운동')}
+      </Card>
+      <Card>
+        <SubHeader>증상 모니터링 (PRO-CTCAE)</SubHeader>
+        <Field label="매일 체크">
+          <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
+            {PRO_DAILY.map(it => (
+              <CheckBox key={it} checked={!!m.daily[it]} onChange={() => togDaily(it)} label={it}/>
+            ))}
+          </div>
+        </Field>
+        <Field label="주 1회 체크">
+          <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
+            {PRO_WEEKLY.map(it => (
+              <CheckBox key={it} checked={!!m.weekly[it]} onChange={() => togWeek(it)} label={it}/>
+            ))}
+          </div>
+        </Field>
+      </Card>
+      <Card>
+        <SubHeader>자동 알람</SubHeader>
+        <Field label="통증 임계값">
+          <NumberInput value={m.painThreshold} onChange={(v) => set({ ...m, painThreshold: v })}/>
+          <InlineHint>NRS 이상 시 의료진 알림</InlineHint>
+        </Field>
+      </Card>
+    </div>
+  );
+}
+
+function TriageSection({ t, set }) {
+  const TriageCard = ({ tag, color, bg, desc, children }) => (
+    <div style={{
+      background: C.surface, borderRadius: 10,
+      border: `1px solid ${C.borderSoft}`, marginBottom: 10,
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        display:'flex', alignItems:'center', gap: 10,
+        padding: '12px 16px',
+        background: bg, borderBottom: `1px solid ${C.borderSoft}`,
+      }}>
+        <span style={{
+          display:'inline-flex', alignItems:'center', height: 22, padding: '0 10px',
+          borderRadius: 4, background: color, color: '#fff',
+          fontSize: 11.5, fontWeight: 800, letterSpacing: 0.4,
+        }}>{tag}</span>
+        <div style={{ fontSize: 12.5, color: C.text, fontWeight: 500 }}>{desc}</div>
+      </div>
+      <div style={{ padding: '12px 16px' }}>{children}</div>
+    </div>
+  );
+
+  return (
+    <div>
+      <TriageCard tag="RED" color="#D63A3A" bg="#FBE6E6" desc="즉시 응급실 — 트리거 시 즉시 알림">
+        <Field label="발열">
+          <CheckBox checked={t.redFever} onChange={(v) => set({ ...t, redFever: v })} label="발열 이상"/>
+          <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
+            <InlineHint>≥</InlineHint>
+            <NumberInput value={t.redFeverTemp} onChange={(v) => set({ ...t, redFeverTemp: v })}/>
+            <InlineHint>°C</InlineHint>
+          </span>
+        </Field>
+        <Field label="기타">
+          <div style={{ display:'flex', gap: 14, flexWrap:'wrap' }}>
+            <CheckBox checked={t.redBlood}         onChange={(v) => set({ ...t, redBlood: v })}         label="혈변"/>
+            <CheckBox checked={t.redAbdominalPain} onChange={(v) => set({ ...t, redAbdominalPain: v })} label="심한 복통"/>
+            <CheckBox checked={t.redConsciousness} onChange={(v) => set({ ...t, redConsciousness: v })} label="의식 변화"/>
+          </div>
+        </Field>
+      </TriageCard>
+
+      <TriageCard tag="YELLOW" color="#D08221" bg="#FFF1DC" desc="24시간 내 외래 연락">
+        <Field label="발열">
+          <CheckBox checked={t.yellowFever} onChange={(v) => set({ ...t, yellowFever: v })} label="발열 이상"/>
+          <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
+            <InlineHint>≥</InlineHint>
+            <NumberInput value={t.yellowFeverTemp} onChange={(v) => set({ ...t, yellowFeverTemp: v })}/>
+            <InlineHint>°C</InlineHint>
+          </span>
+        </Field>
+        <Field label="설사">
+          <CheckBox checked={t.yellowDiarrhea} onChange={(v) => set({ ...t, yellowDiarrhea: v })} label="빈도 이상"/>
+          <span style={{ marginLeft: 12, display:'inline-flex', alignItems:'center', gap: 6 }}>
+            <InlineHint>≥</InlineHint>
+            <NumberInput value={t.yellowDiarrheaFreq} onChange={(v) => set({ ...t, yellowDiarrheaFreq: v })}/>
+            <InlineHint>회/일</InlineHint>
+          </span>
+        </Field>
+        <Field label="기타">
+          <CheckBox checked={t.yellowDehydration} onChange={(v) => set({ ...t, yellowDehydration: v })}
+            label="수분 섭취 불가"/>
+        </Field>
+      </TriageCard>
+
+      <TriageCard tag="GREEN" color="#16A769" bg="#E7F6EE" desc="경미한 변화 — 다음 외래 시 보고">
+        <div style={{ fontSize: 12.5, color: C.textSub, lineHeight: 1.6 }}>
+          별도 트리거 없이 다음 외래일에 보고합니다.
+        </div>
+      </TriageCard>
+    </div>
+  );
+}
+
+function NextVisitSection({ n, set }) {
+  const toggle = (k) => set({ ...n, metrics: { ...n.metrics, [k]: !n.metrics[k] } });
+  return (
+    <div>
+      <Card>
+        <SubHeader>일정</SubHeader>
+        <Field label="중간 점검일">
+          <TextInput value={n.checkDate} placeholder="YYYY.MM.DD" width={160}
+            onChange={(v) => set({ ...n, checkDate: v })}/>
+          <InlineHint>앱 푸시 알림</InlineHint>
+        </Field>
+        <Field label="다음 외래일">
+          <TextInput value={n.nextVisit} placeholder="YYYY.MM.DD" width={160}
+            onChange={(v) => set({ ...n, nextVisit: v })}/>
+        </Field>
+      </Card>
+      <Card>
+        <SubHeader>재평가 시 확인할 지표</SubHeader>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 4 }}>
+          {NEXT_METRICS.map(it => (
+            <CheckBox key={it} checked={!!n.metrics[it]} onChange={() => toggle(it)} label={it}/>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function CustomSection({ value, set }) {
+  return (
+    <Card>
+      <SubHeader>의료진 직접 처방</SubHeader>
+      <div style={{ fontSize: 12.5, color: C.textSub, marginBottom: 10, lineHeight: 1.5 }}>
+        위 항목으로 표현하기 어려운 처방 / 안내 사항을 자유롭게 입력하세요. 입력한 내용은 환자용 요약 미리보기 마지막에 그대로 반영됩니다.
+      </div>
+      <textarea value={value} onChange={(e) => set(e.target.value)}
+        placeholder={'예) 수술 부위에 통증이 지속되면 처방받은 진통제를 8시간 간격으로 복용하세요.\n예) 외출 시 마스크 착용을 권장합니다.'}
+        style={{
+          width:'100%', minHeight: 160, padding: '12px 14px',
+          borderRadius: 8, border: `1px solid ${C.border}`, background: C.surface,
+          fontSize: 13.5, color: C.text, outline: 'none',
+          fontFamily: 'inherit', resize: 'vertical', boxSizing:'border-box',
+          lineHeight: 1.6,
+        }}/>
+    </Card>
+  );
+}
+
+/* ─── 미리보기 텍스트 생성 (환자 친화 톤) ─── */
+function buildDietText(d) {
+  const lines = [];
+  lines.push(`매일 과일·채소 ${d.fruitsVeg}인분 이상, 식이섬유 ${d.fiber}g 이상 챙겨 드세요.`);
+  lines.push(`가공육은 주 ${d.processedMeat}회, 붉은 육류는 주 ${d.redMeat}회, 튀김·패스트푸드는 주 ${d.fried}회, 가당 음료는 하루 ${d.sugary}잔 이하로 줄여 주세요.`);
+  lines.push(`알코올은 ${d.alcohol}, 수분은 하루 ${d.water}L 이상 드세요.`);
+  if (d.note) lines.push(`참고 사항 — ${d.note}`);
+  return lines;
+}
+function buildExerciseText(e) {
+  const lines = [];
+  lines.push(`주 ${e.freq}회, ${e.intensity}로 회당 ${e.timePerSession}분씩 (주 ${e.timePerWeek}분) 운동하세요.`);
+  const types = [];
+  if (e.aerobic)  types.push('유산소');
+  if (e.strength) types.push(`근력(주 ${e.strengthFreq}회)`);
+  if (types.length) lines.push(`구성: ${types.join(' + ')}.`);
+  if (e.progressive) lines.push('수술 후 회복기 첫 2주는 저강도로 시작해 점차 늘려 갑니다.');
+  return lines;
+}
+function buildMeasureText(m) {
+  const lines = [];
+  lines.push(`체중 ${m.weight}, 혈압 ${m.bp}, 통증 NRS ${m.pain}, 식단 ${m.diet}, 운동 ${m.exercise} 으로 기록해 주세요.`);
+  const daily  = Object.keys(m.daily).filter(k => m.daily[k]);
+  const weekly = Object.keys(m.weekly).filter(k => m.weekly[k]);
+  if (daily.length)  lines.push(`매일 체크: ${daily.join(', ')}.`);
+  if (weekly.length) lines.push(`주 1회 체크: ${weekly.join(', ')}.`);
+  lines.push(`통증이 ${m.painThreshold}점 이상이면 자동으로 의료진에게 알림이 갑니다.`);
+  return lines;
+}
+function buildTriageText(t) {
+  const red = [];
+  if (t.redFever)         red.push(`${t.redFeverTemp}°C 이상 발열`);
+  if (t.redBlood)         red.push('혈변');
+  if (t.redAbdominalPain) red.push('심한 복통');
+  if (t.redConsciousness) red.push('의식 변화');
+  const yellow = [];
+  if (t.yellowFever)       yellow.push(`${t.yellowFeverTemp}°C 이상 발열`);
+  if (t.yellowDiarrhea)    yellow.push(`하루 ${t.yellowDiarrheaFreq}회 이상 설사`);
+  if (t.yellowDehydration) yellow.push('수분 섭취 불가');
+  return [
+    { tag:'RED',    color:'#D63A3A', bg:'#FBE6E6',
+      text: red.length    ? `즉시 응급실로 가야 하는 증상 — ${red.join(', ')}.`
+                          : '즉시 응급실 트리거가 비어 있습니다.' },
+    { tag:'YELLOW', color:'#D08221', bg:'#FFF1DC',
+      text: yellow.length ? `24시간 안에 외래로 연락 — ${yellow.join(', ')}.`
+                          : '24시간 트리거가 비어 있습니다.' },
+    { tag:'GREEN',  color:'#16A769', bg:'#E7F6EE',
+      text: '경미한 변화는 다음 외래 때 보고해 주세요.' },
+  ];
+}
+function buildNextText(n) {
+  const metrics = Object.keys(n.metrics).filter(k => n.metrics[k]);
+  const lines = [];
+  lines.push(`중간 점검일은 ${n.checkDate}로 앱에서 알림이 갑니다.`);
+  lines.push(`다음 외래 방문일은 ${n.nextVisit}입니다.`);
+  if (metrics.length) lines.push(`다음 방문 시 함께 확인할 지표: ${metrics.join(', ')}.`);
+  return lines;
+}
+
+function PreviewBlock({ title, lines }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>
+        {title}
+      </div>
+      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.65 }}>
+        {lines.map((l, i) => <div key={i} style={{ marginBottom: 4 }}>{l}</div>)}
+      </div>
+    </div>
+  );
+}
+
+function PlanPreviewModal({ plan, onClose }) {
+  const triage = buildTriageText(plan.triage);
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.45)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 100,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 540, maxWidth:'92vw', maxHeight:'86vh',
+        background: C.surface, borderRadius: 16,
+        boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+        display:'flex', flexDirection:'column', overflow:'hidden',
+      }}>
+        <div style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding: '18px 22px', borderBottom: `1px solid ${C.borderSoft}`,
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+            <span style={{
+              display:'inline-flex', alignItems:'center', height: 20,
+              padding: '0 8px', borderRadius: 4,
+              background: C.accentSoft, color: C.accent,
+              fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
+            }}>AI</span>
+            <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>환자용 요약 미리보기</div>
+          </div>
+          <button onClick={onClose} style={{ color: C.textSub, padding: 4, display:'flex' }}>
+            <Icon name="x" size={20}/>
+          </button>
+        </div>
+        <div style={{ fontSize: 12.5, color: C.textSub, padding: '12px 22px 0', lineHeight: 1.5 }}>
+          입력하신 처방을 환자가 이해하기 쉽게 풀어 쓴 내용입니다. 환자 앱으로 이대로 전송됩니다.
+        </div>
+        <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '14px 22px 22px' }}>
+          <PreviewBlock title="식이"      lines={buildDietText(plan.diet)}/>
+          <PreviewBlock title="운동"      lines={buildExerciseText(plan.exercise)}/>
+          <PreviewBlock title="자기 측정" lines={buildMeasureText(plan.measure)}/>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>응급 대응</div>
+            {triage.map((t, i) => (
+              <div key={i} style={{
+                background: t.bg, borderRadius: 8, padding: '10px 12px',
+                marginBottom: 6, fontSize: 12.5, color: C.text, lineHeight: 1.55,
+                display:'flex', gap: 8,
+              }}>
+                <span style={{
+                  flexShrink: 0, alignSelf:'flex-start',
+                  padding: '2px 7px', borderRadius: 3,
+                  background: t.color, color: '#fff',
+                  fontSize: 10, fontWeight: 800, letterSpacing: 0.4,
+                }}>{t.tag}</span>
+                <span>{t.text}</span>
+              </div>
+            ))}
+          </div>
+          <PreviewBlock title="다음 방문" lines={buildNextText(plan.next)}/>
+          {plan.custom && plan.custom.trim() && (
+            <div style={{ marginBottom: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>의료진 직접 처방</div>
+              <div style={{
+                fontSize: 12.5, color: C.text, lineHeight: 1.65,
+                whiteSpace: 'pre-wrap',
+                background: C.bg, borderRadius: 8,
+                border: `1px solid ${C.borderSoft}`,
+                padding: '10px 12px',
+              }}>{plan.custom}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExportConfirmModal({ onClose }) {
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.45)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 110,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 400, maxWidth:'92vw',
+        background: C.surface, borderRadius: 16, padding: 26,
+        boxShadow: '0 24px 60px rgba(0,0,0,0.18)',
+        textAlign:'center',
+      }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 28,
+          background: C.accentSoft, color: C.accent,
+          display:'flex', alignItems:'center', justifyContent:'center',
+          margin: '4px auto 16px',
+        }}>
+          <Icon name="check" size={26}/>
+        </div>
+        <div style={{ fontSize: 17, fontWeight: 700, color: C.text, marginBottom: 8 }}>
+          에이전트 내보내기 완료
+        </div>
+        <div style={{ fontSize: 13.5, color: C.textSub, lineHeight: 1.6, marginBottom: 22 }}>
+          처방하신 값으로 환자 앱의 에이전트가 구동됩니다.
+        </div>
+        <button onClick={onClose} style={{
+          width:'100%', height: 44, borderRadius: 10,
+          background: C.primary, color: '#fff',
+          fontSize: 14, fontWeight: 700,
+        }}>
+          확인
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PlanPanel({ plan, setPlan }) {
+  const [section, setSection] = useState('all');
+
+  const sectionsRender = {
+    diet:     <DietSection      d={plan.diet}     set={(d) => setPlan({ ...plan, diet: d })}/>,
+    exercise: <ExerciseSection  e={plan.exercise} set={(e) => setPlan({ ...plan, exercise: e })}/>,
+    measure:  <MeasureSection   m={plan.measure}  set={(m) => setPlan({ ...plan, measure: m })}/>,
+    triage:   <TriageSection    t={plan.triage}   set={(t) => setPlan({ ...plan, triage: t })}/>,
+    next:     <NextVisitSection n={plan.next}     set={(n) => setPlan({ ...plan, next: n })}/>,
+    custom:   <CustomSection    value={plan.custom} set={(v) => setPlan({ ...plan, custom: v })}/>,
+  };
+
+  const sectionsForAll = [
+    { k:'diet',     l:'식이 처방',         render: sectionsRender.diet },
+    { k:'exercise', l:'운동 처방 (FITT)',  render: sectionsRender.exercise },
+    { k:'measure',  l:'자기 측정 처방',    render: sectionsRender.measure },
+    { k:'triage',   l:'트리아제 트리거',   render: sectionsRender.triage },
+    { k:'next',     l:'다음 외래 일정',    render: sectionsRender.next },
+    { k:'custom',   l:'의료진 직접 처방',  render: sectionsRender.custom },
+  ];
+
+  return (
+    <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
+      {/* 좌측 섹션 사이드바 */}
+      <div className="scroll" style={{
+        width: 152, flexShrink: 0, overflowY:'auto',
+        borderRight: `1px solid ${C.borderSoft}`, padding: '8px 0',
+      }}>
+        {PLAN_SECTIONS.map(s => {
+          const active = section === s.k;
+          return (
+            <button key={s.k} onClick={() => setSection(s.k)} style={{
+              width:'100%', textAlign:'left',
+              padding: '11px 16px', fontSize: 13,
+              color: active ? C.text : C.textSub,
+              fontWeight: active ? 700 : 500,
+              background: active ? C.bg : 'transparent',
+              borderLeft: active ? `3px solid ${C.text}` : '3px solid transparent',
+            }}>{s.l}</button>
+          );
+        })}
+      </div>
+      {/* 우측 폼 (preview 컬럼 제거) */}
+      <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '18px 24px 24px' }}>
+        {section === 'all' ? (
+          sectionsForAll.map((s, i) => (
+            <div key={s.k} style={{ marginBottom: i === sectionsForAll.length - 1 ? 0 : 22 }}>
+              <SectionTitle num={i + 1}>{s.l}</SectionTitle>
+              {s.render}
+            </div>
+          ))
+        ) : (
+          <>
+            <SectionTitle num={PLAN_SECTIONS.findIndex(s => s.k === section)}>
+              {PLAN_SECTIONS.find(s => s.k === section).l}
+            </SectionTitle>
+            {sectionsRender[section]}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RightPanel({ patient }) {
+  const [tab, setTab] = useState('emr');               // 'emr' | 'plan'
+  const [plan, setPlan] = useState(DEFAULT_PLAN);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showExported, setShowExported] = useState(false);
+
+  return (
+    <section style={{
+      flex: 1, minWidth: 0, background: C.surface,
+      borderRadius: 12, border: `1px solid ${C.border}`,
+      display:'flex', flexDirection:'column', overflow:'hidden',
+    }}>
+      {/* 탭 */}
+      <div style={{ display:'flex', borderBottom: `1px solid ${C.border}`, padding: '0 20px' }}>
+        {[
+          { k:'emr',  l:'환자 치료 정보 (EMR)' },
+          { k:'plan', l:'재택 관리 플랜 생성 (Agent-builder)' },
+        ].map(t => {
+          const active = tab === t.k;
+          return (
+            <button key={t.k} onClick={() => setTab(t.k)} style={{
+              height: 50, padding: '0 18px',
+              fontSize: 14, fontWeight: active ? 700 : 500,
+              color: active ? C.text : C.textSub,
+              borderBottom: active ? `2px solid ${C.text}` : '2px solid transparent',
+            }}>{t.l}</button>
+          );
+        })}
+      </div>
+
+      {tab === 'emr'
+        ? <EMRPanel emr={patient.emr}/>
+        : <PlanPanel plan={plan} setPlan={setPlan}/>}
+
+      {/* 하단 액션 바 */}
+      <div style={{ borderTop: `1px solid ${C.border}`, padding: '12px 20px',
+                    display:'flex', justifyContent:'flex-end', gap: 8 }}>
+        {tab === 'plan' && (
+          <button onClick={() => setShowPreview(true)} style={{
+            display:'flex', alignItems:'center', gap: 6,
+            height: 42, padding: '0 18px', borderRadius: 8,
+            border: `1px solid ${C.border}`, background: C.surface,
+            fontSize: 14, fontWeight: 600, color: C.text,
+          }}>
+            <Icon name="note" size={14} color={C.text}/> 미리보기
+          </button>
+        )}
+        <button onClick={() => setShowExported(true)} style={{
+          display:'flex', alignItems:'center', gap: 8,
+          height: 42, padding: '0 24px', borderRadius: 8,
+          background: C.primary, color: '#fff',
+          fontSize: 14, fontWeight: 700,
+        }}>
+          <Icon name="send" size={14} color="#fff"/> 에이전트 내보내기
+        </button>
+      </div>
+
+      {showPreview && (
+        <PlanPreviewModal plan={plan} onClose={() => setShowPreview(false)}/>
+      )}
+      {showExported && (
+        <ExportConfirmModal onClose={() => setShowExported(false)}/>
+      )}
+    </section>
+  );
+}
+
+/* ───────── App ───────── */
+function App() {
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const patient = PATIENTS[selectedIdx];
+
+  return (
+    <div style={{ height:'100vh', display:'flex', flexDirection:'column' }}>
+      <Header/>
+      <div style={{ flex:1, display:'flex', minHeight: 0, background: C.chrome }}>
+        <Sidebar/>
+        <div style={{
+          flex:1, display:'flex', gap: 10, padding: 10,
+          background: C.bg, minHeight: 0,
+        }}>
+          <PatientList selectedIdx={selectedIdx} setSelectedIdx={setSelectedIdx}/>
+          <CenterPanel patient={patient}/>
+          <RightPanel patient={patient}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
