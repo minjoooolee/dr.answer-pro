@@ -1830,7 +1830,37 @@ function Report() {
     ],
   };
 
-  const Bar = ({ pct, tone = 'ok' }) => (
+  const HISTOGRAM = {
+    hourly: [
+      { label:'PIP',     unit:'cmH₂O', avg:'17.8', min:'16', max:'19', tone:'ok',   bins:[1,2,4,7,10,12,10,7,4,2,1], mark:5 },
+      { label:'VTe',     unit:'mL',    avg:'141',  min:'136', max:'147', tone:'ok',  bins:[1,2,4,6,9,11,12,9,6,3,1], mark:6 },
+      { label:'RR',      unit:'bpm',   avg:'26.2', min:'24', max:'29',  tone:'warn', bins:[2,3,5,8,10,11,10,9,7,5,2], mark:7 },
+      { label:'Leak',    unit:'L/m',   avg:'18.5', min:'16', max:'21',  tone:'ok',   bins:[1,3,7,11,12,10,8,5,3,2,1], mark:4 },
+      { label:'MinVent', unit:'L/min', avg:'4.18', min:'3.9', max:'4.5',tone:'warn', bins:[1,2,4,6,8,10,11,9,7,5,3], mark:4 },
+    ],
+    daily: [
+      { label:'PIP',     unit:'cmH₂O', avg:'17.4', min:'15', max:'20', tone:'ok',   bins:[1,2,4,6,9,12,10,7,4,2,1], mark:7 },
+      { label:'VTe',     unit:'mL',    avg:'139',  min:'128', max:'152', tone:'ok',  bins:[1,2,3,5,8,11,12,9,6,3,1], mark:6 },
+      { label:'RR',      unit:'bpm',   avg:'24.6', min:'21', max:'30',  tone:'warn', bins:[2,3,5,8,11,10,9,8,7,5,3], mark:9 },
+      { label:'Leak',    unit:'L/m',   avg:'17.8', min:'12', max:'24',  tone:'ok',   bins:[2,5,9,12,10,8,6,4,3,2,1], mark:5 },
+      { label:'MinVent', unit:'L/min', avg:'4.31', min:'3.6', max:'5.0',tone:'warn', bins:[1,2,4,5,7,10,11,9,7,5,3], mark:4 },
+    ],
+    monthly: [
+      { label:'PIP',     unit:'cmH₂O', avg:'17.1', min:'14', max:'21', tone:'ok',   bins:[1,1,2,4,7,11,13,9,6,4,2], mark:6 },
+      { label:'VTe',     unit:'mL',    avg:'141',  min:'124', max:'156', tone:'ok',  bins:[1,1,3,5,7,10,12,11,8,5,2], mark:6 },
+      { label:'RR',      unit:'bpm',   avg:'23.8', min:'20', max:'31',  tone:'warn', bins:[1,3,5,8,12,11,9,8,6,4,2], mark:8 },
+      { label:'Leak',    unit:'L/m',   avg:'18.2', min:'11', max:'27',  tone:'ok',   bins:[1,3,6,10,12,11,8,5,3,2,1], mark:4 },
+      { label:'MinVent', unit:'L/min', avg:'4.37', min:'3.4', max:'5.2',tone:'warn', bins:[1,2,3,5,7,9,11,10,8,6,3], mark:5 },
+    ],
+  };
+
+  const AI_SUMMARY = {
+    hourly: '최근 6시간 추이를 보면 09:00~10:00 사이 RR이 상승하고 MinVent가 감소하는 패턴이 나타났습니다. 나머지 시간대는 안정적이었으며 PIP · VTe · Leak은 허용 범위 내에 있습니다.',
+    daily:  '이번 주 전반적으로 안정적이었습니다. 5월 21일 RR이 다소 상승 추세를 보이고 있어 추적이 필요합니다. 5월 17일에는 LEAK 증가로 마스크 피팅을 확인하였으며 현재 안정화됐습니다.',
+    monthly: '최근 5개월 데이터를 보면 2월과 5월에 RR 상승 및 MinVent 감소 에피소드가 관찰됐습니다. 장기 추세는 대체로 안정적이며 PIP · VTe는 기준 범위 내에서 유지되고 있습니다.',
+  };
+
+  const PERIOD_LABEL = { hourly: '시간대별', daily: '일간', monthly: '월간' };
     <div style={{
       flex: 1, height: 6, borderRadius: 4, background: 'rgba(14,17,22,0.06)',
       overflow: 'hidden',
@@ -1976,22 +2006,11 @@ function Report() {
 
       {/* 파라미터별 히스토그램 */}
       <div style={{ padding: '24px 22px 10px', fontSize: 11.5, fontWeight: 700, color: C.mute, letterSpacing: 1.2, textTransform: 'uppercase' }}>
-        파라미터별 분포 (주간)
+        파라미터별 분포 ({PERIOD_LABEL[period]})
       </div>
       <div style={{ padding: '0 16px' }}>
         <Card>
-          {[
-            { label: 'PIP',     unit: 'cmH₂O', avg: '17.4', min: '15', max: '20', tone: 'ok',
-              bins: [1,2,4,6,9,12,10,7,4,2,1], mark: 7 },
-            { label: 'VTe',     unit: 'mL',    avg: '139',  min: '128', max: '152', tone: 'ok',
-              bins: [1,2,3,5,8,11,12,9,6,3,1], mark: 6 },
-            { label: 'RR',      unit: 'bpm',   avg: '24.6', min: '21',  max: '30',  tone: 'warn',
-              bins: [2,3,5,8,11,10,9,8,7,5,3], mark: 9 },
-            { label: 'Leak',    unit: 'L/m',   avg: '17.8', min: '12',  max: '24',  tone: 'ok',
-              bins: [2,5,9,12,10,8,6,4,3,2,1], mark: 5 },
-            { label: 'MinVent', unit: 'L/min', avg: '4.31', min: '3.6', max: '5.0', tone: 'warn',
-              bins: [1,2,4,5,7,10,11,9,7,5,3], mark: 4 },
-          ].map((p, idx, arr) => {
+          {HISTOGRAM[period].map((p, idx, arr) => {
             const max = Math.max(...p.bins);
             const accent = p.tone === 'warn' ? C.warn : C.ok;
             return (
@@ -2040,7 +2059,7 @@ function Report() {
       <div style={{ padding: '18px 16px 0' }}>
         <Card>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>주간 AI 추론 요약</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>{PERIOD_LABEL[period]} AI 추론 요약</div>
             <span style={{
               fontSize: 10.5, color: C.mute, fontWeight: 600,
               background: 'rgba(14,17,22,0.05)', padding: '4px 9px', borderRadius: 100,
@@ -2053,7 +2072,7 @@ function Report() {
             <p style={{
               margin: 0, fontSize: 13, lineHeight: 1.65, color: C.ink2, letterSpacing: -0.2,
             }}>
-              이번 주 전반적으로 안정적이었습니다. 오늘(5/8) RR이 다소 상승 추세를 보이고 있어 추적이 필요합니다. PIP · VTe · Leak은 기준 범위를 유지하고 있습니다.
+              {AI_SUMMARY[period]}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
