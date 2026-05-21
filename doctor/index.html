@@ -274,10 +274,11 @@ function Header() {
 
 /* ───────── 좌측 사이드바 ───────── */
 function Sidebar() {
+  const [active, setActive] = useState('colon');
   const items = [
-    { icon:'colon',   label:'대장암',   active: true },
-    { icon:'stomach', label:'위암'   },
-    { icon:'lung',    label:'호흡부전' },
+    { k:'colon',   icon:'colon',   label:'대장암' },
+    { k:'stomach', icon:'stomach', label:'위암' },
+    { k:'lung',    icon:'lung',    label:'호흡부전' },
   ];
   return (
     <aside style={{
@@ -285,18 +286,22 @@ function Sidebar() {
       display:'flex', flexDirection:'column', alignItems:'center',
       padding: '14px 0', flexShrink: 0,
     }}>
-      {items.map((it, i) => (
-        <button key={i} style={{
-          width: 68, padding: '12px 0', marginBottom: 6,
-          display:'flex', flexDirection:'column', alignItems:'center', gap:6,
-          color: it.active ? '#fff' : 'rgba(255,255,255,0.7)',
-          fontSize: 13, fontWeight: it.active ? 700 : 500,
-          borderRadius: 10, background: it.active ? C.chromeAct : 'transparent',
-        }}>
-          <Icon name={it.icon} size={24}/>
-          <span>{it.label}</span>
-        </button>
-      ))}
+      {items.map((it) => {
+        const isActive = active === it.k;
+        return (
+          <button key={it.k} onClick={() => setActive(it.k)} style={{
+            width: 68, padding: '12px 0', marginBottom: 6,
+            display:'flex', flexDirection:'column', alignItems:'center', gap:6,
+            color: isActive ? '#fff' : 'rgba(255,255,255,0.7)',
+            fontSize: 13, fontWeight: isActive ? 700 : 500,
+            borderRadius: 10, background: isActive ? C.chromeAct : 'transparent',
+            cursor: 'pointer',
+          }}>
+            <Icon name={it.icon} size={24}/>
+            <span>{it.label}</span>
+          </button>
+        );
+      })}
       <div style={{ flex: 1 }}/>
       <button style={{
         width: 68, padding: '12px 0',
