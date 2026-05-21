@@ -4805,10 +4805,144 @@ function Auth({ onComplete }) {
   return null;
 }
 
+// ─── PrescriptionModal ─────────────────────────────────────────────
+function PrescriptionModal({ onSetup }) {
+  const [loading, setLoading] = React.useState(false);
+
+  function handleSetup() {
+    setLoading(true);
+    setTimeout(() => {
+      onSetup();
+    }, 3000);
+  }
+
+  if (loading) {
+    return (
+      <div style={{
+        width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        background: '#0D0F14',
+      }}>
+        <style>{`
+          @keyframes rxSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes rxPulse {
+            0%, 100% { opacity: 0.6; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1); }
+          }
+        `}</style>
+        <div style={{ position: 'relative', width: 80, height: 80 }}>
+          <svg width="80" height="80" viewBox="0 0 80 80" style={{ animation: 'rxSpin 1.2s linear infinite', position: 'absolute', top: 0, left: 0 }}>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(125,80,240,0.18)" strokeWidth="5"/>
+            <path d="M40 6 A34 34 0 0 1 74 40" fill="none" stroke="#7d50f0" strokeWidth="5" strokeLinecap="round"/>
+          </svg>
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', animation: 'rxPulse 1.5s ease-in-out infinite' }}>
+            <img src="ai-orb.svg" alt="" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+          </div>
+        </div>
+        <div style={{ marginTop: 22, fontSize: 14, color: 'rgba(255,255,255,0.55)', fontWeight: 500, letterSpacing: -0.2 }}>
+          처방전을 설정하는 중이에요…
+        </div>
+      </div>
+    );
+  }
+
+  const Section = ({ icon, title, children }) => (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+        <span style={{ fontSize: 16 }}>{icon}</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#7d50f0', letterSpacing: -0.2 }}>{title}</span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {children}
+      </div>
+    </div>
+  );
+
+  const Item = ({ children }) => (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12.5, color: '#374151', lineHeight: 1.55, letterSpacing: -0.1 }}>
+      <span style={{ color: '#7d50f0', flexShrink: 0, marginTop: 1 }}>•</span>
+      <span>{children}</span>
+    </div>
+  );
+
+  return (
+    <div style={{
+      width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column',
+      background: '#fff', overflowY: 'auto',
+    }}>
+      {/* Header */}
+      <div style={{ padding: '52px 24px 20px', background: 'linear-gradient(135deg, #7d50f0 0%, #5a3aa8 100%)' }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.65)', letterSpacing: 0.5, marginBottom: 6, textTransform: 'uppercase' }}>
+          맞춤 처방전
+        </div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: -0.6, lineHeight: 1.3 }}>
+          성인님의<br/>재택 관리 처방전
+        </div>
+        <div style={{ marginTop: 8, fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: -0.1 }}>
+          FOLFOX 5차 · 박현수 교수 처방
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '20px 20px 100px', flex: 1 }}>
+        <Section icon="🥦" title="식이 관리">
+          <Item>과일·채소 하루 5회 이상 섭취 (식이섬유 25g/일)</Item>
+          <Item>가공육·붉은 고기 주 2회 이하로 제한</Item>
+          <Item>알코올 주당 2잔 이하 권장</Item>
+          <Item>물 하루 2L 이상 꾸준히 섭취</Item>
+        </Section>
+
+        <Section icon="🏃" title="운동 처방">
+          <Item>주 3회 이상, 회당 30분 중등도 유산소 운동 (주 150분 목표)</Item>
+          <Item>유산소 + 근력 운동 주 2회 병행 권장</Item>
+          <Item>수술 후 2주간은 저강도 운동으로 시작 후 단계적 증량</Item>
+        </Section>
+
+        <Section icon="📏" title="자기 측정">
+          <Item>체중 주 3회, 혈압 매일, 통증 NRS 매일 측정</Item>
+          <Item>매일 체크: 통증·오심·설사·피로</Item>
+          <Item>매주 체크: 말초신경증·식욕·수면의 질</Item>
+          <Item>통증 NRS ≥7 시 의료팀 자동 알림 발송</Item>
+        </Section>
+
+        <Section icon="📅" title="다음 방문">
+          <Item>중간 확인: 2026. 04. 10</Item>
+          <Item>다음 외래: 2026. 05. 15</Item>
+          <Item>확인 지표: 혈액검사 (CBC·간기능·CEA), 증상 일지 지참</Item>
+        </Section>
+      </div>
+
+      {/* CTA */}
+      <div style={{ position: 'sticky', bottom: 0, padding: '12px 20px 28px', background: 'linear-gradient(to top, #fff 70%, rgba(255,255,255,0))' }}>
+        <button
+          onClick={handleSetup}
+          style={{
+            width: '100%', padding: '15px 0', borderRadius: 14, border: 'none',
+            background: 'linear-gradient(135deg, #7d50f0 0%, #5a3aa8 100%)',
+            color: '#fff', fontSize: 16, fontWeight: 700, letterSpacing: -0.3,
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          셋팅하기
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── App ───────────────────────────────────────────────────────────
 function App() {
   const [tweaks, setTweak] = useTweaks(TWEAKS_DEFAULT);
   const [authed, setAuthed] = React.useState(false);
+  const [showRx, setShowRx] = React.useState(false);
+
+  function handleAuthComplete() {
+    setShowRx(true);
+    setAuthed(true);
+  }
 
   return (
     <div data-screen-label="01 PRO Home" style={{
@@ -4821,7 +4955,9 @@ function App() {
     }}>
       <IOSDevice width={402} height={874} dark={tweaks.darkMode}>
         {!authed ? (
-          <Auth onComplete={() => setAuthed(true)} />
+          <Auth onComplete={handleAuthComplete} />
+        ) : showRx ? (
+          <PrescriptionModal onSetup={() => setShowRx(false)} />
         ) : (
           <PROScreen tweaks={tweaks} setTweak={setTweak} />
         )}
