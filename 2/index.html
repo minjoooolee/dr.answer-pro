@@ -2915,7 +2915,7 @@ function App() {
     <IOSDevice>
       {screen === 'home' && (
         <Home
-          onWorry={() => setScreen('record')}
+          onWorry={() => setScreen('survey')}
         />
       )}
       {screen === 'record' && <RecordTab onSurveyOpen={() => setScreen('survey')}/>}
