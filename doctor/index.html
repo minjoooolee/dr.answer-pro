@@ -273,8 +273,9 @@ function Header() {
 }
 
 /* ───────── 좌측 사이드바 ───────── */
-function Sidebar() {
-  const [active, setActive] = useState('colon');
+function Sidebar({ condition, onChange }) {
+  const active = condition;
+  const setActive = onChange;
   const items = [
     { k:'colon',   icon:'colon',   label:'대장암' },
     { k:'stomach', icon:'stomach', label:'위암' },
@@ -534,10 +535,10 @@ const SAMPLE_HOME_REPORT_LONG = {
 
 const PATIENTS = [
   { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중'],
-    todayVisit: '2026.03.25 (수)',
+    todayVisit: '2026.04.10 (금)',
     recurrence: SAMPLE_RECURRENCE, analysis: SAMPLE_ANALYSIS, emr: SAMPLE_EMR },
   { name:'김성인', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
-    lastVisit: '2025.12.23', todayVisit: '2026.04.15 (수)',
+    lastVisit: '2025.12.23', todayVisit: '2026.04.10 (금)',
     recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG,
     emr: SAMPLE_EMR_LONG, homeReport: SAMPLE_HOME_REPORT_LONG },
   { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
@@ -546,7 +547,104 @@ const PATIENTS = [
   { name:'윤지안', id:'880730', gender:'F', age:37, time:'09:03', tags:[],           recurrence: [] },
 ];
 
-function PatientList({ selectedIdx, setSelectedIdx }) {
+/* ── 위암 환자 데이터 ── */
+const SAMPLE_ANALYSIS_STOMACH = {
+  up: [
+    'stage IIIa · 림프절 1/22 양성',
+  ],
+  down: [
+    '원격 전이 없음 (M0)',
+    '절제연 음성, 술 후 무합병증',
+    'XELOX 6 회차 완료',
+  ],
+};
+const SAMPLE_EMR_STOMACH = Object.assign({}, SAMPLE_EMR, {
+  chemo: {
+    regimen:       'XELOX (Capecitabine + Oxaliplatin)',
+    cycleNum:      6, cycleTotal: 6,
+    lastStartDate: '2026.02.28',
+    adjuvant:      true,
+    note:          '보조 화학요법 (수술 후) — 마지막 주기 완료',
+  },
+  surgery: {
+    date:    '2025.11.15',
+    method:  '복강경 위아전절제술 (Laparoscopic subtotal gastrectomy)',
+    surgeon: '이예나 교수',
+    stage:   'Stage IIIa (pT3N1aM0)',
+  },
+});
+
+const SAMPLE_ANALYSIS_LONG_STOMACH = {
+  up: [
+    'stage IIIc (T4N3)',
+    '활동량 권장치 미달 (3,200 보)',
+    '변비 빈도 증가',
+  ],
+  down: [
+    '원격 전이 없음 (M0)',
+    'XELOX 8 회차 완주',
+    '추적 관찰 적극 참여',
+  ],
+};
+const SAMPLE_EMR_LONG_STOMACH = Object.assign({}, SAMPLE_EMR_LONG, {
+  chemo: {
+    regimen:       'XELOX (Capecitabine + Oxaliplatin)',
+    cycleNum:      8, cycleTotal: 8,
+    lastStartDate: '2025.05.10',
+    adjuvant:      true,
+    note:          '보조 화학요법 8 회차 완료 — 현재 추적 관찰 (2개월 간격 외래)',
+  },
+  surgery: {
+    date:    '2024.10.20',
+    method:  '복강경 위아전절제술 (Laparoscopic subtotal gastrectomy)',
+    surgeon: '이예나 교수',
+    stage:   'Stage IIIc (pT4aN3M0)',
+  },
+});
+
+const STOMACH_PATIENTS = [
+  { name:'박지원', id:'960817', gender:'F', age:33, time:'09:03', tags:['진료중'],
+    todayVisit: '2026.04.10 (금)',
+    recurrence: SAMPLE_RECURRENCE, analysis: SAMPLE_ANALYSIS_STOMACH, emr: SAMPLE_EMR_STOMACH },
+  { name:'김성인', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
+    lastVisit: '2025.12.23', todayVisit: '2026.04.10 (금)',
+    recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG_STOMACH,
+    emr: SAMPLE_EMR_LONG_STOMACH, homeReport: SAMPLE_HOME_REPORT_LONG },
+  { name:'정민서', id:'891217', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
+  { name:'김혜진', id:'770408', gender:'F', age:48, time:'09:03', tags:['대기'],     recurrence: [] },
+  { name:'한지수', id:'830520', gender:'M', age:42, time:'09:03', tags:['진료보류'], recurrence: [] },
+  { name:'윤재호', id:'790614', gender:'M', age:46, time:'09:03', tags:[],           recurrence: [] },
+];
+
+const PATIENTS_BY_CONDITION = {
+  colon:   PATIENTS,
+  stomach: STOMACH_PATIENTS,
+  lung:    PATIENTS,
+};
+
+const STOMACH_REGIMENS = [
+  'XELOX (Capecitabine + Oxaliplatin)',
+  'FOLFOX',
+  'S-1 단독',
+  'S-1 + Cisplatin',
+  'DCF (Docetaxel + Cisplatin + 5-FU)',
+  'ECF (Epirubicin + Cisplatin + 5-FU)',
+  'Trastuzumab + XELOX (HER2+)',
+  'Ramucirumab + Paclitaxel',
+];
+
+const CONDITION_LABEL = {
+  colon:   '대장암',
+  stomach: '위암',
+  lung:    '호흡부전',
+};
+const RECURRENCE_TITLE = {
+  colon:   '재발률 예측 스코어',
+  stomach: '합병증 예측 스코어',
+  lung:    '재발률 예측 스코어',
+};
+
+function PatientList({ selectedIdx, setSelectedIdx, patients }) {
   const [tab, setTab] = useState('진료');
   const tabs = [
     { k:'진료', n:5 },
@@ -595,7 +693,7 @@ function PatientList({ selectedIdx, setSelectedIdx }) {
         })}
       </div>
       <div className="scroll" style={{ flex:1, overflowY:'auto', padding: '12px 12px 16px' }}>
-        {PATIENTS.map((p, i) => (
+        {patients.map((p, i) => (
           <PatientCard key={i} p={p} selected={i === selectedIdx} onClick={() => setSelectedIdx(i)}/>
         ))}
       </div>
@@ -880,8 +978,9 @@ function ProRawModal({ items, onClose }) {
   );
 }
 
-function ReportPro({ items, insights, period }) {
+function ReportPro({ items, insights, period, condition }) {
   const [showRaw, setShowRaw] = useState(false);
+  const conditionLabel = CONDITION_LABEL[condition] || '대장암';
   return (
     <div>
       {/* AI 인사이트 */}
@@ -900,7 +999,7 @@ function ReportPro({ items, insights, period }) {
             fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
           }}>AI</span>
           <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
-            대장암 PRO 인사이트
+            {conditionLabel} PRO 인사이트
           </div>
         </div>
         {period && (
@@ -1164,7 +1263,7 @@ function ReportExercise({ data }) {
   );
 }
 
-function HomeReportCard({ patient, collapsed, active, onToggle }) {
+function HomeReportCard({ patient, condition, collapsed, active, onToggle }) {
   const [status, setStatus] = useState('none');
   const [code, setCode] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -1214,7 +1313,7 @@ function HomeReportCard({ patient, collapsed, active, onToggle }) {
     if (!hasData) return null;
     if (section === 'ai')       return <ReportAi       items={homeReport.ai}/>;
     if (section === 'symptoms') return <ReportSymptoms items={homeReport.symptoms}/>;
-    if (section === 'pro')      return <ReportPro      items={homeReport.pro} insights={homeReport.proInsights} period={homeReport.proPeriod}/>;
+    if (section === 'pro')      return <ReportPro      items={homeReport.pro} insights={homeReport.proInsights} period={homeReport.proPeriod} condition={condition}/>;
     if (section === 'weight')   return <ReportWeight   data={homeReport.weight}/>;
     if (section === 'diet')     return <ReportDiet     data={homeReport.diet}/>;
     if (section === 'exercise') return <ReportExercise data={homeReport.exercise}/>;
@@ -1502,13 +1601,14 @@ function RiskBadge({ score }) {
   );
 }
 
-function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
+function RecurrenceCard({ collapsed, active, onToggle, points, analysis, condition }) {
   const latest = points[points.length - 1];
+  const title = (RECURRENCE_TITLE[condition] || RECURRENCE_TITLE.colon);
 
   const titleRow = (
     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 6 }}>
       <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>{title}</div>
         <span style={{
           display:'inline-flex', alignItems:'center', height: 20,
           padding: '0 8px', borderRadius: 4,
@@ -1532,7 +1632,7 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
         display:'flex', alignItems:'center', justifyContent:'space-between',
       }}>
         <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>재발률 예측 스코어</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{title}</div>
           <span style={{
             display:'inline-flex', alignItems:'center', height: 20,
             padding: '0 8px', borderRadius: 4,
@@ -1598,7 +1698,7 @@ function RecurrenceCard({ collapsed, active, onToggle, points, analysis }) {
   );
 }
 
-function CenterPanel({ patient }) {
+function CenterPanel({ patient, condition }) {
   const [activePanel, setActivePanel] = useState(null); // null | 'report' | 'recurrence'
   const toggle = (p) => setActivePanel(prev => prev === p ? null : p);
   return (
@@ -1650,6 +1750,7 @@ function CenterPanel({ patient }) {
 
       <HomeReportCard
         patient={patient}
+        condition={condition}
         collapsed={activePanel === 'recurrence'}
         active={activePanel === 'report'}
         onToggle={() => toggle('report')}
@@ -1660,6 +1761,7 @@ function CenterPanel({ patient }) {
         onToggle={() => toggle('recurrence')}
         points={patient.recurrence || []}
         analysis={patient.analysis}
+        condition={condition}
       />
     </section>
   );
@@ -1809,7 +1911,8 @@ function TextInput({ value, onChange, placeholder, width }) {
   );
 }
 
-function EMRPanel({ emr }) {
+function EMRPanel({ emr, condition }) {
+  const regimens = (condition === 'stomach') ? STOMACH_REGIMENS : REGIMENS;
   const [section, setSection] = useState('basic');
   const [chemo, setChemo] = useState(emr ? emr.chemo : null);
   const [cobs,  setCobs]  = useState(emr ? emr.comorbidities : null);
@@ -1861,7 +1964,7 @@ function EMRPanel({ emr }) {
       return (
         <div>
           <Field label="레지멘">
-            <Select value={chemo.regimen} options={REGIMENS}
+            <Select value={chemo.regimen} options={regimens}
               onChange={(v) => setChemo({ ...chemo, regimen: v })}/>
           </Field>
           <Field label="치료 차수">
@@ -2636,7 +2739,7 @@ function PlanPanel({ plan, setPlan }) {
   );
 }
 
-function RightPanel({ patient }) {
+function RightPanel({ patient, condition }) {
   const [tab, setTab] = useState('emr');               // 'emr' | 'plan'
   const [plan, setPlan] = useState(DEFAULT_PLAN);
   const [showPreview, setShowPreview] = useState(false);
@@ -2668,7 +2771,7 @@ function RightPanel({ patient }) {
       </div>
 
       {tab === 'emr'
-        ? <EMRPanel emr={patient.emr}/>
+        ? <EMRPanel emr={patient.emr} condition={condition}/>
         : <PlanPanel plan={plan} setPlan={setPlan}/>}
 
       {/* 하단 액션 바 */}
@@ -2713,21 +2816,28 @@ function RightPanel({ patient }) {
 
 /* ───────── App ───────── */
 function App() {
+  const [condition, setCondition] = useState('colon');
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const patient = PATIENTS[selectedIdx];
+  const patients = PATIENTS_BY_CONDITION[condition] || PATIENTS;
+  const patient = patients[selectedIdx] || patients[0];
+
+  const onChangeCondition = (c) => {
+    setCondition(c);
+    setSelectedIdx(0);
+  };
 
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column' }}>
       <Header/>
       <div style={{ flex:1, display:'flex', minHeight: 0, background: C.chrome }}>
-        <Sidebar/>
+        <Sidebar condition={condition} onChange={onChangeCondition}/>
         <div style={{
           flex:1, display:'flex', gap: 10, padding: 10,
           background: C.bg, minHeight: 0,
         }}>
-          <PatientList selectedIdx={selectedIdx} setSelectedIdx={setSelectedIdx}/>
-          <CenterPanel patient={patient}/>
-          <RightPanel patient={patient}/>
+          <PatientList patients={patients} selectedIdx={selectedIdx} setSelectedIdx={setSelectedIdx}/>
+          <CenterPanel patient={patient} condition={condition}/>
+          <RightPanel patient={patient} condition={condition}/>
         </div>
       </div>
     </div>
