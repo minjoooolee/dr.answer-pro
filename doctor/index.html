@@ -20,9 +20,8 @@
   input { font-family: inherit; }
   input::placeholder { color: #A6ADBA; }
   /* Hide scrollbars but keep scroll */
-  .scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-  .scroll::-webkit-scrollbar-thumb { background: #D8DDE6; border-radius: 3px; }
-  .scroll::-webkit-scrollbar-track { background: transparent; }
+  .scroll { scrollbar-width: none; -ms-overflow-style: none; }
+  .scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
 </style>
 </head>
 <body>
@@ -704,10 +703,10 @@ function ReportAi({ items }) {
             padding: '11px 14px 11px 18px',
             overflow: 'hidden',
           }}>
-            {/* 좌측 accent bar */}
+            {/* 좌측 accent bar — 파란색 통일 */}
             <div style={{
               position:'absolute', left: 0, top: 0, bottom: 0,
-              width: 3, background: tone.color,
+              width: 3, background: C.accent,
             }}/>
             <div style={{
               display:'flex', alignItems:'center', justifyContent:'space-between',
