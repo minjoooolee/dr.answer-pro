@@ -1010,96 +1010,102 @@ function TriageReport({ dark, onClose }) {
     );
   }
 
-  return (
-    <>
-      <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:Y_DARK, marginBottom:8 }}>TRIAGE REPORT</div>
-      <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>🩺 트리아제 리포트</div>
+  return (() => {
+    const subtle = dark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)';
+    const muted  = dark ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.6)';
+    const cardBg = dark ? 'rgba(255,255,255,0.04)' : '#fff';
+    const cardBorder = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+    const text = dark ? '#fff' : '#0d1614';
+    return (
+      <>
+        <div style={{ fontFamily:'Poppins', fontWeight:500, fontSize:10.5, letterSpacing:'0.24em', textTransform:'uppercase', color: subtle, marginBottom:6 }}>TRIAGE REPORT</div>
+        <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color: text, letterSpacing:'-0.025em', marginBottom:22 }}>트리아제 리포트</div>
 
-      {/* 종합 평가 배너 */}
-      <div style={{
-        borderRadius:18, padding:'20px 18px', marginBottom:18,
-        background: dark?'rgba(245,158,11,0.16)':'rgba(245,158,11,0.12)',
-        border:`1.5px solid ${dark?'rgba(245,158,11,0.40)':'rgba(245,158,11,0.35)'}`,
-      }}>
-        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-          <div style={{ width:34, height:34, borderRadius:'50%', background:`linear-gradient(135deg, ${Y_LIGHT}, ${Y_DARK})`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, color:'#fff', boxShadow:`0 4px 12px ${Y_LIGHT}55` }}>!</div>
-          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: Y_DARK, letterSpacing:'-0.01em' }}>오늘의 종합 평가</div>
-        </div>
-        <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:19, color: dark?'#fff':'#3d2900', letterSpacing:'-0.02em', lineHeight:1.45 }}>
-          주의가 필요한 증상이 있어,<br/>
-          <span style={{ background: dark?'rgba(245,158,11,0.26)':'rgba(245,158,11,0.32)', padding:'2px 6px', borderRadius:6 }}>24시간 이내 외래에 방문하는 걸 권장드려요.</span>
-        </div>
-      </div>
-
-      {/* 위험도 스케일 */}
-      <div style={{
-        borderRadius:16, padding:'16px 18px', marginBottom:22,
-        background: dark?'rgba(255,255,255,0.04)':'#fff',
-        border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
-      }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
-          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>건강 위험도</div>
-          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:14, color: Y_LIGHT, letterSpacing:'-0.01em' }}>주의</div>
-        </div>
-        <div style={{ position:'relative', height:10, borderRadius:5, marginBottom:10,
-          background:'linear-gradient(90deg, #41d2b4 0%, #41d2b4 33%, #f59e0b 33%, #f59e0b 66%, #ee3f60 66%, #ee3f60 100%)',
-          opacity:0.85,
+        {/* 종합 평가 */}
+        <div style={{
+          borderRadius:20, padding:'22px 22px 24px', marginBottom:18,
+          background: cardBg, border:`1px solid ${cardBorder}`,
+          boxShadow:'0 2px 12px rgba(0,0,0,0.04)',
         }}>
-          <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)',
-            width:20, height:20, borderRadius:'50%', background:'#fff',
-            boxShadow:`0 0 0 3px ${Y_LIGHT}, 0 2px 8px rgba(0,0,0,0.18)`,
-          }} />
-        </div>
-        <div style={{ display:'flex', justifyContent:'space-between' }}>
-          {['낮음','주의','위험'].map((lbl, i) => {
-            const active = i === 1;
-            const baseColor = i === 0 ? '#2dbfa0' : (i === 1 ? Y_LIGHT : '#ee3f60');
-            return (
-              <div key={lbl} style={{ flex:1, textAlign: i === 0 ? 'left' : (i === 1 ? 'center' : 'right'), fontFamily:'Pretendard', fontWeight: active ? 800 : 500, fontSize:11.5, color: active ? baseColor : (dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)'), letterSpacing:'-0.01em' }}>{lbl}</div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 이렇게 판단한 이유는요? */}
-      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:10 }}>
-        이렇게 판단한 이유는요?
-      </div>
-
-      <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:18 }}>
-        {TRIAGE_SUMMARIES.map((s, i) => (
-          <div key={i} style={{
-            borderRadius:14, padding:'12px 14px',
-            background: dark?'rgba(255,255,255,0.04)':'#fff',
-            border:`1px solid ${dark?'rgba(245,158,11,0.30)':'rgba(245,158,11,0.22)'}`,
-            borderLeft:`3px solid ${Y_LIGHT}`,
-            display:'flex', alignItems:'flex-start', gap:10,
-          }}>
-            <span style={{
-              flex:'0 0 auto', width:24, height:24, borderRadius:'50%',
-              background: dark?'rgba(245,158,11,0.22)':'rgba(245,158,11,0.18)',
-              color: Y_DARK,
-              display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, fontFamily:'Pretendard',
-            }}>!</span>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4, flexWrap:'wrap' }}>
-                <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12.5, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{s.category}</div>
-                <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', padding:'2px 7px', borderRadius:6, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)', letterSpacing:'-0.01em' }}>📍 {s.source}</span>
-              </div>
-              <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.65)':'rgba(0,0,0,0.6)', lineHeight:1.6 }}>{s.text}</div>
-            </div>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
+            <span style={{ width:6, height:6, borderRadius:'50%', background:Y_LIGHT, boxShadow:`0 0 0 4px ${Y_LIGHT}22` }} />
+            <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11.5, color:Y_DARK, letterSpacing:'0.02em' }}>주의</span>
           </div>
-        ))}
-      </div>
+          <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:14, color: muted, letterSpacing:'-0.015em', marginBottom:6 }}>
+            주의가 필요한 증상이 있어,
+          </div>
+          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:21, color: text, letterSpacing:'-0.03em', lineHeight:1.4 }}>
+            24시간 이내 외래 방문을<br/>권장드려요.
+          </div>
+        </div>
 
-      <button onClick={onClose} style={{
-        width:'100%', height:54, borderRadius:16, border:'none', cursor:'pointer',
-        background:`linear-gradient(135deg, ${Y_LIGHT}, ${Y_DARK})`, color:'#fff',
-        fontFamily:'Pretendard', fontWeight:800, fontSize:15,
-        letterSpacing:'-0.01em', boxShadow:`0 8px 22px ${Y_LIGHT}55`,
-      }}>확인</button>
-    </>
-  );
+        {/* 건강 위험도 스케일 */}
+        <div style={{
+          borderRadius:20, padding:'20px 22px', marginBottom:28,
+          background: cardBg, border:`1px solid ${cardBorder}`,
+        }}>
+          <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom:18 }}>
+            <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:12, color: subtle, letterSpacing:'-0.01em' }}>건강 위험도</span>
+            <span style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color: Y_DARK, letterSpacing:'-0.02em' }}>주의</span>
+          </div>
+          {/* segmented bar */}
+          <div style={{ display:'flex', gap:6, marginBottom:12 }}>
+            {['#41d2b4', Y_LIGHT, '#ee3f60'].map((c, i) => {
+              const active = i === 1;
+              return (
+                <div key={i} style={{
+                  flex:1, height:6, borderRadius:3,
+                  background: active ? c : (dark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.07)'),
+                  opacity: active ? 1 : 1,
+                }} />
+              );
+            })}
+          </div>
+          <div style={{ display:'flex', justifyContent:'space-between' }}>
+            {['낮음','주의','위험'].map((lbl, i) => {
+              const active = i === 1;
+              return (
+                <span key={lbl} style={{
+                  flex:1, textAlign: i === 0 ? 'left' : (i === 1 ? 'center' : 'right'),
+                  fontFamily:'Pretendard', fontWeight: active ? 700 : 500, fontSize:11.5,
+                  color: active ? Y_DARK : (dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)'),
+                  letterSpacing:'-0.01em',
+                }}>{lbl}</span>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 이렇게 판단한 이유는요? */}
+        <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: text, letterSpacing:'-0.02em', marginBottom:12 }}>
+          이렇게 판단한 이유는요?
+        </div>
+
+        <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+          {TRIAGE_SUMMARIES.map((s, i) => (
+            <div key={i} style={{
+              borderRadius:14, padding:'14px 16px',
+              background: cardBg, border:`1px solid ${cardBorder}`,
+            }}>
+              <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
+                <span style={{ fontFamily:'Poppins', fontWeight:700, fontSize:10.5, color: subtle, letterSpacing:'0.04em' }}>0{i+1}</span>
+                <span style={{ flex:1, fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: text, letterSpacing:'-0.015em' }}>{s.category}</span>
+                <span style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:10.5, color: subtle, letterSpacing:'-0.01em' }}>{s.source}</span>
+              </div>
+              <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12.5, color: muted, lineHeight:1.65, letterSpacing:'-0.01em' }}>{s.text}</div>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={onClose} style={{
+          width:'100%', height:54, borderRadius:16, border:'none', cursor:'pointer',
+          background: dark?'#fff':'#0d1614', color: dark?'#000':'#fff',
+          fontFamily:'Pretendard', fontWeight:800, fontSize:15,
+          letterSpacing:'-0.015em', boxShadow:'0 6px 18px rgba(0,0,0,0.15)',
+        }}>확인</button>
+      </>
+    );
+  })();
 }
 
 function NutritionCard({ dark, accent = '#41d2b4' }) {
