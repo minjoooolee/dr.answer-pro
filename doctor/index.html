@@ -493,16 +493,20 @@ const SAMPLE_HOME_REPORT_LONG = {
     { category: '신경 증상',     text: '손발 저림 1 회 보고 — 신경병증 모니터링 필요' },
     { category: '피로·수면',     text: '평균 1.8, 야간 각성 없음' },
   ],
-  weight: [
-    { month:'2025.09', avg:66.5, change: 0    },
-    { month:'2025.10', avg:66.3, change:-0.2 },
-    { month:'2025.11', avg:66.0, change:-0.3 },
-    { month:'2025.12', avg:65.8, change:-0.2 },
-    { month:'2026.01', avg:65.5, change:-0.3 },
-    { month:'2026.02', avg:65.3, change:-0.2 },
-    { month:'2026.03', avg:65.1, change:-0.2 },
-    { month:'2026.04', avg:65.0, change:-0.1 },
-  ],
+  weight: {
+    baseline: 68.5,
+    baselineDate: '2024.10',
+    monthly: [
+      { month:'2025.09', avg:66.5 },
+      { month:'2025.10', avg:66.3 },
+      { month:'2025.11', avg:66.0 },
+      { month:'2025.12', avg:65.8 },
+      { month:'2026.01', avg:65.5 },
+      { month:'2026.02', avg:65.3 },
+      { month:'2026.03', avg:65.1 },
+      { month:'2026.04', avg:65.0 },
+    ],
+  },
   diet: [
     { month:'2026.04', compliance:72, fruitsVeg:'4.2 srv/일', processed:'주 3.1 회', water:'1.7 L/일', note:'가공식품 권장치 초과' },
     { month:'2026.03', compliance:74, fruitsVeg:'4.4 srv/일', processed:'주 2.8 회', water:'1.8 L/일', note:'' },
@@ -929,21 +933,148 @@ function ReportPro({ items, insights, period }) {
     </div>
   );
 }
-function ReportWeight({ items }) {
+function StatCard({ label, children }) {
   return (
-    <ReportTable
-      head={['월', '평균 체중', '변화량']}
-      rows={items.map(it => [
-        it.month,
-        `${it.avg} kg`,
-        <span style={{
-          color: it.change < 0 ? '#D63A3A' : (it.change > 0 ? '#16A769' : C.textSub),
-          fontWeight: 700,
-        }}>
-          {it.change > 0 ? `+${it.change}` : it.change} kg
-        </span>,
-      ])}
-    />
+    <div style={{
+      flex: 1, background: C.surface,
+      border: `1px solid ${C.borderSoft}`,
+      borderRadius: 10, padding: '12px 14px',
+    }}>
+      <div style={{
+        fontSize: 10.5, color: C.textMute, fontWeight: 800,
+        letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
+      }}>{label}</div>
+      <div style={{ display:'flex', alignItems:'baseline', gap: 6 }}>{children}</div>
+    </div>
+  );
+}
+
+function WeightChart({ monthly, baseline }) {
+  const W = 560, H = 140;
+  const PAD = { top: 18, right: 26, bottom: 26, left: 42 };
+  const innerW = W - PAD.left - PAD.right;
+  const innerH = H - PAD.top - PAD.bottom;
+
+  const values = monthly.map(m => m.avg).concat([baseline]);
+  const yMin = Math.floor(Math.min(...values) - 0.5);
+  const yMax = Math.ceil(Math.max(...values) + 0.5);
+  const yRange = Math.max(yMax - yMin, 1);
+
+  const xToPx = (i, n) => n <= 1
+    ? PAD.left + innerW / 2
+    : PAD.left + (i / (n - 1)) * innerW;
+  const yToPx = (v) => PAD.top + innerH * (1 - (v - yMin) / yRange);
+  const baselineY = yToPx(baseline);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', height:'auto', display:'block' }}>
+      {/* y-grid */}
+      {[0, 0.25, 0.5, 0.75, 1].map(p => {
+        const y = PAD.top + p * innerH;
+        const v = yMax - p * yRange;
+        return (
+          <g key={p}>
+            <line x1={PAD.left} x2={W - PAD.right} y1={y} y2={y}
+                  stroke={C.borderSoft} strokeWidth="1"/>
+            <text x={PAD.left - 8} y={y + 4} textAnchor="end"
+                  fontSize="10.5" fill={C.textSub} fontFamily="Pretendard">
+              {v.toFixed(0)}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* 치료 전 reference line (dashed) */}
+      <line x1={PAD.left} x2={W - PAD.right} y1={baselineY} y2={baselineY}
+            stroke="#9AA1AE" strokeWidth="1" strokeDasharray="3 4"/>
+      <text x={W - PAD.right} y={baselineY - 5} textAnchor="end"
+            fontSize="10" fill={C.textSub} fontFamily="Pretendard">
+        치료 전 {baseline} kg
+      </text>
+
+      {/* Line */}
+      <polyline
+        fill="none" stroke={C.accent} strokeWidth="1.4"
+        strokeLinejoin="round" strokeLinecap="round"
+        points={monthly.map((m, i) => `${xToPx(i, monthly.length)},${yToPx(m.avg)}`).join(' ')}
+      />
+
+      {/* Dots + x-axis */}
+      {monthly.map((m, i) => {
+        const x = xToPx(i, monthly.length);
+        const y = yToPx(m.avg);
+        return (
+          <g key={i}>
+            <circle cx={x} cy={y} r="3" fill="#fff" stroke={C.accent} strokeWidth="1.6"/>
+            <text x={x} y={H - PAD.bottom + 15} textAnchor="middle"
+                  fontSize="10" fill={C.textSub} fontFamily="Pretendard">
+              {m.month.slice(2)}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function ReportWeight({ data }) {
+  if (!data || !data.monthly || data.monthly.length === 0) return null;
+  const { baseline, baselineDate, monthly } = data;
+  const current = monthly[monthly.length - 1].avg;
+  const change = +(current - baseline).toFixed(1);
+  const pct = +((change / baseline) * 100).toFixed(1);
+  const decreased = change < 0;
+  const trendColor = decreased ? '#D63A3A' : (change > 0 ? '#16A769' : C.textSub);
+
+  return (
+    <div>
+      {/* 치료 전 체중 — pinned */}
+      <div style={{
+        display:'flex', alignItems:'baseline', justifyContent:'space-between',
+        padding: '12px 14px', marginBottom: 10,
+        background: C.bg, borderRadius: 10,
+        border: `1px solid ${C.borderSoft}`,
+      }}>
+        <div>
+          <div style={{
+            fontSize: 10.5, color: C.textMute, fontWeight: 800,
+            letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 4,
+          }}>치료 전 체중</div>
+          <div style={{ display:'flex', alignItems:'baseline', gap: 8 }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{baseline}</div>
+            <div style={{ fontSize: 13, color: C.textSub }}>kg · {baselineDate}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* 이번 달 평균 + 치료 전 대비 */}
+      <div style={{ display:'flex', gap: 8, marginBottom: 12 }}>
+        <StatCard label="이번 달 평균">
+          <div style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{current}</div>
+          <div style={{ fontSize: 12, color: C.textSub }}>kg</div>
+        </StatCard>
+        <StatCard label="치료 전 대비">
+          <div style={{ fontSize: 22, fontWeight: 800, color: trendColor }}>
+            {decreased ? '▼' : (change > 0 ? '▲' : '—')} {Math.abs(change)}
+          </div>
+          <div style={{ fontSize: 12, color: C.textSub }}>
+            kg ({pct > 0 ? '+' : ''}{pct}%)
+          </div>
+        </StatCard>
+      </div>
+
+      {/* 그래프 */}
+      <div style={{
+        background: C.surface, border: `1px solid ${C.borderSoft}`,
+        borderRadius: 10, padding: '12px 14px 10px',
+      }}>
+        <div style={{
+          fontSize: 10.5, color: C.textMute, fontWeight: 800,
+          letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6,
+        }}>체중 변화 추이</div>
+        <WeightChart monthly={monthly} baseline={baseline}/>
+      </div>
+    </div>
   );
 }
 function ReportDiet({ items }) {
@@ -1027,7 +1158,7 @@ function HomeReportCard({ patient, collapsed, active, onToggle }) {
     if (section === 'ai')       return <ReportAi       items={homeReport.ai}/>;
     if (section === 'symptoms') return <ReportSymptoms items={homeReport.symptoms}/>;
     if (section === 'pro')      return <ReportPro      items={homeReport.pro} insights={homeReport.proInsights} period={homeReport.proPeriod}/>;
-    if (section === 'weight')   return <ReportWeight   items={homeReport.weight}/>;
+    if (section === 'weight')   return <ReportWeight   data={homeReport.weight}/>;
     if (section === 'diet')     return <ReportDiet     items={homeReport.diet}/>;
     if (section === 'exercise') return <ReportExercise items={homeReport.exercise}/>;
     return null;
