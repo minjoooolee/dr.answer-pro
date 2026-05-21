@@ -3022,7 +3022,30 @@ function PROScreen({ tweaks, setTweak, skipWelcomeAlert }) {
             ) : activeTag === '식단' ? (
               <>
                 <div style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.purple, marginBottom:8 }}>MEAL LOG</div>
-                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:16 }}>오늘의 식단 기록</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:14 }}>오늘의 식단 기록</div>
+
+                {/* 주치의 처방 목표 */}
+                <div style={{
+                  padding:'12px 14px', borderRadius:14, marginBottom:16,
+                  background: dark?'rgba(43,182,115,0.10)':'rgba(43,182,115,0.07)',
+                  border:`1px solid ${dark?'rgba(43,182,115,0.22)':'rgba(43,182,115,0.18)'}`,
+                }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+                    <span style={{ fontSize:12 }}>🩺</span>
+                    <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11, color:'#2bb673', letterSpacing:0.4, textTransform:'uppercase' }}>주치의 처방 목표</span>
+                  </div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                    {['채소·과일 5회','식이섬유 25g','가공육 주2회↓','물 2L'].map(t => (
+                      <span key={t} style={{
+                        fontFamily:'Pretendard', fontWeight:600, fontSize:11.5, color: dark?'rgba(255,255,255,0.85)':'#1f2937',
+                        padding:'4px 9px', borderRadius:999,
+                        background: dark?'rgba(255,255,255,0.06)':'#fff',
+                        border:`1px solid ${dark?'rgba(255,255,255,0.10)':'rgba(14,17,22,0.06)'}`,
+                        letterSpacing:-0.1,
+                      }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
 
                 {dietMode === null && (
                   <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -3132,7 +3155,35 @@ function PROScreen({ tweaks, setTweak, skipWelcomeAlert }) {
             ) : activeTag === '운동' ? (
               <>
                 <div style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>EXERCISE LOG</div>
-                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>오늘의 운동 기록</div>
+                <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:14 }}>오늘의 운동 기록</div>
+
+                {/* 주치의 처방 목표 */}
+                <div style={{
+                  padding:'12px 14px', borderRadius:14, marginBottom:18,
+                  background: dark?'rgba(217,119,6,0.10)':'rgba(217,119,6,0.07)',
+                  border:`1px solid ${dark?'rgba(217,119,6,0.25)':'rgba(217,119,6,0.20)'}`,
+                }}>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                      <span style={{ fontSize:12 }}>🩺</span>
+                      <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11, color:'#d97706', letterSpacing:0.4, textTransform:'uppercase' }}>주치의 처방 목표</span>
+                    </div>
+                    <span style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:11, color: dark?'rgba(255,255,255,0.55)':'rgba(14,17,22,0.5)', letterSpacing:-0.1 }}>
+                      이번 주 <span style={{ color:'#d97706' }}>60</span><span style={{ opacity:0.6 }}>/150분</span>
+                    </span>
+                  </div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
+                    {['오늘 30분 중등도','주 150분 목표','근력 주2회'].map(t => (
+                      <span key={t} style={{
+                        fontFamily:'Pretendard', fontWeight:600, fontSize:11.5, color: dark?'rgba(255,255,255,0.85)':'#1f2937',
+                        padding:'4px 9px', borderRadius:999,
+                        background: dark?'rgba(255,255,255,0.06)':'#fff',
+                        border:`1px solid ${dark?'rgba(255,255,255,0.10)':'rgba(14,17,22,0.06)'}`,
+                        letterSpacing:-0.1,
+                      }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
 
                 {exerciseDone === null && (
                   <>
