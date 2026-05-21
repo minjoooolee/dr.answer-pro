@@ -487,11 +487,11 @@ const SAMPLE_HOME_REPORT_LONG = {
   ],
   proPeriod: { start: '2026.02.15', end: '2026.04.15' },
   proInsights: [
-    { category: '통증',          text: '평균 2.1, 변동 없이 안정' },
-    { category: '배변 (변비)',   text: '월 6 → 12 회 증가 — 식이 상담 권장' },
-    { category: '메스꺼움·식욕', text: '정상 범위 유지' },
-    { category: '신경 증상',     text: '손발 저림 1 회 보고 — 신경병증 모니터링 필요' },
-    { category: '피로·수면',     text: '평균 1.8, 야간 각성 없음' },
+    { category: '통증',          tone:'안정', text: '평균 2.1, 변동 없이 안정' },
+    { category: '배변 (변비)',   tone:'주의', text: '월 6 → 12 회 증가 — 식이 상담 권장' },
+    { category: '메스꺼움·식욕', tone:'안정', text: '정상 범위 유지' },
+    { category: '신경 증상',     tone:'주의', text: '손발 저림 1 회 보고 — 신경병증 모니터링 필요' },
+    { category: '피로·수면',     tone:'안정', text: '평균 1.8, 야간 각성 없음' },
   ],
   weight: {
     baseline: 68.5,
@@ -902,21 +902,31 @@ function ReportPro({ items, insights, period }) {
             {period.start} → {period.end} (지난 외래 ~ 현재)
           </div>
         )}
-        {insights && insights.map((it, i) => (
-          <div key={i} style={{
-            display:'flex', gap: 12, padding: '7px 0',
-            borderTop: i === 0 ? `1px solid ${C.borderSoft}` : 'none',
-            borderBottom: `1px dashed ${C.borderSoft}`,
-            fontSize: 12.5,
-          }}>
-            <div style={{ width: 96, color: C.textSub, fontWeight: 700, flexShrink: 0 }}>
-              {it.category}
+        {insights && insights.map((it, i) => {
+          const tone = AI_TONES[it.tone] || AI_TONES['안정'];
+          return (
+            <div key={i} style={{
+              display:'flex', alignItems:'center', gap: 12, padding: '8px 0',
+              borderTop: i === 0 ? `1px solid ${C.borderSoft}` : 'none',
+              borderBottom: `1px dashed ${C.borderSoft}`,
+              fontSize: 12.5,
+            }}>
+              <div style={{ width: 96, color: C.textSub, fontWeight: 700, flexShrink: 0 }}>
+                {it.category}
+              </div>
+              <div style={{ flex: 1, color: C.text, lineHeight: 1.55 }}>
+                {it.text}
+              </div>
+              <span style={{
+                display:'inline-flex', alignItems:'center', height: 20,
+                padding:'0 8px', borderRadius: 4,
+                background: tone.bg, color: tone.color,
+                fontSize: 11, fontWeight: 800, letterSpacing: 0.4,
+                flexShrink: 0,
+              }}>{it.tone}</span>
             </div>
-            <div style={{ flex: 1, color: C.text, lineHeight: 1.55 }}>
-              {it.text}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <button onClick={() => setShowRaw(true)} style={{
