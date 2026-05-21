@@ -529,8 +529,10 @@ const SAMPLE_HOME_REPORT_LONG = {
 
 const PATIENTS = [
   { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중'],
+    todayVisit: '2026.03.25 (수)',
     recurrence: SAMPLE_RECURRENCE, analysis: SAMPLE_ANALYSIS, emr: SAMPLE_EMR },
   { name:'김성인', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
+    lastVisit: '2025.12.23', todayVisit: '2026.04.15 (수)',
     recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG,
     emr: SAMPLE_EMR_LONG, homeReport: SAMPLE_HOME_REPORT_LONG },
   { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
@@ -1617,14 +1619,35 @@ function CenterPanel({ patient }) {
           <div style={{ fontSize: 22, fontWeight: 700, color: C.text }}>{patient.name}</div>
           <div style={{ fontSize: 13, color: C.textSub }}>만 {patient.age}세 · {patient.gender === 'F' ? '여성' : '남성'}</div>
         </div>
-        <button style={{
-          display:'flex', alignItems:'center', gap: 6,
-          height: 34, padding: '0 14px', borderRadius: 8,
-          border: `1px solid ${C.border}`, background: C.surface,
-          fontSize: 13, fontWeight: 600, color: C.text,
-        }}>
-          2026.3.25(수) <Icon name="chevD" size={14} color={C.textSub}/>
-        </button>
+        <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+          {patient.lastVisit && (
+            <div style={{
+              display:'inline-flex', alignItems:'center', gap: 6,
+              height: 34, padding: '0 12px', borderRadius: 8,
+              border: `1px solid ${C.border}`, background: C.bg,
+              fontSize: 12.5, color: C.textMute, cursor: 'not-allowed',
+            }}>
+              <span style={{
+                fontSize: 10, color: C.textMute, fontWeight: 700,
+                letterSpacing: 0.6, textTransform:'uppercase',
+              }}>최근 외래일</span>
+              {patient.lastVisit}
+            </div>
+          )}
+          <button style={{
+            display:'inline-flex', alignItems:'center', gap: 6,
+            height: 34, padding: '0 12px', borderRadius: 8,
+            border: `1px solid ${C.border}`, background: C.surface,
+            fontSize: 13, fontWeight: 600, color: C.text,
+          }}>
+            <span style={{
+              fontSize: 10, color: C.accent, fontWeight: 800,
+              letterSpacing: 0.6, textTransform:'uppercase',
+            }}>오늘 외래일</span>
+            {patient.todayVisit}
+            <Icon name="chevD" size={14} color={C.textSub}/>
+          </button>
+        </div>
       </div>
 
       <HomeReportCard
