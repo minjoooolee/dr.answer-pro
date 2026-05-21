@@ -400,7 +400,7 @@ const SAMPLE_EMR = {
   },
 };
 
-/* ── 이서준 (장기 치료 후 재진) ── */
+/* ── 김성인 (장기 치료 후 재진) ── */
 const SAMPLE_RECURRENCE_LONG = [
   { date:'2025.06.15', score: 58, note:'퇴원' },
   { date:'2025.08.15', score: 49, note:'외래' },
@@ -455,7 +455,7 @@ const SAMPLE_EMR_LONG = {
   },
 };
 
-/* ── 이서준의 재택 관리 경과 데이터 ── */
+/* ── 김성인의 재택 관리 경과 데이터 ── */
 const SAMPLE_HOME_REPORT_LONG = {
   ai: [
     { label:'전반적 추세', tone:'안정',
@@ -524,7 +524,7 @@ const SAMPLE_HOME_REPORT_LONG = {
 const PATIENTS = [
   { name:'김류아', id:'931208', gender:'F', age:32, time:'09:03', tags:['진료중'],
     recurrence: SAMPLE_RECURRENCE, analysis: SAMPLE_ANALYSIS, emr: SAMPLE_EMR },
-  { name:'이서준', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
+  { name:'김성인', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
     recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG,
     emr: SAMPLE_EMR_LONG, homeReport: SAMPLE_HOME_REPORT_LONG },
   { name:'김은호', id:'890127', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
@@ -630,9 +630,9 @@ const HOME_REPORT_SECTIONS = [
   { k:'ai',       l:'AI 요약' },
   { k:'symptoms', l:'이상증세 보고' },
   { k:'pro',      l:'PRO 점수표' },
-  { k:'weight',   l:'체중 월간 요약' },
-  { k:'diet',     l:'식단 월간 요약' },
-  { k:'exercise', l:'운동 월간 요약' },
+  { k:'weight',   l:'체중 요약' },
+  { k:'diet',     l:'식단 요약' },
+  { k:'exercise', l:'운동 요약' },
 ];
 
 const SEVERITY_STYLE = {
