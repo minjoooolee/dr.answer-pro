@@ -116,7 +116,7 @@ function IOSStatusBar({ dark = false, time = '9:41' }) {
     }}>
       <div style={{ flex: 1, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 1.5 }}>
         <span style={{
-          fontFamily: '-apple-system, "SF Pro", system-ui', fontWeight: 590,
+          fontFamily: 'Pretendard, system-ui, sans-serif', fontWeight: 590,
           fontSize: 17, lineHeight: '22px', color: c,
         }}>{time}</span>
       </div>
@@ -206,7 +206,7 @@ function IOSNavBar({ title = 'Title', dark = false, trailingIcon = true }) {
       </div>
       <div style={{
         padding: '0 16px',
-        fontFamily: '-apple-system, system-ui',
+        fontFamily: 'Pretendard, system-ui, sans-serif',
         fontSize: 34, fontWeight: 700, lineHeight: '41px',
         color: dark ? '#fff' : '#000', letterSpacing: 0.4,
       }}>{title}</div>
@@ -223,7 +223,7 @@ function IOSListRow({ title, detail, icon, chevron = true, isLast = false, dark 
     <div style={{
       display: 'flex', alignItems: 'center', minHeight: 52,
       padding: '0 16px', position: 'relative',
-      fontFamily: '-apple-system, system-ui', fontSize: 17,
+      fontFamily: 'Pretendard, system-ui, sans-serif', fontSize: 17,
       letterSpacing: -0.43,
     }}>
       {icon && (
@@ -256,7 +256,7 @@ function IOSList({ header, children, dark = false }) {
     <div>
       {header && (
         <div style={{
-          fontFamily: '-apple-system, system-ui', fontSize: 13,
+          fontFamily: 'Pretendard, system-ui, sans-serif', fontSize: 13,
           color: hc, textTransform: 'uppercase',
           padding: '8px 36px 6px', letterSpacing: -0.08,
         }}>{header}</div>
@@ -275,7 +275,7 @@ function IOSDevice({ children, width = 402, height = 874, dark = false, title, k
       width, height, borderRadius: 48, overflow: 'hidden',
       position: 'relative', background: dark ? '#000' : '#F2F2F7',
       boxShadow: '0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
-      fontFamily: '-apple-system, system-ui, sans-serif',
+      fontFamily: 'Pretendard, system-ui, sans-serif',
       WebkitFontSmoothing: 'antialiased',
     }}>
       {/* dynamic island */}
@@ -1278,7 +1278,7 @@ function SymptomTable(props) {
             {visibleDates.map((d, di) => (
               <th key={di} style={{ padding:'6px 0', textAlign:'center', borderRight: di < visibleDates.length - 1 ? `1px solid ${rowBorderColor}` : 'none', fontWeight:400 }}>
                 <div style={{ fontWeight:700, fontSize:10.5, color: textColor }}>{d.d}</div>
-                <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:8.5, color: subColor, marginTop:1 }}>{d.cycle}</div>
+                <div style={{ fontFamily: 'Pretendard', fontWeight:600, fontSize:8.5, color: subColor, marginTop:1 }}>{d.cycle}</div>
               </th>
             ))}
           </tr>
@@ -1886,7 +1886,7 @@ function PROScreen({ tweaks, setTweak }) {
             width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
             background: dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'Poppins', fontWeight: 800, fontSize: 11,
+            fontFamily: 'Pretendard', fontWeight: 800, fontSize: 11,
             color: dark ? '#fff' : '#000',
           }}>
           김
@@ -2659,7 +2659,7 @@ function PROScreen({ tweaks, setTweak }) {
                     </div>
 
                     <div style={{
-                      fontFamily:'Poppins', fontWeight:400, fontSize:11,
+                      fontFamily: 'Pretendard', fontWeight:400, fontSize:11,
                       letterSpacing:'0.18em', textTransform:'uppercase',
                       color:C.purple, marginBottom:6,
                     }}>{surveyStep + 1} / {SURVEY_CATEGORIES.length}</div>
@@ -2803,7 +2803,7 @@ function PROScreen({ tweaks, setTweak }) {
                         ) : (
                           <>
                             <div style={{
-                              fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                              fontFamily: 'Pretendard', fontWeight: 400, fontSize: 11,
                               letterSpacing: '0.18em', textTransform: 'uppercase',
                               color: C.purple, marginBottom: 14,
                             }}>{subStep + 1} / {PAIN_QUESTIONS.length}</div>
@@ -2944,7 +2944,7 @@ function PROScreen({ tweaks, setTweak }) {
                       <>
                         {/* sub-question counter */}
                         <div style={{
-                          fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                          fontFamily: 'Pretendard', fontWeight: 400, fontSize: 11,
                           letterSpacing: '0.18em', textTransform: 'uppercase',
                           color: C.purple, marginBottom: 12,
                         }}>{subStep + 1} / {PAIN_QUESTIONS.length}</div>
@@ -3021,7 +3021,7 @@ function PROScreen({ tweaks, setTweak }) {
               )
             ) : activeTag === '식단' ? (
               <>
-                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.purple, marginBottom:8 }}>MEAL LOG</div>
+                <div style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.purple, marginBottom:8 }}>MEAL LOG</div>
                 <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:16 }}>오늘의 식단 기록</div>
 
                 {dietMode === null && (
@@ -3131,7 +3131,7 @@ function PROScreen({ tweaks, setTweak }) {
               </>
             ) : activeTag === '운동' ? (
               <>
-                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>EXERCISE LOG</div>
+                <div style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>EXERCISE LOG</div>
                 <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>오늘의 운동 기록</div>
 
                 {exerciseDone === null && (
@@ -3420,7 +3420,7 @@ function PROScreen({ tweaks, setTweak }) {
                         <div style={{ width:28, height:28, background:dark?'rgba(0,0,0,0.55)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Pretendard', fontWeight:800, fontSize:16, color: dark?'#fff':'#333' }}>+</div>
                         <div style={{ width:28, height:28, background:dark?'rgba(0,0,0,0.55)':'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Pretendard', fontWeight:800, fontSize:16, color: dark?'#fff':'#333' }}>−</div>
                       </div>
-                      <div style={{ position:'absolute', left:10, bottom:6, fontFamily:'Poppins', fontWeight:700, fontSize:11, letterSpacing:'-0.01em' }}>
+                      <div style={{ position:'absolute', left:10, bottom:6, fontFamily: 'Pretendard', fontWeight:700, fontSize:11, letterSpacing:'-0.01em' }}>
                         <span style={{ color:'#4285F4' }}>G</span><span style={{ color:'#EA4335' }}>o</span><span style={{ color:'#FBBC05' }}>o</span><span style={{ color:'#4285F4' }}>g</span><span style={{ color:'#34A853' }}>l</span><span style={{ color:'#EA4335' }}>e</span>
                       </div>
 
@@ -3555,7 +3555,7 @@ function PROScreen({ tweaks, setTweak }) {
             ) : activeTag === '체중' ? (
               <>
                 <div style={{
-                  fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                  fontFamily: 'Pretendard', fontWeight: 400, fontSize: 11,
                   letterSpacing: '0.22em', textTransform: 'uppercase',
                   color: C.main, marginBottom: 8,
                 }}>WEIGHT LOG</div>
@@ -3666,7 +3666,7 @@ function PROScreen({ tweaks, setTweak }) {
                 {!reportType && (
                   <>
                     <div style={{
-                      fontFamily: 'Poppins', fontWeight: 400, fontSize: 11,
+                      fontFamily: 'Pretendard', fontWeight: 400, fontSize: 11,
                       letterSpacing: '0.22em', textTransform: 'uppercase',
                       color: C.purple, marginBottom: 8,
                     }}>REPORT</div>
@@ -4006,7 +4006,7 @@ function PROScreen({ tweaks, setTweak }) {
                       <div style={{ width:50 }} />
                     </div>
                     <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:20, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:6 }}>🏥 의료진용 리포트</div>
-                    <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.18em', textTransform:'uppercase', color:C.red, marginBottom:20 }}>CLINICAL REPORT — {getReportMonthLabel(reportMonthOffset)}</div>
+                    <div style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:11, letterSpacing:'0.18em', textTransform:'uppercase', color:C.red, marginBottom:20 }}>CLINICAL REPORT — {getReportMonthLabel(reportMonthOffset)}</div>
 
                     {/* AI 문진 분석 요약 (top) */}
                     <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', marginBottom:10, letterSpacing:'-0.01em' }}>AI 문진 분석 요약</div>
@@ -4068,7 +4068,7 @@ function PROScreen({ tweaks, setTweak }) {
                     {/* 부작용 보고 (이상증세 기록) */}
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
                       <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: dark?'rgba(255,255,255,0.8)':'rgba(0,0,0,0.7)', letterSpacing:'-0.01em' }}>⚠️ 부작용 보고</div>
-                      <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'0.06em' }}>{symptomLog.length} ENTRIES</div>
+                      <div style={{ fontFamily: 'Pretendard', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'0.06em' }}>{symptomLog.length} ENTRIES</div>
                     </div>
                     <div style={{ borderRadius:16, padding:'14px 16px', marginBottom:24, background: dark?'rgba(238,63,96,0.08)':'rgba(238,63,96,0.05)', border:`1px solid ${dark?'rgba(238,63,96,0.22)':'rgba(238,63,96,0.14)'}` }}>
                       {symptomLog.length === 0 ? (
@@ -4083,7 +4083,7 @@ function PROScreen({ tweaks, setTweak }) {
                             }}>
                               <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
                                 <span style={{ width:6, height:6, borderRadius:'50%', background:C.red, flexShrink:0 }} />
-                                <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'0.04em' }}>
+                                <span style={{ fontFamily: 'Pretendard', fontWeight:600, fontSize:10.5, color:C.red, letterSpacing:'0.04em' }}>
                                   {it.date.replaceAll('-','.')} · {it.time}
                                 </span>
                               </div>
@@ -4128,7 +4128,7 @@ function PROScreen({ tweaks, setTweak }) {
               </>
             ) : activeTag === '항암제' ? (
               <>
-                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.purple, marginBottom:8 }}>CHEMOTHERAPY</div>
+                <div style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.purple, marginBottom:8 }}>CHEMOTHERAPY</div>
                 <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>💊 나의 항암제</div>
 
                 {/* 3-tab bar */}
@@ -4278,8 +4278,8 @@ function PROScreen({ tweaks, setTweak }) {
                           borderLeft:`3px solid ${p.color}`,
                         }}>
                           <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8, flexWrap:'wrap' }}>
-                            <span style={{ fontFamily:'Poppins', fontWeight:700, fontSize:11, color:p.color, letterSpacing:'0.04em' }}>{p.journal}</span>
-                            <span style={{ fontFamily:'Poppins', fontWeight:400, fontSize:10, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', padding:'2px 6px', borderRadius:5, background:dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)' }}>{p.impact}</span>
+                            <span style={{ fontFamily: 'Pretendard', fontWeight:700, fontSize:11, color:p.color, letterSpacing:'0.04em' }}>{p.journal}</span>
+                            <span style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:10, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)', padding:'2px 6px', borderRadius:5, background:dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)' }}>{p.impact}</span>
                             <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:10, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', padding:'2px 7px', borderRadius:5, border:`1px solid ${dark?'rgba(255,255,255,0.12)':'rgba(0,0,0,0.1)'}` }}>{p.type}</span>
                             <span style={{ marginLeft:'auto', fontFamily:'Pretendard', fontWeight:500, fontSize:10, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)' }}>{p.date}</span>
                           </div>
@@ -4315,7 +4315,7 @@ function PROScreen({ tweaks, setTweak }) {
                           {/* header strip */}
                           <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 16px', background:dark?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.025)', borderBottom:`1px solid ${dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'}` }}>
                             <span style={{ padding:'3px 8px', borderRadius:6, background:tr.color, color:'#fff', fontFamily:'Pretendard', fontWeight:700, fontSize:10, letterSpacing:'-0.01em' }}>{tr.phase}</span>
-                            <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:10, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', letterSpacing:'0.04em' }}>{tr.id}</span>
+                            <span style={{ fontFamily: 'Pretendard', fontWeight:600, fontSize:10, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)', letterSpacing:'0.04em' }}>{tr.id}</span>
                             <span style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:5 }}>
                               <span style={{ width:6, height:6, borderRadius:'50%', background:tr.statusColor }} />
                               <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:11, color:tr.statusColor }}>{tr.status}</span>
@@ -4353,7 +4353,7 @@ function PROScreen({ tweaks, setTweak }) {
               </>
             ) : activeTag === '이상증세' ? (
               <>
-                <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>SIDE EFFECTS</div>
+                <div style={{ fontFamily: 'Pretendard', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:C.red, marginBottom:8 }}>SIDE EFFECTS</div>
                 <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color:dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:6 }}>외래일에 주치의에게 보고하기</div>
                 <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:13, color:dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', lineHeight:1.6, marginBottom:22 }}>
                   통증·발열·메스꺼움 등 이상증세를 사진·동영상과 함께 기록해두면 다음 외래 진료 때 의료진과 빠르게 공유할 수 있어요.
@@ -4456,7 +4456,7 @@ function PROScreen({ tweaks, setTweak }) {
                 <div style={{ marginTop:32, paddingTop:24, borderTop:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)'}` }}>
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
                     <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:15, color:dark?'#fff':'#000', letterSpacing:'-0.01em' }}>지난 기록</div>
-                    <div style={{ fontFamily:'Poppins', fontWeight:600, fontSize:11, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', letterSpacing:'0.06em' }}>{symptomLog.length} ENTRIES</div>
+                    <div style={{ fontFamily: 'Pretendard', fontWeight:600, fontSize:11, color:dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.45)', letterSpacing:'0.06em' }}>{symptomLog.length} ENTRIES</div>
                   </div>
                   {symptomLog.length === 0 ? (
                     <div style={{ padding:'24px 0', textAlign:'center', fontFamily:'Pretendard', fontWeight:500, fontSize:13, color:dark?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.35)' }}>아직 기록된 이상증세가 없어요.</div>
@@ -4476,7 +4476,7 @@ function PROScreen({ tweaks, setTweak }) {
                         >
                           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
                             <span style={{ width:6, height:6, borderRadius:'50%', background:C.red }} />
-                            <span style={{ fontFamily:'Poppins', fontWeight:600, fontSize:11, color:C.red, letterSpacing:'0.04em' }}>
+                            <span style={{ fontFamily: 'Pretendard', fontWeight:600, fontSize:11, color:C.red, letterSpacing:'0.04em' }}>
                               {it.date.replaceAll('-','.')} · {it.time}
                             </span>
                           </div>
