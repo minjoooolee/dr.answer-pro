@@ -2425,7 +2425,7 @@ function PreviewBlock({ title, lines }) {
   );
 }
 
-function PlanPreviewModal({ plan, onClose }) {
+function PlanPreviewModal({ plan, onClose, onSend }) {
   const triage = buildTriageText(plan.triage);
   return (
     <div onClick={onClose} style={{
@@ -2494,6 +2494,26 @@ function PlanPreviewModal({ plan, onClose }) {
             </div>
           )}
         </div>
+        {onSend && (
+          <div style={{
+            display:'flex', justifyContent:'flex-end', gap: 8,
+            padding: '12px 22px', borderTop: `1px solid ${C.borderSoft}`,
+          }}>
+            <button onClick={onClose} style={{
+              height: 42, padding: '0 18px', borderRadius: 8,
+              border: `1px solid ${C.border}`, background: C.surface,
+              fontSize: 14, fontWeight: 600, color: C.text,
+            }}>취소</button>
+            <button onClick={onSend} style={{
+              display:'flex', alignItems:'center', gap: 8,
+              height: 42, padding: '0 24px', borderRadius: 8,
+              background: C.primary, color: '#fff',
+              fontSize: 14, fontWeight: 700,
+            }}>
+              <Icon name="send" size={14} color="#fff"/> 전송
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -2622,6 +2642,7 @@ function RightPanel({ patient }) {
   const [tab, setTab] = useState('emr');               // 'emr' | 'plan'
   const [plan, setPlan] = useState(DEFAULT_PLAN);
   const [showPreview, setShowPreview] = useState(false);
+  const [showExportPreview, setShowExportPreview] = useState(false);
   const [showExported, setShowExported] = useState(false);
 
   return (
@@ -2665,7 +2686,7 @@ function RightPanel({ patient }) {
             <Icon name="note" size={14} color={C.text}/> 미리보기
           </button>
         )}
-        <button onClick={() => setShowExported(true)} style={{
+        <button onClick={() => setShowExportPreview(true)} style={{
           display:'flex', alignItems:'center', gap: 8,
           height: 42, padding: '0 24px', borderRadius: 8,
           background: C.primary, color: '#fff',
@@ -2677,6 +2698,13 @@ function RightPanel({ patient }) {
 
       {showPreview && (
         <PlanPreviewModal plan={plan} onClose={() => setShowPreview(false)}/>
+      )}
+      {showExportPreview && (
+        <PlanPreviewModal
+          plan={plan}
+          onClose={() => setShowExportPreview(false)}
+          onSend={() => { setShowExportPreview(false); setShowExported(true); }}
+        />
       )}
       {showExported && (
         <ExportConfirmModal onClose={() => setShowExported(false)}/>
