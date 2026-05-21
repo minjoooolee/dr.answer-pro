@@ -903,7 +903,7 @@ function Home({ onWorry }) {
           )}
 
           {/* 2 × 2 grid + MINVENT */}
-          {(vpepMode === 'live' || captured || STATUS === 'alert') && (
+          {(vpepMode === 'live' || captured) && (
           <>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
             {(STATUS === 'alert' ? [
