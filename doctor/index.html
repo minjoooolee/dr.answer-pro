@@ -1340,17 +1340,30 @@ function ReportVitals({ items }) {
     );
   };
   return (
-    <ReportTable
-      head={['날짜', '혈압', '맥박', 'SpO₂', '체온', '호흡수']}
-      rows={items.map(it => [
-        it.date,
-        <Cell kind="bp"    v={it.bp}/>,
-        <Cell kind="pulse" v={it.pulse}/>,
-        <Cell kind="spo2"  v={it.spo2}/>,
-        <Cell kind="temp"  v={it.temp}/>,
-        <Cell kind="resp"  v={it.resp}/>,
-      ])}
-    />
+    <div>
+      <div style={{
+        display:'flex', justifyContent:'flex-end', alignItems:'center',
+        gap: 6, marginBottom: 8,
+        fontSize: 12, color: C.textSub,
+      }}>
+        <span style={{
+          fontSize: 10.5, fontWeight: 700, color: C.textMute,
+          letterSpacing: 0.6, textTransform: 'uppercase',
+        }}>웨어러블 디바이스</span>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.text }}>Mezoo</span>
+      </div>
+      <ReportTable
+        head={['날짜', '혈압', '맥박', 'SpO₂', '체온', '호흡수']}
+        rows={items.map(it => [
+          it.date,
+          <Cell kind="bp"    v={it.bp}/>,
+          <Cell kind="pulse" v={it.pulse}/>,
+          <Cell kind="spo2"  v={it.spo2}/>,
+          <Cell kind="temp"  v={it.temp}/>,
+          <Cell kind="resp"  v={it.resp}/>,
+        ])}
+      />
+    </div>
   );
 }
 
