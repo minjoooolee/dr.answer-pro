@@ -4584,7 +4584,7 @@ const authInputBox = {
 
 const AuthCTA = ({ onClick, disabled, children, variant = 'primary' }) => {
   const styles = {
-    primary:   { bg: AC.accent, fg: '#fff' },
+    primary:   { bg: '#0e1116', fg: '#fff' },
     secondary: { bg: 'rgba(14,17,22,0.04)', fg: AC.ink, border: '1px solid rgba(14,17,22,0.10)' },
   }[variant];
   return (
@@ -4593,7 +4593,7 @@ const AuthCTA = ({ onClick, disabled, children, variant = 'primary' }) => {
       border: styles.border || 0, cursor: disabled ? 'not-allowed' : 'pointer',
       background: styles.bg, color: styles.fg, opacity: disabled ? 0.35 : 1,
       fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
-      boxShadow: variant === 'primary' && !disabled ? `0 6px 18px ${AC.accent}44` : 'none',
+      boxShadow: variant === 'primary' && !disabled ? '0 8px 20px rgba(14,17,22,0.22)' : 'none',
     }}>{children}</button>
   );
 };
