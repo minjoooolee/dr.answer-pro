@@ -588,6 +588,16 @@ const SAMPLE_EMR_STOMACH = Object.assign({}, SAMPLE_EMR, {
   ],
 });
 
+/* 김성인 위암 — 동반질환(고혈압·당뇨·고지혈증) + stage IIIc 로 합병증 위험 ↑↑ */
+const SAMPLE_RECURRENCE_LONG_STOMACH = [
+  { date:'2025.06.15', score: 82, note:'퇴원' },
+  { date:'2025.08.15', score: 78, note:'외래' },
+  { date:'2025.10.15', score: 75, note:'외래' },
+  { date:'2025.12.15', score: 72, note:'외래' },
+  { date:'2026.02.15', score: 70, note:'외래' },
+  { date:'2026.04.15', score: 76, note:'재진' },
+];
+
 const SAMPLE_ANALYSIS_LONG_STOMACH = {
   up: [
     'stage IIIc (T4N3)',
@@ -634,7 +644,7 @@ const STOMACH_PATIENTS = [
     recurrence: SAMPLE_RECURRENCE, analysis: SAMPLE_ANALYSIS_STOMACH, emr: SAMPLE_EMR_STOMACH },
   { name:'김성인', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
     lastVisit: '2025.12.23', todayVisit: '2026.04.10 (금)',
-    recurrence: SAMPLE_RECURRENCE_LONG, analysis: SAMPLE_ANALYSIS_LONG_STOMACH,
+    recurrence: SAMPLE_RECURRENCE_LONG_STOMACH, analysis: SAMPLE_ANALYSIS_LONG_STOMACH,
     emr: SAMPLE_EMR_LONG_STOMACH, homeReport: SAMPLE_HOME_REPORT_LONG },
   { name:'정민서', id:'891217', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
   { name:'김혜진', id:'770408', gender:'F', age:48, time:'09:03', tags:['대기'],     recurrence: [] },
