@@ -599,6 +599,16 @@ const SAMPLE_RECURRENCE_LONG_STOMACH = [
 ];
 
 const SAMPLE_HOME_REPORT_LONG_STOMACH = Object.assign({}, SAMPLE_HOME_REPORT_LONG, {
+  ai: [
+    { label:'상처 관리', tone:'주의',
+      body:'수술 부위 가벼운 발적 보고 (4/5). 감염 모니터링 필요.' },
+    { label:'발열',     tone:'위험',
+      body:'4/5 38.2°C 단발 발열. 재발 시 즉시 내원 권고.' },
+    { label:'소화',     tone:'주의',
+      body:'식후 더부룩함·위산 역류 반복. 덤핑 의심 1회 (3/18).' },
+    { label:'영양·체중', tone:'주의',
+      body:'체중 -1.2 kg 감소, 식욕 부진. 단백질 섭취 강화 권장.' },
+  ],
   vitals: [
     { date:'2026.04.10', bp:'142/88',  pulse:78, spo2:97, temp:36.8, resp:16 },
     { date:'2026.04.09', bp:'138/86',  pulse:80, spo2:97, temp:36.7, resp:16 },
