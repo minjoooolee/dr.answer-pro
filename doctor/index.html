@@ -598,6 +598,18 @@ const SAMPLE_RECURRENCE_LONG_STOMACH = [
   { date:'2026.04.15', score: 76, note:'재진' },
 ];
 
+const SAMPLE_HOME_REPORT_LONG_STOMACH = Object.assign({}, SAMPLE_HOME_REPORT_LONG, {
+  symptoms: [
+    { date:'2026.04.10', symptom:'복부 불편감',    pain:4, attachment:'photo', note:'식후 30분에 발생' },
+    { date:'2026.04.05', symptom:'상처 부위 발적', pain:3, attachment:'photo', note:'수술 흉터 주변 가벼운 염증' },
+    { date:'2026.03.28', symptom:'식후 더부룩함',  pain:3, attachment:null,    note:'소량씩 자주 섭취 권장' },
+    { date:'2026.03.18', symptom:'어지러움',       pain:5, attachment:null,    note:'덤핑 증후군 의심' },
+    { date:'2026.03.05', symptom:'위산 역류',      pain:2, attachment:'photo', note:'야간 발생' },
+    { date:'2026.02.22', symptom:'식욕 부진',      pain:3, attachment:null,    note:'단백질 섭취 강화 필요' },
+    { date:'2026.02.10', symptom:'메스꺼움',       pain:2, attachment:null,    note:'식후 30분' },
+  ],
+});
+
 const SAMPLE_ANALYSIS_LONG_STOMACH = {
   up: [
     'stage IIIc (T4N3)',
@@ -645,7 +657,7 @@ const STOMACH_PATIENTS = [
   { name:'김성인', id:'970504', gender:'M', age:68, time:'09:03', tags:['도착'],
     lastVisit: '2025.12.23', todayVisit: '2026.04.10 (금)',
     recurrence: SAMPLE_RECURRENCE_LONG_STOMACH, analysis: SAMPLE_ANALYSIS_LONG_STOMACH,
-    emr: SAMPLE_EMR_LONG_STOMACH, homeReport: SAMPLE_HOME_REPORT_LONG },
+    emr: SAMPLE_EMR_LONG_STOMACH, homeReport: SAMPLE_HOME_REPORT_LONG_STOMACH },
   { name:'정민서', id:'891217', gender:'M', age:36, time:'09:03', tags:['도착'],     recurrence: [] },
   { name:'김혜진', id:'770408', gender:'F', age:48, time:'09:03', tags:['대기'],     recurrence: [] },
   { name:'한지수', id:'830520', gender:'M', age:42, time:'09:03', tags:['진료보류'], recurrence: [] },
