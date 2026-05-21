@@ -236,7 +236,10 @@ const Logo = () => (
 );
 
 /* ───────── 상단 헤더 ───────── */
-function Header() {
+function Header({ condition }) {
+  const subtitle = condition === 'stomach'
+    ? '외과(위장관외과) 김진철 교수님'
+    : '대장항문외과 이예나 교수님';
   const tab = (label) => (
     <button style={{
       padding: '0 4px', height: 60, fontSize: 15, fontWeight: 700,
@@ -262,7 +265,7 @@ function Header() {
         <div style={{ display:'flex', alignItems:'center', gap: 24, marginLeft: 4 }}>
           {tab('진료')}
           <div style={{ width:1, height:18, background:'rgba(255,255,255,0.3)' }}/>
-          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>대장항문외과 이예나 교수님</span>
+          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>{subtitle}</span>
         </div>
       </div>
       <div style={{ display:'flex', alignItems:'center' }}>
@@ -569,7 +572,7 @@ const SAMPLE_EMR_STOMACH = Object.assign({}, SAMPLE_EMR, {
   surgery: {
     date:    '2025.11.15',
     method:  '복강경 위아전절제술 (Laparoscopic subtotal gastrectomy)',
-    surgeon: '이예나 교수',
+    surgeon: '김진철 교수',
     stage:   'Stage IIIa (pT3N1aM0)',
     lymphNode: '1 / 22',
     duration: '2시간 50분',
@@ -608,7 +611,7 @@ const SAMPLE_EMR_LONG_STOMACH = Object.assign({}, SAMPLE_EMR_LONG, {
   surgery: {
     date:    '2024.10.20',
     method:  '복강경 위아전절제술 (Laparoscopic subtotal gastrectomy)',
-    surgeon: '이예나 교수',
+    surgeon: '김진철 교수',
     stage:   'Stage IIIc (pT4aN3M0)',
     lymphNode: '3 / 12',
     duration: '3시간 45분',
@@ -2934,7 +2937,7 @@ function App() {
 
   return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column' }}>
-      <Header/>
+      <Header condition={condition}/>
       <div style={{ flex:1, display:'flex', minHeight: 0, background: C.chrome }}>
         <Sidebar condition={condition} onChange={onChangeCondition}/>
         <div style={{
