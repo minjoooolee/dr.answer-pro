@@ -4517,7 +4517,7 @@ const AC = {
 
 const AuthWrap = ({ children, top }) => (
   <div style={{
-    flex: 1, display: 'flex', flexDirection: 'column',
+    width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column',
     background: AC.bg, color: AC.ink,
     paddingTop: 64, paddingBottom: 28,
   }}>
@@ -4610,7 +4610,7 @@ function Auth({ onComplete }) {
   if (step === 'welcome') {
     return (
       <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
+        width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column',
         background: '#0D0F14', color: '#fff',
         padding: '90px 28px 32px',
       }}>
@@ -4782,7 +4782,7 @@ function Auth({ onComplete }) {
   if (step === 'done') {
     return (
       <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
+        width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column',
         background: AC.bg, padding: '90px 28px 28px',
       }}>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
