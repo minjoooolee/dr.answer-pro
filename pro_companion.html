@@ -4848,7 +4848,7 @@ function Auth({ onComplete }) {
             지금부터 매일의 컨디션을<br/>함께 기록하고 관리해드릴게요.
           </div>
         </div>
-        <AuthCTA onClick={onComplete}>홈으로 이동</AuthCTA>
+        <AuthCTA onClick={() => onComplete({ isSignup: true })}>홈으로 이동</AuthCTA>
       </div>
     );
   }
@@ -5007,8 +5007,8 @@ function App() {
   const [showRx, setShowRx] = React.useState(false);
   const [rxCompleted, setRxCompleted] = React.useState(false);
 
-  function handleAuthComplete() {
-    setShowRx(true);
+  function handleAuthComplete({ isSignup } = {}) {
+    if (isSignup) setShowRx(true);
     setAuthed(true);
   }
 
