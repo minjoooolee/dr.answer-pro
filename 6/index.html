@@ -4821,7 +4821,7 @@ function PrescriptionModal({ onSetup }) {
       <div style={{
         width: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        background: '#0D0F14',
+        background: '#f6f7fb',
       }}>
         <style>{`
           @keyframes rxSpin {
@@ -4835,14 +4835,14 @@ function PrescriptionModal({ onSetup }) {
         `}</style>
         <div style={{ position: 'relative', width: 80, height: 80 }}>
           <svg width="80" height="80" viewBox="0 0 80 80" style={{ animation: 'rxSpin 1.2s linear infinite', position: 'absolute', top: 0, left: 0 }}>
-            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(125,80,240,0.18)" strokeWidth="5"/>
-            <path d="M40 6 A34 34 0 0 1 74 40" fill="none" stroke="#7d50f0" strokeWidth="5" strokeLinecap="round"/>
+            <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(14,17,22,0.08)" strokeWidth="5"/>
+            <path d="M40 6 A34 34 0 0 1 74 40" fill="none" stroke="#0e1116" strokeWidth="5" strokeLinecap="round"/>
           </svg>
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', animation: 'rxPulse 1.5s ease-in-out infinite' }}>
             <img src="ai-orb.svg" alt="" style={{ width: 44, height: 44, borderRadius: '50%' }} />
           </div>
         </div>
-        <div style={{ marginTop: 22, fontSize: 14, color: 'rgba(255,255,255,0.55)', fontWeight: 500, letterSpacing: -0.2 }}>
+        <div style={{ marginTop: 22, fontSize: 14, color: 'rgba(14,17,22,0.5)', fontWeight: 500, letterSpacing: -0.2 }}>
           처방전을 설정하는 중이에요…
         </div>
       </div>
@@ -4851,22 +4851,22 @@ function PrescriptionModal({ onSetup }) {
 
   const Card = ({ icon, title, items, accent }) => (
     <div style={{
-      flex: 1, background: '#fff', borderRadius: 16, padding: '14px 13px',
+      flex: 1, background: '#fff', borderRadius: 16, padding: '15px 14px',
       border: '1px solid rgba(14,17,22,0.06)',
       boxShadow: '0 1px 2px rgba(14,17,22,0.03), 0 6px 18px rgba(14,17,22,0.04)',
       display: 'flex', flexDirection: 'column', minWidth: 0,
     }}>
       <div style={{
-        width: 30, height: 30, borderRadius: 10,
+        width: 34, height: 34, borderRadius: 11,
         background: accent.bg, color: accent.fg,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 15, marginBottom: 8,
+        fontSize: 17, marginBottom: 10,
       }}>{icon}</div>
-      <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0e1116', letterSpacing: -0.3, marginBottom: 6 }}>{title}</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ fontSize: 14.5, fontWeight: 700, color: '#0e1116', letterSpacing: -0.3, marginBottom: 8 }}>{title}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {items.map((it, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 5, fontSize: 11, color: '#4b5563', lineHeight: 1.45, letterSpacing: -0.15 }}>
-            <span style={{ color: accent.fg, flexShrink: 0, marginTop: 1, fontSize: 9 }}>●</span>
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, fontSize: 12.5, color: '#374151', lineHeight: 1.5, letterSpacing: -0.15 }}>
+            <span style={{ color: accent.fg, flexShrink: 0, marginTop: 2, fontSize: 10 }}>●</span>
             <span>{it}</span>
           </div>
         ))}
@@ -4880,27 +4880,23 @@ function PrescriptionModal({ onSetup }) {
       background: '#f6f7fb', overflow: 'hidden',
     }}>
       {/* Header */}
-      <div style={{ padding: '54px 22px 22px', position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(135deg, #6b3df0 0%, #4a2aa0 100%)',
-      }}>
-        <div style={{ position: 'absolute', top: -40, right: -30, width: 180, height: 180, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%)', pointerEvents: 'none' }}/>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-          <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#41d2b4' }}/>
-          <div style={{ fontSize: 10.5, fontWeight: 600, color: 'rgba(255,255,255,0.72)', letterSpacing: 1.2, textTransform: 'uppercase' }}>
+      <div style={{ padding: '54px 22px 18px', background: '#fff', borderBottom: '1px solid rgba(14,17,22,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+          <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#2bb673' }}/>
+          <div style={{ fontSize: 10.5, fontWeight: 600, color: 'rgba(14,17,22,0.45)', letterSpacing: 1.2, textTransform: 'uppercase' }}>
             Personalized Rx
           </div>
         </div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: -0.7, lineHeight: 1.25 }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: '#0e1116', letterSpacing: -0.7, lineHeight: 1.25 }}>
           성인님의<br/>재택 관리 처방전
         </div>
         <div style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 11px', borderRadius: 999,
-          background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)' }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.95)', fontWeight: 500, letterSpacing: -0.1 }}>
+          background: '#f3f4f6', border: '1px solid rgba(14,17,22,0.06)' }}>
+          <span style={{ fontSize: 11, color: '#374151', fontWeight: 500, letterSpacing: -0.1 }}>
             FOLFOX 5차
           </span>
-          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.5)' }}/>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.95)', fontWeight: 500, letterSpacing: -0.1 }}>
+          <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(14,17,22,0.25)' }}/>
+          <span style={{ fontSize: 11, color: '#374151', fontWeight: 500, letterSpacing: -0.1 }}>
             박현수 교수
           </span>
         </div>
@@ -4923,7 +4919,7 @@ function PrescriptionModal({ onSetup }) {
         <div style={{ display: 'flex', gap: 10, flex: 1, minHeight: 0 }}>
           <Card
             icon="📊" title="자기 측정"
-            accent={{ bg: 'rgba(125,80,240,0.10)', fg: '#7d50f0' }}
+            accent={{ bg: 'rgba(20,184,166,0.10)', fg: '#0d9488' }}
             items={['체중 주3 · 혈압 매일', '매일: 통증·오심·설사', '통증 NRS ≥7 자동 알림']}
           />
           <Card
@@ -4940,10 +4936,10 @@ function PrescriptionModal({ onSetup }) {
           onClick={handleSetup}
           style={{
             width: '100%', padding: '15px 0', borderRadius: 14, border: 'none',
-            background: 'linear-gradient(135deg, #6b3df0 0%, #4a2aa0 100%)',
+            background: '#0e1116',
             color: '#fff', fontSize: 15, fontWeight: 700, letterSpacing: -0.3,
             cursor: 'pointer', fontFamily: 'inherit',
-            boxShadow: '0 8px 20px rgba(107,61,240,0.28)',
+            boxShadow: '0 8px 20px rgba(14,17,22,0.22)',
           }}
         >
           주치의 처방에 따라 셋팅하기
