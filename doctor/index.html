@@ -2277,7 +2277,7 @@ function ExerciseSection({ e, set }) {
       <Card>
         <SubHeader>단계적 진행</SubHeader>
         <CheckBox checked={e.progressive} onChange={(v) => set({ ...e, progressive: v })}
-          label="수술 후 회복기 첫 2주는 저강도로 시작"/>
+          label="항암 치료 후 회복기 첫 2주는 저강도로 시작"/>
       </Card>
     </div>
   );
@@ -2470,7 +2470,7 @@ function buildExerciseText(e) {
   if (e.aerobic)  types.push('유산소');
   if (e.strength) types.push(`근력(주 ${e.strengthFreq}회)`);
   if (types.length) lines.push(`구성: ${types.join(' + ')}.`);
-  if (e.progressive) lines.push('수술 후 회복기 첫 2주는 저강도로 시작해 점차 늘려 갑니다.');
+  if (e.progressive) lines.push('항암 치료 후 회복기 첫 2주는 저강도로 시작해 점차 늘려 갑니다.');
   return lines;
 }
 function buildMeasureText(m) {
