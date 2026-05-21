@@ -1064,18 +1064,16 @@ function ReportWeight({ data }) {
           <div style={{ fontSize: 12, color: C.textSub }}>kg</div>
         </StatCard>
         <StatCard label="치료 전 대비">
-          <span style={{
-            fontSize: 11, color: trendColor, fontWeight: 800,
-            marginRight: 4, lineHeight: 1, position:'relative', top: -3,
-          }}>
-            {decreased ? '▼' : (change > 0 ? '▲' : '—')}
-          </span>
-          <span style={{ fontSize: 22, fontWeight: 800, color: trendColor }}>
+          <div style={{ fontSize: 22, fontWeight: 800, color: trendColor,
+                        display:'inline-flex', alignItems:'baseline', gap: 4 }}>
+            <span style={{ fontSize: 12 }}>
+              {decreased ? '▼' : (change > 0 ? '▲' : '—')}
+            </span>
             {Math.abs(change)}
-          </span>
-          <span style={{ fontSize: 12, color: C.textSub }}>
+          </div>
+          <div style={{ fontSize: 12, color: C.textSub }}>
             kg ({pct > 0 ? '+' : ''}{pct}%)
-          </span>
+          </div>
         </StatCard>
       </div>
 
