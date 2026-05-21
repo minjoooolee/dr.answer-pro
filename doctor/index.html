@@ -485,6 +485,14 @@ const SAMPLE_HOME_REPORT_LONG = {
     { date:'2026.04.09', pain:1, nausea:0, diarrhea:0, constipation:2, fatigue:1 },
     { date:'2026.04.08', pain:2, nausea:0, diarrhea:0, constipation:3, fatigue:2 },
   ],
+  proPeriod: { start: '2026.02.15', end: '2026.04.15' },
+  proInsights: [
+    { category: '통증',          text: '평균 2.1, 변동 없이 안정' },
+    { category: '배변 (변비)',   text: '월 6 → 12 회 증가 — 식이 상담 권장' },
+    { category: '메스꺼움·식욕', text: '정상 범위 유지' },
+    { category: '신경 증상',     text: '손발 저림 1 회 보고 — 신경병증 모니터링 필요' },
+    { category: '피로·수면',     text: '평균 1.8, 야간 각성 없음' },
+  ],
   weight: [
     { month:'2025.09', avg:66.5, change: 0    },
     { month:'2025.10', avg:66.3, change:-0.2 },
@@ -617,7 +625,7 @@ function SummaryRow({ label, copyable, children, valueStyle }) {
 const HOME_REPORT_SECTIONS = [
   { k:'ai',       l:'AI 요약' },
   { k:'symptoms', l:'이상증세 보고' },
-  { k:'pro',      l:'일자별 PRO 점수표' },
+  { k:'pro',      l:'PRO 점수표' },
   { k:'weight',   l:'체중 월간 요약' },
   { k:'diet',     l:'식단 월간 요약' },
   { k:'exercise', l:'운동 월간 요약' },
@@ -823,17 +831,102 @@ function ProCell({ v }) {
   else if (v === 0) color = C.textMute;
   return <span style={{ color, fontWeight: v >= 4 ? 700 : 500 }}>{v}</span>;
 }
-function ReportPro({ items }) {
+function ProRawModal({ items, onClose }) {
   return (
-    <ReportTable
-      head={['날짜', '통증', '메스꺼움', '설사', '변비', '피로']}
-      rows={items.map(it => [
-        it.date,
-        <ProCell v={it.pain}/>, <ProCell v={it.nausea}/>,
-        <ProCell v={it.diarrhea}/>, <ProCell v={it.constipation}/>,
-        <ProCell v={it.fatigue}/>,
-      ])}
-    />
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(20,22,30,0.5)',
+      display:'flex', alignItems:'center', justifyContent:'center', zIndex: 120,
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        width: 620, maxWidth:'92vw', maxHeight:'80vh',
+        background: C.surface, borderRadius: 16, overflow:'hidden',
+        display:'flex', flexDirection:'column',
+        boxShadow: '0 24px 60px rgba(0,0,0,0.2)',
+      }}>
+        <div style={{
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding: '14px 18px', borderBottom: `1px solid ${C.borderSoft}`,
+        }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>
+            일자별 PRO 점수표
+          </div>
+          <button onClick={onClose} style={{ color: C.textSub, padding: 4, display:'flex' }}>
+            <Icon name="x" size={20}/>
+          </button>
+        </div>
+        <div className="scroll" style={{ flex: 1, overflowY:'auto', padding: '14px 18px' }}>
+          <ReportTable
+            head={['날짜', '통증', '메스꺼움', '설사', '변비', '피로']}
+            rows={items.map(it => [
+              it.date,
+              <ProCell v={it.pain}/>, <ProCell v={it.nausea}/>,
+              <ProCell v={it.diarrhea}/>, <ProCell v={it.constipation}/>,
+              <ProCell v={it.fatigue}/>,
+            ])}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReportPro({ items, insights, period }) {
+  const [showRaw, setShowRaw] = useState(false);
+  return (
+    <div>
+      {/* AI 인사이트 */}
+      <div style={{
+        padding: '14px 16px',
+        background: '#FAFBFC',
+        border: `1px solid ${C.borderSoft}`,
+        borderRadius: 12,
+        marginBottom: 12,
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap: 6, marginBottom: 4 }}>
+          <span style={{
+            display:'inline-flex', alignItems:'center', height: 18,
+            padding:'0 6px', borderRadius: 3,
+            background: C.accentSoft, color: C.accent,
+            fontSize: 10, fontWeight: 800, letterSpacing: 0.5,
+          }}>AI</span>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+            대장암 PRO 인사이트
+          </div>
+        </div>
+        {period && (
+          <div style={{ fontSize: 11.5, color: C.textSub, marginBottom: 10 }}>
+            {period.start} → {period.end} (지난 외래 ~ 현재)
+          </div>
+        )}
+        {insights && insights.map((it, i) => (
+          <div key={i} style={{
+            display:'flex', gap: 12, padding: '7px 0',
+            borderTop: i === 0 ? `1px solid ${C.borderSoft}` : 'none',
+            borderBottom: `1px dashed ${C.borderSoft}`,
+            fontSize: 12.5,
+          }}>
+            <div style={{ width: 96, color: C.textSub, fontWeight: 700, flexShrink: 0 }}>
+              {it.category}
+            </div>
+            <div style={{ flex: 1, color: C.text, lineHeight: 1.55 }}>
+              {it.text}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={() => setShowRaw(true)} style={{
+        display:'inline-flex', alignItems:'center', gap: 6,
+        height: 34, padding: '0 14px', borderRadius: 8,
+        border: `1px solid ${C.border}`, background: C.surface,
+        fontSize: 12.5, fontWeight: 600, color: C.text, cursor: 'pointer',
+      }}>
+        일자별 PRO 보기
+        <span style={{ color: C.textSub }}>→</span>
+      </button>
+
+      {showRaw && <ProRawModal items={items} onClose={() => setShowRaw(false)}/>}
+    </div>
   );
 }
 function ReportWeight({ items }) {
@@ -933,7 +1026,7 @@ function HomeReportCard({ patient, collapsed, active, onToggle }) {
     if (!hasData) return null;
     if (section === 'ai')       return <ReportAi       items={homeReport.ai}/>;
     if (section === 'symptoms') return <ReportSymptoms items={homeReport.symptoms}/>;
-    if (section === 'pro')      return <ReportPro      items={homeReport.pro}/>;
+    if (section === 'pro')      return <ReportPro      items={homeReport.pro} insights={homeReport.proInsights} period={homeReport.proPeriod}/>;
     if (section === 'weight')   return <ReportWeight   items={homeReport.weight}/>;
     if (section === 'diet')     return <ReportDiet     items={homeReport.diet}/>;
     if (section === 'exercise') return <ReportExercise items={homeReport.exercise}/>;
