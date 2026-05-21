@@ -599,6 +599,15 @@ const SAMPLE_RECURRENCE_LONG_STOMACH = [
 ];
 
 const SAMPLE_HOME_REPORT_LONG_STOMACH = Object.assign({}, SAMPLE_HOME_REPORT_LONG, {
+  vitals: [
+    { date:'2026.04.10', bp:'142/88',  pulse:78, spo2:97, temp:36.8, resp:16 },
+    { date:'2026.04.09', bp:'138/86',  pulse:80, spo2:97, temp:36.7, resp:16 },
+    { date:'2026.04.08', bp:'145/92',  pulse:84, spo2:96, temp:36.9, resp:17 },
+    { date:'2026.04.07', bp:'150/95',  pulse:86, spo2:96, temp:37.6, resp:18 },
+    { date:'2026.04.06', bp:'135/85',  pulse:78, spo2:97, temp:36.6, resp:15 },
+    { date:'2026.04.05', bp:'162/98',  pulse:92, spo2:94, temp:38.2, resp:21 },
+    { date:'2026.04.04', bp:'138/82',  pulse:75, spo2:97, temp:36.6, resp:14 },
+  ],
   symptoms: [
     { date:'2026.04.10', symptom:'복부 불편감',    pain:4, attachment:'photo', note:'식후 30분에 발생' },
     { date:'2026.04.05', symptom:'상처 부위 발적', pain:3, attachment:'photo', note:'수술 흉터 주변 가벼운 염증' },
@@ -792,6 +801,19 @@ const HOME_REPORT_SECTIONS = [
   { k:'diet',     l:'식단 요약' },
   { k:'exercise', l:'운동 요약' },
 ];
+const HOME_REPORT_SECTIONS_STOMACH = [
+  { k:'ai',       l:'AI 요약' },
+  { k:'symptoms', l:'이상증세 보고' },
+  { k:'pro',      l:'PRO 점수표' },
+  { k:'weight',   l:'체중 요약' },
+  { k:'diet',     l:'식단 요약' },
+  { k:'vitals',   l:'VitalSign 요약' },
+];
+const HOME_REPORT_SECTIONS_BY_CONDITION = {
+  colon:   HOME_REPORT_SECTIONS,
+  stomach: HOME_REPORT_SECTIONS_STOMACH,
+  lung:    HOME_REPORT_SECTIONS,
+};
 
 const SEVERITY_STYLE = {
   '경': { bg: '#E7F6EE', fg: '#16A769' },
@@ -1276,6 +1298,62 @@ function ReportDiet({ data }) {
     </div>
   );
 }
+function ReportVitals({ items }) {
+  if (!items || items.length === 0) {
+    return <div style={{ fontSize: 13, color: C.textSub }}>등록된 vital sign 측정값이 없습니다.</div>;
+  }
+  const classify = {
+    bp(v) {
+      const m = String(v).match(/(\d+)\s*\/\s*(\d+)/);
+      if (!m) return 'norm';
+      const s = +m[1], d = +m[2];
+      if (s >= 160 || d >= 100) return 'risk';
+      if (s >= 140 || d >= 90)  return 'warn';
+      return 'norm';
+    },
+    pulse(v) {
+      if (v > 110 || v < 50) return 'risk';
+      if (v > 100)           return 'warn';
+      return 'norm';
+    },
+    spo2(v) {
+      if (v < 90) return 'risk';
+      if (v < 95) return 'warn';
+      return 'norm';
+    },
+    temp(v) {
+      if (v >= 38)   return 'risk';
+      if (v >= 37.5) return 'warn';
+      return 'norm';
+    },
+    resp(v) {
+      if (v > 24 || v < 10) return 'risk';
+      if (v > 20)           return 'warn';
+      return 'norm';
+    },
+  };
+  const tones = { risk:'#D63A3A', warn:'#D08221', norm: C.text };
+  const Cell = ({ kind, v }) => {
+    const t = classify[kind](v);
+    return (
+      <span style={{ color: tones[t], fontWeight: t === 'norm' ? 500 : 700 }}>{v}</span>
+    );
+  };
+  return (
+    <ReportTable
+      head={['날짜', '혈압', '맥박', 'SpO₂', '체온', '호흡수']}
+      rows={items.map(it => [
+        it.date,
+        <Cell kind="bp"    v={it.bp}/>,
+        <Cell kind="pulse" v={it.pulse}/>,
+        <Cell kind="spo2"  v={it.spo2}/>,
+        <Cell kind="temp"  v={it.temp}/>,
+        <Cell kind="resp"  v={it.resp}/>,
+      ])}
+    />
+  );
+}
+
 function ReportExercise({ data }) {
   if (!data) return null;
   const { stats, monthly } = data;
@@ -1364,8 +1442,15 @@ function HomeReportCard({ patient, condition, collapsed, active, onToggle }) {
     if (section === 'weight')   return <ReportWeight   data={homeReport.weight}/>;
     if (section === 'diet')     return <ReportDiet     data={homeReport.diet}/>;
     if (section === 'exercise') return <ReportExercise data={homeReport.exercise}/>;
+    if (section === 'vitals')   return <ReportVitals   items={homeReport.vitals}/>;
     return null;
   })();
+
+  const sections = HOME_REPORT_SECTIONS_BY_CONDITION[condition] || HOME_REPORT_SECTIONS;
+  // 활성 섹션이 현재 condition 의 sections 에 없으면 'ai' 로 복귀
+  if (!sections.find(s => s.k === section)) {
+    setSection('ai');
+  }
 
   return (
     <div style={{ flex: 1, minHeight: 0, display:'flex', flexDirection:'column' }}>
@@ -1394,7 +1479,7 @@ function HomeReportCard({ patient, condition, collapsed, active, onToggle }) {
               width: 140, flexShrink: 0, overflowY:'auto',
               borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
             }}>
-              {HOME_REPORT_SECTIONS.map(s => {
+              {sections.map(s => {
                 const a = section === s.k;
                 return (
                   <button key={s.k} onClick={() => setSection(s.k)} style={{
