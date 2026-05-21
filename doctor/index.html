@@ -571,14 +571,25 @@ const SAMPLE_EMR_STOMACH = Object.assign({}, SAMPLE_EMR, {
     method:  '복강경 위아전절제술 (Laparoscopic subtotal gastrectomy)',
     surgeon: '이예나 교수',
     stage:   'Stage IIIa (pT3N1aM0)',
+    lymphNode: '1 / 22',
+    duration: '2시간 50분',
+    bloodLoss: '120 mL',
+    drainage: 'POD 1: 180 mL → POD 4: 20 mL → POD 6: 제거',
   },
+  labs: [
+    { date:'2025.11.13', label:'수술 전', wbc:5.6,  crp:0.2, hb:13.5, plt:250, ast:20, alt:16, bun:12, cr:0.8 },
+    { date:'2025.11.16', label:'POD 1',   wbc:11.2, crp:7.8, hb:11.5, plt:235, ast:32, alt:26, bun:14, cr:0.9 },
+    { date:'2025.11.18', label:'POD 3',   wbc:8.1,  crp:4.5, hb:11.7, plt:240, ast:26, alt:21, bun:13, cr:0.8 },
+    { date:'2025.11.22', label:'POD 7',   wbc:6.5,  crp:1.5, hb:12.0, plt:255, ast:22, alt:18, bun:12, cr:0.8 },
+    { date:'2026.03.20', label:'최근',    wbc:5.8,  crp:0.3, hb:12.1, plt:232, ast:22, alt:18, bun:12, cr:0.7 },
+  ],
 });
 
 const SAMPLE_ANALYSIS_LONG_STOMACH = {
   up: [
     'stage IIIc (T4N3)',
     '활동량 권장치 미달 (3,200 보)',
-    '변비 빈도 증가',
+    '고혈압·당뇨·고지혈증 동반',
   ],
   down: [
     '원격 전이 없음 (M0)',
@@ -599,7 +610,19 @@ const SAMPLE_EMR_LONG_STOMACH = Object.assign({}, SAMPLE_EMR_LONG, {
     method:  '복강경 위아전절제술 (Laparoscopic subtotal gastrectomy)',
     surgeon: '이예나 교수',
     stage:   'Stage IIIc (pT4aN3M0)',
+    lymphNode: '3 / 12',
+    duration: '3시간 45분',
+    bloodLoss: '180 mL',
+    drainage: 'POD 1: 250 mL → POD 5: 30 mL → POD 7: 제거',
   },
+  labs: [
+    { date:'2024.10.18', label:'수술 전',   wbc:6.2,  crp:0.3, hb:13.8, plt:245, ast:22, alt:18, bun:14, cr:0.9 },
+    { date:'2024.10.21', label:'POD 1',     wbc:12.4, crp:8.5, hb:11.2, plt:215, ast:35, alt:28, bun:16, cr:1.0 },
+    { date:'2024.10.23', label:'POD 3',     wbc:8.5,  crp:5.2, hb:11.5, plt:220, ast:28, alt:22, bun:15, cr:0.9 },
+    { date:'2024.10.27', label:'POD 7',     wbc:6.8,  crp:1.8, hb:11.8, plt:245, ast:24, alt:20, bun:14, cr:0.9 },
+    { date:'2024.11.20', label:'1개월 F/U', wbc:5.9,  crp:0.4, hb:12.5, plt:260, ast:22, alt:19, bun:13, cr:0.9 },
+    { date:'2026.04.05', label:'최근',      wbc:5.8,  crp:0.3, hb:12.1, plt:232, ast:22, alt:18, bun:12, cr:0.7 },
+  ],
 });
 
 const STOMACH_PATIENTS = [
@@ -1849,11 +1872,64 @@ const EMR_SECTIONS = [
   { k:'chemo',         l:'항암 치료 정보' },
   { k:'surgery',       l:'수술 이력' },
 ];
+const EMR_SECTIONS_STOMACH = [
+  { k:'basic',         l:'기본 정보' },
+  { k:'comorbidities', l:'동반 질환' },
+  { k:'chemo',         l:'항암 치료 정보' },
+  { k:'labs',          l:'혈액 검사 결과' },
+  { k:'surgery',       l:'수술 이력' },
+];
+const EMR_SECTIONS_BY_CONDITION = {
+  colon:   EMR_SECTIONS,
+  stomach: EMR_SECTIONS_STOMACH,
+  lung:    EMR_SECTIONS,
+};
 const COMORBIDITY_LIST = [
   '고혈압', '당뇨', '고지혈증', '심혈관 질환',
   '만성 신질환', '만성 폐질환', '간 질환',
   '갑상선 질환', '골다공증', '뇌혈관 질환',
 ];
+
+function LabsTable({ items }) {
+  if (!items || items.length === 0) {
+    return <div style={{ fontSize: 13, color: C.textSub }}>등록된 혈액 검사 결과가 없습니다.</div>;
+  }
+  // 정상 기준치 (위암 외래 기본)
+  const isAbn = {
+    wbc: v => v > 11   || v < 4,
+    crp: v => v > 5,
+    hb:  v => v < 12,
+    plt: v => v > 400  || v < 150,
+    ast: v => v > 40,
+    alt: v => v > 40,
+    bun: v => v > 22,
+    cr:  v => v > 1.3,
+  };
+  const Warn = v => v > 1   // CRP 약간 상승 amber
+    ? (v > 5 ? '#D63A3A' : '#D08221')
+    : C.text;
+  const cell = (key, v) => {
+    let color = C.text, weight = 500;
+    if (key === 'crp') { color = Warn(v); weight = v > 1 ? 700 : 500; }
+    else if (isAbn[key](v)) { color = '#D63A3A'; weight = 700; }
+    return <span style={{ color, fontWeight: weight }}>{v}</span>;
+  };
+  return (
+    <ReportTable
+      head={['날짜', 'WBC', 'CRP', 'Hb', 'PLT', 'AST', 'ALT', 'BUN', 'Cr']}
+      rows={items.map(it => [
+        <div>
+          <div style={{ fontWeight: 600 }}>{it.date}</div>
+          {it.label && <div style={{ fontSize: 11, color: C.textSub, marginTop: 2 }}>{it.label}</div>}
+        </div>,
+        cell('wbc', it.wbc), cell('crp', it.crp),
+        cell('hb',  it.hb),  cell('plt', it.plt),
+        cell('ast', it.ast), cell('alt', it.alt),
+        cell('bun', it.bun), cell('cr',  it.cr),
+      ])}
+    />
+  );
+}
 
 function KVGrid({ items, cols = 2 }) {
   return (
@@ -1993,20 +2069,33 @@ function EMRPanel({ emr, condition }) {
         </div>
       );
     }
+    if (section === 'labs') {
+      return <LabsTable items={emr.labs || []}/>;
+    }
     if (section === 'surgery') {
-      return (
-        <KVGrid cols={1} items={[
-          ['수술일',    emr.surgery.date],
-          ['수술 방법', emr.surgery.method],
-          ['집도의',    emr.surgery.surgeon],
-          ['병기',      emr.surgery.stage],
-        ]}/>
-      );
+      const s = emr.surgery;
+      const rows = [
+        ['수술일',    s.date],
+        ['수술 방법', s.method],
+        ['집도의',    s.surgeon],
+        ['병기',      s.stage],
+      ];
+      if (s.lymphNode)  rows.push(['림프절 전이', s.lymphNode]);
+      if (s.duration)   rows.push(['수술 시간',   s.duration]);
+      if (s.bloodLoss)  rows.push(['출혈량',      s.bloodLoss]);
+      if (s.drainage)   rows.push(['수술 후 배액량', s.drainage]);
+      return <KVGrid cols={1} items={rows}/>;
     }
     return null;
   })();
 
-  const sectionLabel = EMR_SECTIONS.find(s => s.k === section).l;
+  const sections = EMR_SECTIONS_BY_CONDITION[condition] || EMR_SECTIONS;
+  const sectionDef = sections.find(s => s.k === section);
+  const sectionLabel = sectionDef ? sectionDef.l : '';
+  if (!sectionDef) {
+    // 활성 섹션이 condition 에서 빠진 경우 → 기본 정보로 복귀
+    setSection('basic');
+  }
 
   return (
     <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
@@ -2015,7 +2104,7 @@ function EMRPanel({ emr, condition }) {
         width: 168, overflowY:'auto',
         borderRight: `1px solid ${C.borderSoft}`, padding: '6px 0',
       }}>
-        {EMR_SECTIONS.map(s => {
+        {sections.map(s => {
           const active = section === s.k;
           return (
             <button key={s.k} onClick={() => setSection(s.k)} style={{
