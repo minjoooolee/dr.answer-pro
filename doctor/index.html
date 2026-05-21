@@ -2526,8 +2526,9 @@ function PreviewBlock({ title, lines }) {
   );
 }
 
-function PlanPreviewModal({ plan, onClose, onSend }) {
-  const triage = buildTriageText(plan.triage);
+function PlanPreviewModal({ plan, onClose, onSend, condition }) {
+  const showTriage = condition !== 'colon';
+  const triage = showTriage ? buildTriageText(plan.triage) : [];
   return (
     <div onClick={onClose} style={{
       position:'fixed', inset:0, background:'rgba(20,22,30,0.45)',
@@ -2563,24 +2564,26 @@ function PlanPreviewModal({ plan, onClose, onSend }) {
           <PreviewBlock title="식이"      lines={buildDietText(plan.diet)}/>
           <PreviewBlock title="운동"      lines={buildExerciseText(plan.exercise)}/>
           <PreviewBlock title="자기 측정" lines={buildMeasureText(plan.measure)}/>
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>응급 대응</div>
-            {triage.map((t, i) => (
-              <div key={i} style={{
-                background: t.bg, borderRadius: 8, padding: '10px 12px',
-                marginBottom: 6, fontSize: 12.5, color: C.text, lineHeight: 1.55,
-                display:'flex', gap: 8,
-              }}>
-                <span style={{
-                  flexShrink: 0, alignSelf:'flex-start',
-                  padding: '2px 7px', borderRadius: 3,
-                  background: t.color, color: '#fff',
-                  fontSize: 10, fontWeight: 800, letterSpacing: 0.4,
-                }}>{t.tag}</span>
-                <span>{t.text}</span>
-              </div>
-            ))}
-          </div>
+          {showTriage && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 6 }}>응급 대응</div>
+              {triage.map((t, i) => (
+                <div key={i} style={{
+                  background: t.bg, borderRadius: 8, padding: '10px 12px',
+                  marginBottom: 6, fontSize: 12.5, color: C.text, lineHeight: 1.55,
+                  display:'flex', gap: 8,
+                }}>
+                  <span style={{
+                    flexShrink: 0, alignSelf:'flex-start',
+                    padding: '2px 7px', borderRadius: 3,
+                    background: t.color, color: '#fff',
+                    fontSize: 10, fontWeight: 800, letterSpacing: 0.4,
+                  }}>{t.tag}</span>
+                  <span>{t.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
           <PreviewBlock title="다음 방문" lines={buildNextText(plan.next)}/>
           {plan.custom && plan.custom.trim() && (
             <div style={{ marginBottom: 4 }}>
@@ -2658,8 +2661,18 @@ function ExportConfirmModal({ onClose }) {
   );
 }
 
-function PlanPanel({ plan, setPlan }) {
+function PlanPanel({ plan, setPlan, condition }) {
   const [section, setSection] = useState('all');
+  // 대장암에서는 트리아제 트리거 섹션 숨김 (위암·호흡부전은 유지)
+  const hideTriage = condition === 'colon';
+  const sections = hideTriage
+    ? PLAN_SECTIONS.filter(s => s.k !== 'triage')
+    : PLAN_SECTIONS;
+
+  // section state 가 숨겨진 'triage' 면 'all' 로 강제 복구
+  if (hideTriage && section === 'triage') {
+    setSection('all');
+  }
 
   const sectionsRender = {
     diet:     <DietSection      d={plan.diet}     set={(d) => setPlan({ ...plan, diet: d })}/>,
@@ -2670,7 +2683,7 @@ function PlanPanel({ plan, setPlan }) {
     custom:   <CustomSection    value={plan.custom} set={(v) => setPlan({ ...plan, custom: v })}/>,
   };
 
-  const sectionsForAll = [
+  const sectionsForAllAll = [
     { k:'diet',     l:'식이 처방',         render: sectionsRender.diet },
     { k:'exercise', l:'운동 처방 (FITT)',  render: sectionsRender.exercise },
     { k:'measure',  l:'PRO 처방',         render: sectionsRender.measure },
@@ -2678,6 +2691,9 @@ function PlanPanel({ plan, setPlan }) {
     { k:'next',     l:'다음 외래 일정',    render: sectionsRender.next },
     { k:'custom',   l:'의료진 직접 처방',  render: sectionsRender.custom },
   ];
+  const sectionsForAll = hideTriage
+    ? sectionsForAllAll.filter(s => s.k !== 'triage')
+    : sectionsForAllAll;
 
   return (
     <div style={{ flex: 1, display:'flex', minHeight: 0, borderTop: `1px solid ${C.borderSoft}` }}>
@@ -2686,7 +2702,7 @@ function PlanPanel({ plan, setPlan }) {
         width: 152, flexShrink: 0, overflowY:'auto',
         borderRight: `1px solid ${C.borderSoft}`, padding: '8px 0',
       }}>
-        {PLAN_SECTIONS.map(s => {
+        {sections.map(s => {
           const active = section === s.k;
           return (
             <button key={s.k} onClick={() => setSection(s.k)} style={{
@@ -2728,8 +2744,8 @@ function PlanPanel({ plan, setPlan }) {
           </>
         ) : (
           <>
-            <SectionTitle num={PLAN_SECTIONS.findIndex(s => s.k === section)}>
-              {PLAN_SECTIONS.find(s => s.k === section).l}
+            <SectionTitle num={sections.findIndex(s => s.k === section)}>
+              {sections.find(s => s.k === section).l}
             </SectionTitle>
             {sectionsRender[section]}
           </>
@@ -2772,7 +2788,7 @@ function RightPanel({ patient, condition }) {
 
       {tab === 'emr'
         ? <EMRPanel emr={patient.emr} condition={condition}/>
-        : <PlanPanel plan={plan} setPlan={setPlan}/>}
+        : <PlanPanel plan={plan} setPlan={setPlan} condition={condition}/>}
 
       {/* 하단 액션 바 */}
       <div style={{ borderTop: `1px solid ${C.border}`, padding: '12px 20px',
@@ -2798,11 +2814,12 @@ function RightPanel({ patient, condition }) {
       </div>
 
       {showPreview && (
-        <PlanPreviewModal plan={plan} onClose={() => setShowPreview(false)}/>
+        <PlanPreviewModal plan={plan} condition={condition} onClose={() => setShowPreview(false)}/>
       )}
       {showExportPreview && (
         <PlanPreviewModal
           plan={plan}
+          condition={condition}
           onClose={() => setShowExportPreview(false)}
           onSend={() => { setShowExportPreview(false); setShowExported(true); }}
         />
