@@ -1180,19 +1180,259 @@ function TabBar({ active = 'home', onChange }) {
 
 // ─── Record tab: weekly history list ────────────────────────────
 function RecordTab({ onSurveyOpen }) {
-  const BLUE = '#3D6BE6';
+  const [selectedIdx, setSelectedIdx] = React.useState(null);
+
   const history = [
-    { date: '5월 21일 (수)', time: '10:00', status: 'watch', summary: 'RR 상승 · MinVent 감소 감지됨', aiNote: '호흡수 증가 및 환기량 감소 추세 관찰 필요' },
-    { date: '5월 20일 (화)', time: '09:30', status: 'ok',    summary: '전반적으로 안정적', aiNote: '모든 지표 정상 범위 유지' },
-    { date: '5월 19일 (월)', time: '10:15', status: 'ok',    summary: 'PIP 소폭 상승 후 안정', aiNote: 'PIP 일시 상승이나 기준치 이내로 복귀' },
-    { date: '5월 18일 (일)', time: '09:55', status: 'ok',    summary: '안정적인 환기 유지', aiNote: '지표 전반 안정적' },
-    { date: '5월 17일 (토)', time: '10:30', status: 'watch', summary: 'LEAK 증가 감지됨', aiNote: '마스크 피팅 확인 권고' },
-    { date: '5월 16일 (금)', time: '09:45', status: 'ok',    summary: '정상 범위 유지', aiNote: '양호한 환기 상태 지속' },
-    { date: '5월 15일 (목)', time: '10:00', status: 'ok',    summary: '안정적', aiNote: '특이사항 없음' },
+    {
+      date: '5월 21일 (수)', time: '10:00', status: 'watch',
+      summary: 'RR 상승 · MinVent 감소 감지됨',
+      metrics: [
+        { label:'PIP',     value:'18',  unit:'cmH₂O', tone:'ok',   trend:'steady', statusText:'기준 ±2' },
+        { label:'VTE',     value:'142', unit:'mL',    tone:'ok',   trend:'steady', statusText:'정상' },
+        { label:'RR',      value:'28',  unit:'bpm',   tone:'warn', trend:'up',     statusText:'+18%' },
+        { label:'LEAK',    value:'19',  unit:'L/min', tone:'ok',   trend:'steady', statusText:'허용' },
+        { label:'MINVENT', value:'3.97',unit:'L/min', tone:'warn', trend:'down',   statusText:'-12%' },
+      ],
+      survey: [
+        { q:'아이의 숨쉬기 상태', a:'좀 힘들어 보여요' },
+        { q:'SpO₂ 수치', a:'96% 확인' },
+        { q:'전반적 상태', a:'보통' },
+        { q:'기침/분비물', a:'아니요' },
+      ],
+      aiNote: '호흡수 증가 및 환기량 감소 추세 관찰 필요. 자세 변경 또는 흡인 시도 권고.',
+    },
+    {
+      date: '5월 20일 (화)', time: '09:30', status: 'ok',
+      summary: '전반적으로 안정적',
+      metrics: [
+        { label:'PIP',     value:'17',  unit:'cmH₂O', tone:'ok', trend:'steady', statusText:'기준 내' },
+        { label:'VTE',     value:'145', unit:'mL',    tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'RR',      value:'23',  unit:'bpm',   tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'LEAK',    value:'18',  unit:'L/min', tone:'ok', trend:'steady', statusText:'허용' },
+        { label:'MINVENT', value:'4.52',unit:'L/min', tone:'ok', trend:'steady', statusText:'정상' },
+      ],
+      survey: [
+        { q:'아이의 숨쉬기 상태', a:'평소와 같아요' },
+        { q:'SpO₂ 수치', a:'98% 확인' },
+        { q:'전반적 상태', a:'매우 좋음' },
+        { q:'기침/분비물', a:'아니요' },
+      ],
+      aiNote: '모든 지표 정상 범위 유지. 현재 상태 유지.',
+    },
+    {
+      date: '5월 19일 (월)', time: '10:15', status: 'ok',
+      summary: 'PIP 소폭 상승 후 안정',
+      metrics: [
+        { label:'PIP',     value:'20',  unit:'cmH₂O', tone:'ok', trend:'steady', statusText:'기준 내' },
+        { label:'VTE',     value:'140', unit:'mL',    tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'RR',      value:'24',  unit:'bpm',   tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'LEAK',    value:'17',  unit:'L/min', tone:'ok', trend:'steady', statusText:'허용' },
+        { label:'MINVENT', value:'4.38',unit:'L/min', tone:'ok', trend:'steady', statusText:'정상' },
+      ],
+      survey: [
+        { q:'아이의 숨쉬기 상태', a:'평소와 같아요' },
+        { q:'SpO₂ 수치', a:'97% 확인' },
+        { q:'전반적 상태', a:'보통' },
+        { q:'기침/분비물', a:'아니요' },
+      ],
+      aiNote: 'PIP 일시 상승이나 기준치 이내로 복귀. 지속 모니터링.',
+    },
+    {
+      date: '5월 18일 (일)', time: '09:55', status: 'ok',
+      summary: '안정적인 환기 유지',
+      metrics: [
+        { label:'PIP',     value:'17',  unit:'cmH₂O', tone:'ok', trend:'steady', statusText:'기준 내' },
+        { label:'VTE',     value:'143', unit:'mL',    tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'RR',      value:'22',  unit:'bpm',   tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'LEAK',    value:'18',  unit:'L/min', tone:'ok', trend:'steady', statusText:'허용' },
+        { label:'MINVENT', value:'4.60',unit:'L/min', tone:'ok', trend:'steady', statusText:'정상' },
+      ],
+      survey: [
+        { q:'아이의 숨쉬기 상태', a:'평소와 같아요' },
+        { q:'SpO₂ 수치', a:'98% 확인' },
+        { q:'전반적 상태', a:'매우 좋음' },
+        { q:'기침/분비물', a:'아니요' },
+      ],
+      aiNote: '지표 전반 안정적. 양호한 환기 유지.',
+    },
+    {
+      date: '5월 17일 (토)', time: '10:30', status: 'watch',
+      summary: 'LEAK 증가 감지됨',
+      metrics: [
+        { label:'PIP',     value:'18',  unit:'cmH₂O', tone:'ok',   trend:'steady', statusText:'기준 내' },
+        { label:'VTE',     value:'138', unit:'mL',    tone:'ok',   trend:'steady', statusText:'정상' },
+        { label:'RR',      value:'25',  unit:'bpm',   tone:'ok',   trend:'steady', statusText:'정상' },
+        { label:'LEAK',    value:'26',  unit:'L/min', tone:'warn', trend:'up',     statusText:'+37%' },
+        { label:'MINVENT', value:'4.12',unit:'L/min', tone:'warn', trend:'down',   statusText:'-8%' },
+      ],
+      survey: [
+        { q:'아이의 숨쉬기 상태', a:'좀 힘들어 보여요' },
+        { q:'SpO₂ 수치', a:'95% 확인' },
+        { q:'전반적 상태', a:'보통' },
+        { q:'기침/분비물', a:'조금 늘었어요' },
+      ],
+      aiNote: '마스크 피팅 확인 권고. LEAK 수치가 기준치 초과.',
+    },
+    {
+      date: '5월 16일 (금)', time: '09:45', status: 'ok',
+      summary: '정상 범위 유지',
+      metrics: [
+        { label:'PIP',     value:'17',  unit:'cmH₂O', tone:'ok', trend:'steady', statusText:'기준 내' },
+        { label:'VTE',     value:'144', unit:'mL',    tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'RR',      value:'22',  unit:'bpm',   tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'LEAK',    value:'17',  unit:'L/min', tone:'ok', trend:'steady', statusText:'허용' },
+        { label:'MINVENT', value:'4.55',unit:'L/min', tone:'ok', trend:'steady', statusText:'정상' },
+      ],
+      survey: [
+        { q:'아이의 숨쉬기 상태', a:'평소와 같아요' },
+        { q:'SpO₂ 수치', a:'98% 확인' },
+        { q:'전반적 상태', a:'매우 좋음' },
+        { q:'기침/분비물', a:'아니요' },
+      ],
+      aiNote: '양호한 환기 상태 지속.',
+    },
+    {
+      date: '5월 15일 (목)', time: '10:00', status: 'ok',
+      summary: '안정적',
+      metrics: [
+        { label:'PIP',     value:'16',  unit:'cmH₂O', tone:'ok', trend:'steady', statusText:'기준 내' },
+        { label:'VTE',     value:'146', unit:'mL',    tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'RR',      value:'21',  unit:'bpm',   tone:'ok', trend:'steady', statusText:'정상' },
+        { label:'LEAK',    value:'16',  unit:'L/min', tone:'ok', trend:'steady', statusText:'허용' },
+        { label:'MINVENT', value:'4.62',unit:'L/min', tone:'ok', trend:'steady', statusText:'정상' },
+      ],
+      survey: [
+        { q:'아이의 숨쉬기 상태', a:'평소와 같아요' },
+        { q:'SpO₂ 수치', a:'99% 확인' },
+        { q:'전반적 상태', a:'매우 좋음' },
+        { q:'기침/분비물', a:'아니요' },
+      ],
+      aiNote: '특이사항 없음. 안정적 환기 유지.',
+    },
   ];
 
   const statusColor = { ok: C.ok, watch: C.warn, alert: C.alert };
-  const statusLabel = { ok: '정상', watch: '관찰 필요', alert: '응급' };
+  const statusLabel = { ok: '안정', watch: '관찰 필요', alert: '위험' };
+
+  if (selectedIdx !== null) {
+    const rec = history[selectedIdx];
+    const sc = statusColor[rec.status];
+    return (
+      <div style={{ flex: 1, overflow: 'auto', paddingTop: 50, paddingBottom: 120, background: C.bg }}>
+        {/* 상단 뒤로 + 날짜 */}
+        <div style={{ padding: '14px 22px 4px' }}>
+          <button onClick={() => setSelectedIdx(null)} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: 0, display: 'inline-flex', alignItems: 'center', gap: 4,
+            fontSize: 12.5, fontWeight: 600, color: C.mute, marginBottom: 10,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M15 6l-6 6 6 6" stroke={C.mute} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            기록 목록으로
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: C.ink, letterSpacing: -0.6 }}>{rec.date}</div>
+            <span style={{
+              fontSize: 11, fontWeight: 700,
+              color: sc, background: sc + '18', borderRadius: 6, padding: '3px 9px',
+            }}>{statusLabel[rec.status]}</span>
+          </div>
+          <div style={{ fontSize: 12, color: C.mute, fontWeight: 500, marginTop: 2 }}>분석 시각 {rec.time}</div>
+        </div>
+
+        {/* V-PEP 5가지 지표 */}
+        <div style={{ padding: '14px 22px 6px', fontSize: 11, fontWeight: 700, color: C.mute, letterSpacing: 1.4, textTransform: 'uppercase' }}>V-PEP 환기 지표</div>
+        <div style={{ padding: '0 16px' }}>
+          <div style={{ background: C.card, borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+              {rec.metrics.slice(0, 4).map((m, i) => {
+                const accent = m.tone === 'alert' ? C.alert : m.tone === 'warn' ? C.warn : C.ok;
+                const borderR = i % 2 === 0 ? `1px solid ${C.line}` : 'none';
+                const borderB = i < 2 ? `1px solid ${C.line}` : 'none';
+                return (
+                  <div key={m.label} style={{ padding: '10px 14px', borderRight: borderR, borderBottom: borderB }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ fontSize: 9.5, fontWeight: 700, color: C.mute, letterSpacing: 1.2, textTransform: 'uppercase' }}>{m.label}</div>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: accent, background: accent + '18', borderRadius: 4, padding: '1px 5px' }}>
+                        {m.trend === 'steady' ? '안정' : m.trend === 'up' ? '상승' : '하강'}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginTop: 4 }}>
+                      <span style={{ fontSize: 20, fontWeight: 700, color: accent, letterSpacing: -0.5 }}>{m.value}</span>
+                      <span style={{ fontSize: 10, color: C.mute, fontWeight: 500 }}>{m.unit}</span>
+                      <span style={{ fontSize: 10, color: C.mute2, fontWeight: 500, marginLeft: 'auto' }}>{m.statusText}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* MINVENT */}
+            {(() => {
+              const m = rec.metrics[4];
+              const accent = m.tone === 'warn' ? C.warn : C.ok;
+              return (
+                <div style={{ borderTop: `1px solid ${C.line}`, padding: '10px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ fontSize: 9.5, fontWeight: 700, color: C.mute, letterSpacing: 1.2, textTransform: 'uppercase' }}>
+                      MINVENT <span style={{ fontWeight: 500, letterSpacing: 0, textTransform: 'none', color: C.mute2 }}>(분당환기량)</span>
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: accent, background: accent + '18', borderRadius: 4, padding: '1px 5px' }}>
+                      {m.trend === 'down' ? '하강' : '안정'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginTop: 4 }}>
+                    <span style={{ fontSize: 20, fontWeight: 700, color: accent, letterSpacing: -0.5 }}>{m.value}</span>
+                    <span style={{ fontSize: 10, color: C.mute, fontWeight: 500 }}>{m.unit}</span>
+                    <span style={{ fontSize: 10, color: C.mute2, fontWeight: 500, marginLeft: 'auto' }}>{m.statusText}</span>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+
+        {/* 문진 내용 */}
+        <div style={{ padding: '18px 22px 6px', fontSize: 11, fontWeight: 700, color: C.mute, letterSpacing: 1.4, textTransform: 'uppercase' }}>문진 내용</div>
+        <div style={{ padding: '0 16px' }}>
+          <div style={{ background: C.card, borderRadius: 18, overflow: 'hidden', boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)' }}>
+            {rec.survey.map((s, i) => (
+              <div key={i} style={{
+                padding: '12px 16px',
+                borderBottom: i < rec.survey.length - 1 ? `1px solid ${C.line}` : 'none',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+              }}>
+                <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500 }}>{s.q}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, letterSpacing: -0.2 }}>{s.a}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* AI 분석 */}
+        <div style={{ padding: '18px 22px 6px', fontSize: 11, fontWeight: 700, color: C.mute, letterSpacing: 1.4, textTransform: 'uppercase' }}>AI 분석</div>
+        <div style={{ padding: '0 16px' }}>
+          <div style={{
+            background: C.card, borderRadius: 18, padding: '16px',
+            boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+            borderLeft: `3px solid ${sc}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <div style={{
+                width: 20, height: 20, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #6c5aff 0%, #a89bff 100%)',
+                flexShrink: 0,
+              }}/>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink, letterSpacing: -0.2 }}>AI 분석 결과</span>
+            </div>
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: C.ink, lineHeight: 1.6, letterSpacing: -0.2, margin: 0 }}>
+              {rec.aiNote}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ flex: 1, overflow: 'auto', paddingTop: 50, paddingBottom: 120, background: C.bg }}>
@@ -1220,10 +1460,11 @@ function RecordTab({ onSurveyOpen }) {
       {/* 기록 목록 */}
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {history.map((item, i) => (
-          <div key={i} style={{
+          <div key={i} onClick={() => setSelectedIdx(i)} style={{
             background: C.card, borderRadius: 16, padding: '14px 16px',
             boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
             borderLeft: `3px solid ${statusColor[item.status]}`,
+            cursor: 'pointer',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>{item.date}</div>
@@ -1240,8 +1481,13 @@ function RecordTab({ onSurveyOpen }) {
             <div style={{ fontSize: 12.5, fontWeight: 600, color: C.ink2, letterSpacing: -0.2, marginBottom: 4 }}>
               {item.summary}
             </div>
-            <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>
-              AI 분석 · {item.aiNote}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>
+                AI 분석 · {item.aiNote.slice(0, 20)}…
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18l6-6-6-6" stroke={C.mute2} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
           </div>
         ))}
@@ -1584,7 +1830,37 @@ function Report() {
     ],
   };
 
-  const Bar = ({ pct, tone = 'ok' }) => (
+  const HISTOGRAM = {
+    hourly: [
+      { label:'PIP',     unit:'cmH₂O', avg:'17.8', min:'16', max:'19', tone:'ok',   bins:[1,2,4,7,10,12,10,7,4,2,1], mark:5 },
+      { label:'VTe',     unit:'mL',    avg:'141',  min:'136', max:'147', tone:'ok',  bins:[1,2,4,6,9,11,12,9,6,3,1], mark:6 },
+      { label:'RR',      unit:'bpm',   avg:'26.2', min:'24', max:'29',  tone:'warn', bins:[2,3,5,8,10,11,10,9,7,5,2], mark:7 },
+      { label:'Leak',    unit:'L/m',   avg:'18.5', min:'16', max:'21',  tone:'ok',   bins:[1,3,7,11,12,10,8,5,3,2,1], mark:4 },
+      { label:'MinVent', unit:'L/min', avg:'4.18', min:'3.9', max:'4.5',tone:'warn', bins:[1,2,4,6,8,10,11,9,7,5,3], mark:4 },
+    ],
+    daily: [
+      { label:'PIP',     unit:'cmH₂O', avg:'17.4', min:'15', max:'20', tone:'ok',   bins:[1,2,4,6,9,12,10,7,4,2,1], mark:7 },
+      { label:'VTe',     unit:'mL',    avg:'139',  min:'128', max:'152', tone:'ok',  bins:[1,2,3,5,8,11,12,9,6,3,1], mark:6 },
+      { label:'RR',      unit:'bpm',   avg:'24.6', min:'21', max:'30',  tone:'warn', bins:[2,3,5,8,11,10,9,8,7,5,3], mark:9 },
+      { label:'Leak',    unit:'L/m',   avg:'17.8', min:'12', max:'24',  tone:'ok',   bins:[2,5,9,12,10,8,6,4,3,2,1], mark:5 },
+      { label:'MinVent', unit:'L/min', avg:'4.31', min:'3.6', max:'5.0',tone:'warn', bins:[1,2,4,5,7,10,11,9,7,5,3], mark:4 },
+    ],
+    monthly: [
+      { label:'PIP',     unit:'cmH₂O', avg:'17.1', min:'14', max:'21', tone:'ok',   bins:[1,1,2,4,7,11,13,9,6,4,2], mark:6 },
+      { label:'VTe',     unit:'mL',    avg:'141',  min:'124', max:'156', tone:'ok',  bins:[1,1,3,5,7,10,12,11,8,5,2], mark:6 },
+      { label:'RR',      unit:'bpm',   avg:'23.8', min:'20', max:'31',  tone:'warn', bins:[1,3,5,8,12,11,9,8,6,4,2], mark:8 },
+      { label:'Leak',    unit:'L/m',   avg:'18.2', min:'11', max:'27',  tone:'ok',   bins:[1,3,6,10,12,11,8,5,3,2,1], mark:4 },
+      { label:'MinVent', unit:'L/min', avg:'4.37', min:'3.4', max:'5.2',tone:'warn', bins:[1,2,3,5,7,9,11,10,8,6,3], mark:5 },
+    ],
+  };
+
+  const AI_SUMMARY = {
+    hourly: '최근 6시간 추이를 보면 09:00~10:00 사이 RR이 상승하고 MinVent가 감소하는 패턴이 나타났습니다. 나머지 시간대는 안정적이었으며 PIP · VTe · Leak은 허용 범위 내에 있습니다.',
+    daily:  '이번 주 전반적으로 안정적이었습니다. 5월 21일 RR이 다소 상승 추세를 보이고 있어 추적이 필요합니다. 5월 17일에는 LEAK 증가로 마스크 피팅을 확인하였으며 현재 안정화됐습니다.',
+    monthly: '최근 5개월 데이터를 보면 2월과 5월에 RR 상승 및 MinVent 감소 에피소드가 관찰됐습니다. 장기 추세는 대체로 안정적이며 PIP · VTe는 기준 범위 내에서 유지되고 있습니다.',
+  };
+
+  const PERIOD_LABEL = { hourly: '시간대별', daily: '일간', monthly: '월간' };
     <div style={{
       flex: 1, height: 6, borderRadius: 4, background: 'rgba(14,17,22,0.06)',
       overflow: 'hidden',
@@ -1730,22 +2006,11 @@ function Report() {
 
       {/* 파라미터별 히스토그램 */}
       <div style={{ padding: '24px 22px 10px', fontSize: 11.5, fontWeight: 700, color: C.mute, letterSpacing: 1.2, textTransform: 'uppercase' }}>
-        파라미터별 분포 (주간)
+        파라미터별 분포 ({PERIOD_LABEL[period]})
       </div>
       <div style={{ padding: '0 16px' }}>
         <Card>
-          {[
-            { label: 'PIP',     unit: 'cmH₂O', avg: '17.4', min: '15', max: '20', tone: 'ok',
-              bins: [1,2,4,6,9,12,10,7,4,2,1], mark: 7 },
-            { label: 'VTe',     unit: 'mL',    avg: '139',  min: '128', max: '152', tone: 'ok',
-              bins: [1,2,3,5,8,11,12,9,6,3,1], mark: 6 },
-            { label: 'RR',      unit: 'bpm',   avg: '24.6', min: '21',  max: '30',  tone: 'warn',
-              bins: [2,3,5,8,11,10,9,8,7,5,3], mark: 9 },
-            { label: 'Leak',    unit: 'L/m',   avg: '17.8', min: '12',  max: '24',  tone: 'ok',
-              bins: [2,5,9,12,10,8,6,4,3,2,1], mark: 5 },
-            { label: 'MinVent', unit: 'L/min', avg: '4.31', min: '3.6', max: '5.0', tone: 'warn',
-              bins: [1,2,4,5,7,10,11,9,7,5,3], mark: 4 },
-          ].map((p, idx, arr) => {
+          {HISTOGRAM[period].map((p, idx, arr) => {
             const max = Math.max(...p.bins);
             const accent = p.tone === 'warn' ? C.warn : C.ok;
             return (
@@ -1794,7 +2059,7 @@ function Report() {
       <div style={{ padding: '18px 16px 0' }}>
         <Card>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>주간 AI 추론 요약</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>{PERIOD_LABEL[period]} AI 추론 요약</div>
             <span style={{
               fontSize: 10.5, color: C.mute, fontWeight: 600,
               background: 'rgba(14,17,22,0.05)', padding: '4px 9px', borderRadius: 100,
@@ -1807,7 +2072,7 @@ function Report() {
             <p style={{
               margin: 0, fontSize: 13, lineHeight: 1.65, color: C.ink2, letterSpacing: -0.2,
             }}>
-              이번 주 전반적으로 안정적이었습니다. 오늘(5/8) RR이 다소 상승 추세를 보이고 있어 추적이 필요합니다. PIP · VTe · Leak은 기준 범위를 유지하고 있습니다.
+              {AI_SUMMARY[period]}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
