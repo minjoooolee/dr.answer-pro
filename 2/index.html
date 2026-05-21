@@ -42,6 +42,9 @@
     0%   { opacity: 0; transform: translateY(8px); }
     100% { opacity: 1; transform: translateY(0); }
   }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
     0%   { transform: scale(0.8); opacity: 0.7; }
     100% { transform: scale(2.4); opacity: 0; }
   }
@@ -1082,14 +1085,92 @@ function TabBar({ active = 'home', onChange }) {
   );
 }
 
+// ─── Record tab: weekly history list ────────────────────────────
+function RecordTab({ onSurveyOpen }) {
+  const BLUE = '#3D6BE6';
+  const history = [
+    { date: '5월 21일 (수)', time: '10:00', status: 'watch', summary: 'RR 상승 · MinVent 감소 감지됨', aiNote: '호흡수 증가 및 환기량 감소 추세 관찰 필요' },
+    { date: '5월 20일 (화)', time: '09:30', status: 'ok',    summary: '전반적으로 안정적', aiNote: '모든 지표 정상 범위 유지' },
+    { date: '5월 19일 (월)', time: '10:15', status: 'ok',    summary: 'PIP 소폭 상승 후 안정', aiNote: 'PIP 일시 상승이나 기준치 이내로 복귀' },
+    { date: '5월 18일 (일)', time: '09:55', status: 'ok',    summary: '안정적인 환기 유지', aiNote: '지표 전반 안정적' },
+    { date: '5월 17일 (토)', time: '10:30', status: 'watch', summary: 'LEAK 증가 감지됨', aiNote: '마스크 피팅 확인 권고' },
+    { date: '5월 16일 (금)', time: '09:45', status: 'ok',    summary: '정상 범위 유지', aiNote: '양호한 환기 상태 지속' },
+    { date: '5월 15일 (목)', time: '10:00', status: 'ok',    summary: '안정적', aiNote: '특이사항 없음' },
+  ];
+
+  const statusColor = { ok: C.ok, watch: C.warn, alert: C.alert };
+  const statusLabel = { ok: '정상', watch: '관찰 필요', alert: '응급' };
+
+  return (
+    <div style={{ flex: 1, overflow: 'auto', paddingTop: 50, paddingBottom: 120, background: C.bg }}>
+      <div style={{ padding: '18px 22px 14px' }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: C.ink, letterSpacing: -0.7 }}>기록</div>
+        <div style={{ fontSize: 12.5, color: C.mute, fontWeight: 500, marginTop: 3 }}>지난 1주일 문진 기록</div>
+      </div>
+
+      {/* 이번 주 문진하기 버튼 */}
+      <div style={{ padding: '0 16px 16px' }}>
+        <button onClick={onSurveyOpen} style={{
+          width: '100%', padding: '15px 0', borderRadius: 16, border: 0, cursor: 'pointer',
+          background: C.ink, color: '#fff',
+          fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
+          boxShadow: '0 6px 18px rgba(14,17,22,0.18)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/>
+          </svg>
+          이번 주 문진하기
+        </button>
+      </div>
+
+      {/* 기록 목록 */}
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {history.map((item, i) => (
+          <div key={i} style={{
+            background: C.card, borderRadius: 16, padding: '14px 16px',
+            boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+            borderLeft: `3px solid ${statusColor[item.status]}`,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>{item.date}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: C.mute, fontWeight: 500 }}>{item.time}</span>
+                <span style={{
+                  fontSize: 10, fontWeight: 700, letterSpacing: 0.2,
+                  color: statusColor[item.status],
+                  background: statusColor[item.status] + '18',
+                  borderRadius: 4, padding: '2px 7px',
+                }}>{statusLabel[item.status]}</span>
+              </div>
+            </div>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: C.ink2, letterSpacing: -0.2, marginBottom: 4 }}>
+              {item.summary}
+            </div>
+            <div style={{ fontSize: 11.5, color: C.mute, fontWeight: 500, letterSpacing: -0.1 }}>
+              AI 분석 · {item.aiNote}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Status check survey (questionnaire) ────────────────────────
-function Survey({ onBack, onSubmit }) {
+function Survey({ onBack }) {
   const BLUE = '#3D6BE6';
   const [q1, setQ1] = React.useState('same');
   const [q2, setQ2] = React.useState('checked');
   const [spo2, setSpo2] = React.useState('96');
   const [q3, setQ3] = React.useState('great');
   const [q4, setQ4] = React.useState(null);
+  const [phase, setPhase] = React.useState('form'); // 'form' | 'loading' | 'done'
+
+  const handleSubmit = () => {
+    setPhase('loading');
+    setTimeout(() => setPhase('done'), 3000);
+  };
 
   const Chip = ({ active, onClick, children }) => (
     <button onClick={onClick} style={{
@@ -1250,18 +1331,85 @@ function Survey({ onBack, onSubmit }) {
       </div>
 
       {/* 제출 버튼 */}
-      <div style={{ padding: '22px 16px 0' }}>
-        <button
-          onClick={onSubmit || onBack}
-          style={{
-            width: '100%', padding: '16px 0', borderRadius: 16, border: 0, cursor: 'pointer',
-            background: C.ink, color: '#fff',
-            fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
-            boxShadow: '0 6px 18px rgba(14,17,22,0.18)',
+      {phase === 'form' && (
+        <div style={{ padding: '22px 16px 0' }}>
+          <button
+            onClick={handleSubmit}
+            style={{
+              width: '100%', padding: '16px 0', borderRadius: 16, border: 0, cursor: 'pointer',
+              background: C.ink, color: '#fff',
+              fontSize: 14.5, fontWeight: 700, letterSpacing: -0.3,
+              boxShadow: '0 6px 18px rgba(14,17,22,0.18)',
+            }}>
+            ✓ 입력 완료 · AI에게 전달하기
+          </button>
+        </div>
+      )}
+
+      {/* AI 분석 결과 (done 이후 표시) */}
+      {phase === 'done' && (
+        <div style={{ padding: '22px 16px 0', animation: 'fadeUp 0.5s ease both' }}>
+          <div style={{
+            background: C.card, borderRadius: 18, padding: '18px 18px 16px',
+            boxShadow: '0 1px 1.5px rgba(14,17,22,0.04)',
+            borderLeft: `3px solid ${C.warn}`,
           }}>
-          ✓ 입력 완료 · AI에게 전달하기
-        </button>
-      </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <div style={{
+                width: 22, height: 22, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #6c5aff 0%, #a89bff 100%)',
+                boxShadow: '0 0 8px rgba(108,90,255,0.45)',
+                flexShrink: 0,
+              }}/>
+              <span style={{ fontSize: 13, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>AI 분석 결과</span>
+              <span style={{
+                marginLeft: 'auto', fontSize: 10, fontWeight: 700,
+                color: C.warn, background: C.warn + '18', borderRadius: 4, padding: '2px 7px',
+              }}>관찰 필요</span>
+            </div>
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: C.ink, lineHeight: 1.6, letterSpacing: -0.2, margin: 0 }}>
+              호흡 상태는 평소와 유사하고 SpO₂도 정상 범위이나, RR이 기준보다 높고 분당환기량이 소폭 감소해 있어요.
+              분비물 증가가 없다면 자세 변경이나 흡인을 시도해 보세요.
+            </p>
+            <div style={{
+              marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.line}`,
+              fontSize: 11, color: C.mute, fontWeight: 500,
+            }}>
+              분석 시각 10:00 · 다음 자동 분석 11:00
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 로딩 오버레이 */}
+      {phase === 'loading' && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 250,
+          background: 'rgba(14,17,22,0.40)', backdropFilter: 'blur(5px)',
+          WebkitBackdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px',
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: 20, padding: '30px 28px',
+            textAlign: 'center', width: '100%',
+            boxShadow: '0 12px 40px rgba(14,17,22,0.18)',
+          }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: '50%',
+              border: `3px solid rgba(75,59,224,0.15)`,
+              borderTopColor: C.accent,
+              animation: 'spin 0.9s linear infinite',
+              margin: '0 auto 16px',
+            }}/>
+            <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, letterSpacing: -0.3 }}>
+              AI에게 전달되었어요
+            </div>
+            <div style={{ fontSize: 12, color: C.mute, marginTop: 5, letterSpacing: -0.1 }}>
+              입력하신 내용을 분석 중이에요
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2318,15 +2466,6 @@ function Pairing({ pair, setPair, onDone, onBack }) {
 function App() {
   const [authed, setAuthed] = React.useState(false);
   const [screen, setScreen] = React.useState('home');
-  const [submitting, setSubmitting] = React.useState(false);
-
-  const handleSubmit = () => {
-    setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      setScreen('home');
-    }, 1100);
-  };
 
   if (!authed) {
     return (
@@ -2343,14 +2482,17 @@ function App() {
           onWorry={() => setScreen('record')}
         />
       )}
-      {screen === 'record' && <Survey onBack={() => setScreen('home')} onSubmit={handleSubmit}/>}
+      {screen === 'record' && <RecordTab onSurveyOpen={() => setScreen('survey')}/>}
+      {screen === 'survey' && <Survey onBack={() => setScreen('record')}/>}
       {screen === 'report' && <Report/>}
       {screen === 'user' && <MyInfo onLogout={() => {
         setAuthed(false);
         setScreen('home');
       }}/>}
-      <TabBar active={screen === 'home' ? 'home' : screen} onChange={setScreen}/>
-      {submitting && <SubmitToast/>}
+      <TabBar active={screen === 'home' ? 'home' : (screen === 'survey' ? 'record' : screen)} onChange={(s) => {
+        if (s === 'record') setScreen('record');
+        else setScreen(s);
+      }}/>
     </IOSDevice>
   );
 }
