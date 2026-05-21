@@ -343,9 +343,9 @@ function MeshOrb({ size = 96, status = 'ok' }) {
 
 // ─── HOME ───────────────────────────────────────────────────────
 const STATUS_UI = {
-  ok:    { label: '정상',     labelColor: '#5dffa0', gradColor: 'rgba(30,200,90,0.28)'  },
+  ok:    { label: '안정',     labelColor: '#2BB673', gradColor: 'rgba(30,200,90,0.28)'  },
   watch: { label: '관찰 필요', labelColor: '#E0883A', gradColor: 'rgba(220,130,30,0.28)' },
-  alert: { label: '응급 상황', labelColor: '#ff7777', gradColor: 'rgba(220,40,40,0.30)'  },
+  alert: { label: '위험',     labelColor: '#D14B5C', gradColor: 'rgba(220,40,40,0.30)'  },
 };
 
 function SyncIndicator({ synced = false }) {
@@ -687,9 +687,11 @@ function Home({ onWorry }) {
   const sui = STATUS_UI[STATUS];
 
   const STATUS_MSG = {
+    ok:    { line1: '민준이는 지금', line2: '편안한 상태예요.', btn: null },
     watch: { line1: '호흡이 평소보다 빠르고', line2: '환기량이 설정치보다 낮아요.', btn: '문진하기' },
     alert: { line1: '호흡 부전 위험 수치가 감지됐어요.', line2: '즉시 아이 상태를 확인하세요.', btn: '응급 확인 필요' },
   };
+  const cycleStatus = () => setStatus(s => s === 'watch' ? 'alert' : s === 'alert' ? 'ok' : 'watch');
   const ALERT_METRICS = { pip:'26', vte:'88', rr:'48', leak:'32', minvent:'2.40' };
 
   const [vpepMode, setVpepMode] = React.useState('photo'); // 'photo' | 'live'
@@ -778,7 +780,7 @@ function Home({ onWorry }) {
               fontSize: 10, fontWeight: 700, letterSpacing: 1.6,
               color: C.mute, textTransform: 'uppercase',
             }}>지난 1시간 요약</div>
-            <button onClick={() => setStatus(s => s === 'watch' ? 'alert' : 'watch')} style={{
+            <button onClick={cycleStatus} style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
               padding: '3px 9px', borderRadius: 100,
               background: sui.labelColor + '14',
