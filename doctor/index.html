@@ -1672,7 +1672,7 @@ const PLAN_SECTIONS = [
   { k:'all',      l:'전체',           ai: true },
   { k:'diet',     l:'식이처방' },
   { k:'exercise', l:'운동처방' },
-  { k:'measure',  l:'자기측정처방' },
+  { k:'measure',  l:'PRO 처방' },
   { k:'triage',   l:'트리아제 트리거' },
   { k:'next',     l:'다음 외래 일정' },
   { k:'custom',   l:'의료진 직접 처방' },
@@ -2572,7 +2572,7 @@ function PlanPanel({ plan, setPlan }) {
   const sectionsForAll = [
     { k:'diet',     l:'식이 처방',         render: sectionsRender.diet },
     { k:'exercise', l:'운동 처방 (FITT)',  render: sectionsRender.exercise },
-    { k:'measure',  l:'자기 측정 처방',    render: sectionsRender.measure },
+    { k:'measure',  l:'PRO 처방',         render: sectionsRender.measure },
     { k:'triage',   l:'트리아제 트리거',   render: sectionsRender.triage },
     { k:'next',     l:'다음 외래 일정',    render: sectionsRender.next },
     { k:'custom',   l:'의료진 직접 처방',  render: sectionsRender.custom },
