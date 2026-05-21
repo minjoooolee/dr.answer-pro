@@ -958,6 +958,150 @@ const NUTRITION_ITEMS = [
 ];
 const NUTRITION_TOTAL = { kcal:471, protein:'74g', carb:'1g', fat:'17g' };
 
+const TRIAGE_SUMMARIES = [
+  {
+    category:'잦은 설사 (1일 6회 이상)',
+    source:'문진하기',
+    text:'오늘 설사 횟수가 8회로 보고되어 1일 6회 기준을 초과했어요. 항암 치료 중 grade 2 이상의 설사로 분류되며, 탈수·전해질 이상 위험이 있어 외래 평가가 필요합니다.',
+  },
+  {
+    category:'38°C 이상의 발열',
+    source:'실시간 활력징후',
+    text:'오늘 18:00 측정 시 체온 38.2°C로 발열 기준(≥38°C)을 초과했어요. 항암 치료 중 호중구 감소성 발열(neutropenic fever) 가능성을 평가받으셔야 합니다.',
+  },
+];
+
+function TriageReport({ dark, onClose }) {
+  const [stage, setStage] = React.useState('loading');
+  React.useEffect(() => {
+    const t = setTimeout(() => setStage('result'), 1800);
+    return () => clearTimeout(t);
+  }, []);
+
+  const Y_LIGHT = '#f59e0b';
+  const Y_DARK  = '#d97706';
+
+  if (stage === 'loading') {
+    return (
+      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'48px 0', minHeight:280 }}>
+        <div style={{ position:'relative', width:88, height:88, marginBottom:26 }}>
+          <div style={{
+            position:'absolute', inset:0, borderRadius:'50%',
+            border:`3px solid ${dark?'rgba(245,158,11,0.16)':'rgba(245,158,11,0.18)'}`,
+            borderTopColor:Y_LIGHT,
+            animation:'aiRotate 1.1s linear infinite',
+          }} />
+          <div style={{
+            position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)',
+            width:44, height:44, borderRadius:'50%',
+            background:`linear-gradient(135deg, ${Y_LIGHT}, ${Y_DARK})`,
+            boxShadow:`0 6px 20px ${Y_LIGHT}66`,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontSize:20, color:'#fff', fontWeight:800,
+          }}>✓</div>
+        </div>
+        <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:18, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:8, textAlign:'center' }}>
+          증상 체크가 완료됐어요!
+        </div>
+        <div style={{ fontFamily:'Pretendard', fontWeight:500, fontSize:13.5, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em', textAlign:'center' }}>
+          지금 위험도를 계산중입니다…
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div style={{ fontFamily:'Poppins', fontWeight:400, fontSize:11, letterSpacing:'0.22em', textTransform:'uppercase', color:Y_DARK, marginBottom:8 }}>TRIAGE REPORT</div>
+      <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:22, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:18 }}>🩺 트리아제 리포트</div>
+
+      {/* 종합 평가 배너 */}
+      <div style={{
+        borderRadius:18, padding:'20px 18px', marginBottom:18,
+        background: dark?'rgba(245,158,11,0.16)':'rgba(245,158,11,0.12)',
+        border:`1.5px solid ${dark?'rgba(245,158,11,0.40)':'rgba(245,158,11,0.35)'}`,
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+          <div style={{ width:34, height:34, borderRadius:'50%', background:`linear-gradient(135deg, ${Y_LIGHT}, ${Y_DARK})`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, color:'#fff', boxShadow:`0 4px 12px ${Y_LIGHT}55` }}>!</div>
+          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:13, color: Y_DARK, letterSpacing:'-0.01em' }}>오늘의 종합 평가</div>
+        </div>
+        <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:19, color: dark?'#fff':'#3d2900', letterSpacing:'-0.02em', lineHeight:1.45 }}>
+          주의가 필요한 증상이 있어,<br/>
+          <span style={{ background: dark?'rgba(245,158,11,0.26)':'rgba(245,158,11,0.32)', padding:'2px 6px', borderRadius:6 }}>24시간 이내 외래에 방문하는 걸 권장드려요.</span>
+        </div>
+      </div>
+
+      {/* 위험도 스케일 */}
+      <div style={{
+        borderRadius:16, padding:'16px 18px', marginBottom:22,
+        background: dark?'rgba(255,255,255,0.04)':'#fff',
+        border:`1px solid ${dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.07)'}`,
+      }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+          <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12, color: dark?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.55)', letterSpacing:'-0.01em' }}>건강 위험도</div>
+          <div style={{ fontFamily:'Pretendard', fontWeight:800, fontSize:14, color: Y_LIGHT, letterSpacing:'-0.01em' }}>주의</div>
+        </div>
+        <div style={{ position:'relative', height:10, borderRadius:5, marginBottom:10,
+          background:'linear-gradient(90deg, #41d2b4 0%, #41d2b4 33%, #f59e0b 33%, #f59e0b 66%, #ee3f60 66%, #ee3f60 100%)',
+          opacity:0.85,
+        }}>
+          <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)',
+            width:20, height:20, borderRadius:'50%', background:'#fff',
+            boxShadow:`0 0 0 3px ${Y_LIGHT}, 0 2px 8px rgba(0,0,0,0.18)`,
+          }} />
+        </div>
+        <div style={{ display:'flex', justifyContent:'space-between' }}>
+          {['낮음','주의','위험'].map((lbl, i) => {
+            const active = i === 1;
+            const baseColor = i === 0 ? '#2dbfa0' : (i === 1 ? Y_LIGHT : '#ee3f60');
+            return (
+              <div key={lbl} style={{ flex:1, textAlign: i === 0 ? 'left' : (i === 1 ? 'center' : 'right'), fontFamily:'Pretendard', fontWeight: active ? 800 : 500, fontSize:11.5, color: active ? baseColor : (dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)'), letterSpacing:'-0.01em' }}>{lbl}</div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 이렇게 판단한 이유는요? */}
+      <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:15, color: dark?'#fff':'#000', letterSpacing:'-0.02em', marginBottom:10 }}>
+        이렇게 판단한 이유는요?
+      </div>
+
+      <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:18 }}>
+        {TRIAGE_SUMMARIES.map((s, i) => (
+          <div key={i} style={{
+            borderRadius:14, padding:'12px 14px',
+            background: dark?'rgba(255,255,255,0.04)':'#fff',
+            border:`1px solid ${dark?'rgba(245,158,11,0.30)':'rgba(245,158,11,0.22)'}`,
+            borderLeft:`3px solid ${Y_LIGHT}`,
+            display:'flex', alignItems:'flex-start', gap:10,
+          }}>
+            <span style={{
+              flex:'0 0 auto', width:24, height:24, borderRadius:'50%',
+              background: dark?'rgba(245,158,11,0.22)':'rgba(245,158,11,0.18)',
+              color: Y_DARK,
+              display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, fontFamily:'Pretendard',
+            }}>!</span>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4, flexWrap:'wrap' }}>
+                <div style={{ fontFamily:'Pretendard', fontWeight:700, fontSize:12.5, color: dark?'#fff':'#000', letterSpacing:'-0.01em' }}>{s.category}</div>
+                <span style={{ fontFamily:'Pretendard', fontWeight:600, fontSize:9.5, color: dark?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)', padding:'2px 7px', borderRadius:6, background: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)', letterSpacing:'-0.01em' }}>📍 {s.source}</span>
+              </div>
+              <div style={{ fontFamily:'Pretendard', fontWeight:400, fontSize:12, color: dark?'rgba(255,255,255,0.65)':'rgba(0,0,0,0.6)', lineHeight:1.6 }}>{s.text}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={onClose} style={{
+        width:'100%', height:54, borderRadius:16, border:'none', cursor:'pointer',
+        background:`linear-gradient(135deg, ${Y_LIGHT}, ${Y_DARK})`, color:'#fff',
+        fontFamily:'Pretendard', fontWeight:800, fontSize:15,
+        letterSpacing:'-0.01em', boxShadow:`0 8px 22px ${Y_LIGHT}55`,
+      }}>확인</button>
+    </>
+  );
+}
+
 function NutritionCard({ dark, accent = '#41d2b4' }) {
   const row = (label, val) => (
     <div key={label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
@@ -2790,27 +2934,7 @@ function PROScreen({ tweaks, setTweak }) {
                     >{surveyStep < SURVEY_CATEGORIES.length - 1 ? '다음' : '완료'}</button>
                   </>
                 ) : (
-                  <>
-                    <div style={{ textAlign:'center', padding:'12px 0 20px' }}>
-                      <div style={{ fontSize:40, marginBottom:14 }}>✅</div>
-                      <div style={{
-                        fontFamily:'Pretendard', fontWeight:800, fontSize:20,
-                        color: dark ? '#fff' : '#000', letterSpacing:'-0.02em', marginBottom:6,
-                      }}>문진이 완료되었습니다</div>
-                      <div style={{
-                        fontFamily:'Pretendard', fontWeight:400, fontSize:14,
-                        color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
-                      }}>오늘의 건강 기록이 저장되었습니다</div>
-                    </div>
-                    <button onClick={closeSheet}
-                      style={{
-                        width:'100%', height:54, borderRadius:16, border:'none', cursor:'pointer',
-                        background:C.purple, color:'#fff',
-                        fontFamily:'Pretendard', fontWeight:800, fontSize:15,
-                        letterSpacing:'-0.01em',
-                        boxShadow:'0 8px 22px rgba(125,80,240,0.35)',
-                      }}>확인</button>
-                  </>
+                  <TriageReport dark={dark} onClose={closeSheet} />
                 )
               ) : surveyMode === 'voice' ? (
                 surveyStep < SURVEY_CATEGORIES.length ? (
@@ -2931,26 +3055,7 @@ function PROScreen({ tweaks, setTweak }) {
                     </div>
                   </>
                 ) : (
-                  <>
-                    {/* completion */}
-                    <div style={{ textAlign: 'center', padding: '12px 0 20px' }}>
-                      <div style={{ fontSize: 40, marginBottom: 14 }}>✅</div>
-                      <div style={{
-                        fontFamily: 'Pretendard', fontWeight: 800, fontSize: 20,
-                        color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
-                      }}>문진이 완료되었습니다</div>
-                      <div style={{
-                        fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
-                        color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
-                      }}>오늘의 건강 기록이 저장되었습니다</div>
-                    </div>
-                    <button onClick={closeSheet} style={{
-                      width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
-                      background: C.purple, color: '#fff',
-                      fontFamily: 'Pretendard', fontWeight: 800, fontSize: 15,
-                      letterSpacing: '-0.01em', boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
-                    }}>확인</button>
-                  </>
+                  <TriageReport dark={dark} onClose={closeSheet} />
                 )
               ) : surveyStep < SURVEY_CATEGORIES.length ? (
                 <>
@@ -3059,32 +3164,7 @@ function PROScreen({ tweaks, setTweak }) {
                   </div>
 </>
               ) : (
-                <>
-                  {/* completion */}
-                  <div style={{
-                    textAlign: 'center', padding: '12px 0 20px',
-                  }}>
-                    <div style={{ fontSize: 40, marginBottom: 14 }}>✅</div>
-                    <div style={{
-                      fontFamily: 'Pretendard', fontWeight: 800, fontSize: 20,
-                      color: dark ? '#fff' : '#000', letterSpacing: '-0.02em', marginBottom: 6,
-                    }}>문진이 완료되었습니다</div>
-                    <div style={{
-                      fontFamily: 'Pretendard', fontWeight: 400, fontSize: 14,
-                      color: dark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)',
-                    }}>오늘의 건강 기록이 저장되었습니다</div>
-                  </div>
-                  <button
-                    onClick={closeSheet}
-                    style={{
-                      width: '100%', height: 54, borderRadius: 16, border: 'none', cursor: 'pointer',
-                      background: C.purple, color: '#fff',
-                      fontFamily: 'Pretendard', fontWeight: 800, fontSize: 15,
-                      letterSpacing: '-0.01em',
-                      boxShadow: '0 8px 22px rgba(125,80,240,0.35)',
-                    }}
-                  >확인</button>
-                </>
+                <TriageReport dark={dark} onClose={closeSheet} />
               )
             ) : activeTag === '식단' ? (
               <>
