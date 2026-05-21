@@ -2059,7 +2059,6 @@ function PlanAiNotice({ children }) {
 function DietSection({ d, set }) {
   return (
     <div>
-      <PlanAiNotice>각 환자 상태에 맞게 AI가 처방 수치를 자동 셋팅해드립니다.</PlanAiNotice>
       <Card>
         <SubHeader>권장</SubHeader>
         <Field label="과일·채소">
@@ -2571,12 +2570,18 @@ function PlanPanel({ plan, setPlan }) {
       {/* 우측 폼 (preview 컬럼 제거) */}
       <div className="scroll" style={{ flex: 1, minWidth: 0, overflowY:'auto', padding: '18px 24px 24px' }}>
         {section === 'all' ? (
-          sectionsForAll.map((s, i) => (
-            <div key={s.k} style={{ marginBottom: i === sectionsForAll.length - 1 ? 0 : 22 }}>
-              <SectionTitle num={i + 1}>{s.l}</SectionTitle>
-              {s.render}
-            </div>
-          ))
+          <>
+            <PlanAiNotice>
+              각 환자 상태에 맞게 AI가 처방 수치를 자동 셋팅해드립니다.<br/>
+              의료진의 최종 확인이 필요합니다.
+            </PlanAiNotice>
+            {sectionsForAll.map((s, i) => (
+              <div key={s.k} style={{ marginBottom: i === sectionsForAll.length - 1 ? 0 : 22 }}>
+                <SectionTitle num={i + 1}>{s.l}</SectionTitle>
+                {s.render}
+              </div>
+            ))}
+          </>
         ) : (
           <>
             <SectionTitle num={PLAN_SECTIONS.findIndex(s => s.k === section)}>
